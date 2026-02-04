@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>DuDuCat</title>
+  <title>Wanlon-Lesa</title>
   <!-- 引入Google在线哥特体（全用户兼容） -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;700&display=swap">
   <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,12 +14,13 @@
       box-sizing: border-box;
       user-select: none;
     }
-    /* 全局图片样式：自适应+防拉伸+防溢出（核心） */
+    /* 全局图片样式：强制覆盖，配合滑动框统一高度 */
     img {
-      max-width: 100%;
-      height: auto;
-      display: inline-block;
-      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover; /* 裁剪保持比例，不拉伸 */
+      border: 0;
     }
 
     body {
@@ -29,6 +30,7 @@
       background-attachment: fixed;
       color: #000;
       padding-bottom: 50px;
+      padding: 0 10px; /* 手机端左右留边 */
     }
 
     /* 液态玻璃核心样式 */
@@ -39,21 +41,23 @@
       border: 1px solid rgba(255, 255, 255, 0.4);
       border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin: 0 auto 40px; /* 模块之间留间距，居中 */
     }
 
     header {
       position: sticky;
       top: 0;
       z-index: 999;
-      padding: 0 16px;
+      padding: 10px 16px;
+      width: 100%;
+      max-width: 1200px;
     }
     nav {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 16px 24px;
+      width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap; /* 手机端导航换行 */
     }
 
     /* 导航栏logo容器：文字+图片水平居中，文字左、logo右 */
@@ -63,29 +67,30 @@
       color: #000;
       display: flex;
       align-items: center;
-      gap: 12px; /* 文字和logo的间距，协调不挤 */
+      gap: 12px; /* 文字和logo的间距 */
     }
-    /* 导航栏本地小logo：圆角+柔化边缘+防变形，适配液态玻璃 */
+    /* 导航栏本地小logo：圆角+柔化边缘+防变形 */
     .Wanlon-logo {
       width: 36px;
       height: 36px;
       border-radius: 10px; /* 圆润圆角 */
       filter: blur(0.8px); /* 柔化边缘 */
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* 增强柔化质感 */
-      object-fit: cover; /* 裁剪不拉伸 */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      object-fit: cover;
     }
 
     ul {
       list-style: none;
       display: flex;
-      gap: 24px;
+      gap: 16px; /* 缩小导航间距，适配手机 */
+      margin-top: 10px;
     }
     a {
       color: #000;
       text-decoration: none;
-      font-size: 18px;
+      font-size: 16px; /* 缩小导航文字 */
       transition: all 0.3s ease;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 8px;
     }
     a:hover {
@@ -95,18 +100,17 @@
 
     .hero {
       max-width: 1200px;
-      margin: 60px auto 80px;
-      padding: 48px 32px;
+      padding: 30px 20px;
       text-align: center;
     }
     .hero h1 {
       margin: 0 0 16px;
-      font-size: 48px;
+      font-size: 36px; /* 缩小主标题，适配手机 */
       font-weight: bold;
     }
     .hero p {
-      margin: 0 0 32px;
-      font-size: 20px;
+      margin: 0 0 24px;
+      font-size: 18px;
       color: #333;
       line-height: 1.6;
     }
@@ -114,16 +118,16 @@
     .buttons {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 15px;
       flex-wrap: wrap;
     }
     .btn {
       display: inline-block;
-      padding: 12px 24px;
+      padding: 10px 20px;
       border-radius: 12px;
       text-decoration: none;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 16px;
       transition: all 0.3s ease;
       border: 1px solid rgba(255, 255, 255, 0.6);
     }
@@ -140,118 +144,136 @@
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
     }
 
-    /* About板块：文字左、滑动框右 + 响应式 */
+    /* About板块：核心样式 */
     .about {
       max-width: 1200px;
-      margin: 0 auto 80px;
-      padding: 40px 32px;
-      line-height: 2;
+      padding: 30px 20px;
     }
     .about h2 {
-      font-size: 36px;
-      margin-bottom: 24px;
+      font-size: 28px;
+      margin-bottom: 20px;
       font-weight: bold;
       text-align: center;
     }
-    /* 图文容器：文字左、滑动框右，小屏幕自动滑动框上文下 */
+    /* 图文容器：适配电脑/手机布局 */
     .about-content {
       display: flex;
       align-items: center;
-      gap: 40px; /* 文字和滑动框的间距 */
+      gap: 20px;
       flex-wrap: wrap;
       justify-content: center;
     }
-    /* 自我介绍文字容器：占比自适应，小屏幕不挤 */
+    /* 文字容器：自适应宽度 */
     .about-text {
       flex: 1;
-      min-width: 300px;
-      font-size: 20px;
+      min-width: 280px;
+      font-size: 18px;
     }
     .about-text p {
       margin-bottom: 8px;
     }
+    /* 图片框容器：包裹同板块的两个滑动框，统一控制 */
+    .slide-box-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
 
-    /* 核心：滑动图片框样式（替代原有Wanlon-logo1，保留所有风格） */
+    /* 核心：滑动图片框样式 - 强制统一高度+宽度，保留液态玻璃风格 */
     .slide-box {
       position: relative;
-      max-width: 220px;
+      width: 220px; /* 固定宽度 */
+      height: 300px; /* 强制统一高度！所有图片框都一样高，可自行修改 */
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.4);
       filter: blur(0.5px);
       box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      overflow: hidden; /* 隐藏超出的图片，滑动核心 */
+      overflow: hidden; /* 隐藏超出图片，滑动核心 */
+      flex-shrink: 0; /* 不被挤压，保持宽度 */
     }
-    /* 图片滚动容器：横向排列 */
+    /* 图片滚动容器：横向排列，滑动核心 */
     .slide-inner {
       display: flex;
-      transition: transform 0.3s ease; /* 滑动丝滑过渡 */
+      width: 100%;
+      height: 100%;
+      transition: transform 0.3s ease-in-out; /* 滑动更丝滑 */
     }
     /* 单张图片容器：占满滑动框 */
     .slide-item {
       flex: 0 0 100%;
       width: 100%;
-    }
-    .slide-item img {
-      width: 100%;
       height: 100%;
-      object-fit: cover;
-      border-radius: 11px; /* 比外框小1px，避免边框重叠 */
     }
     /* 滑动切换箭头：液态玻璃风格，悬浮高亮 */
     .slide-btn {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.7);
-      backdrop-filter: blur(4px);
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(6px);
       border: none;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 16px;
       color: #333;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 10;
       transition: all 0.2s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      /* 防止箭头被选中 */
+      user-select: none;
+      -webkit-user-select: none;
     }
     .slide-btn:hover {
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,1);
       color: #000;
     }
     /* 左右箭头位置 */
-    .slide-prev { left: 6px; }
-    .slide-next { right: 6px; }
-    /* 清除按钮默认样式 */
-    .slide-btn:focus { outline: none; }
+    .slide-prev { left: 10px; }
+    .slide-next { right: 10px; }
+    /* 清除按钮默认样式，避免点击异常 */
+    .slide-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(100,100,100,0.3);
+    }
 
-    /* 响应式适配：手机端优化所有元素（和原有样式统一） */
+    /* 响应式：手机端（768px以下）专属样式 */
     @media (max-width: 768px) {
-      .hero h1 { font-size: 36px; }
-      .about h2 { font-size: 28px; }
-      ul { gap: 16px; }
-      a { font-size: 16px; }
+      .logo { font-size: 20px; }
       .Wanlon-logo { width: 32px; height: 32px; }
-      .logo { font-size: 22px; }
-      .slide-box { max-width: 180px; } /* 滑动框缩小 */
-      .about-content { gap: 24px; } /* 间距收紧 */
-      .slide-btn { width: 30px; height: 30px; font-size: 12px; } /* 箭头缩小 */
+      ul { gap: 10px; }
+      a { font-size: 14px; padding: 4px 8px; }
+      /* 手机端滑动框缩小，保持统一高度 */
+      .slide-box {
+        width: 160px;
+        height: 220px; /* 手机端也统一高度，和电脑端比例一致 */
+      }
+      .slide-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+      }
+      .slide-box-group { gap: 10px; }
+      .about-content { gap: 15px; }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <nav class="glass">
+  <header class="glass">
+    <nav>
       <div class="logo">
         Wanlon-lesa
         <img src="./images/Wanlon-logo.png" alt="Wanlon-lesa nav logo" class="Wanlon-logo">
       </div>
       <ul>
-        <li><a href="#about">About</a></li>
+        <li><a href="#about1">About</a></li>
         <li><a href="#projects">Projects</a></li>
         <li><a href="#skills">Skills</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -265,12 +287,12 @@
     <div class="buttons">
       <a class="btn contact" href="#contact">Contact Us</a>
       <a class="btn files" download>Files Access</a>
-      <a class="btn ai-agent" href="#wanlon-ciraduro">Our AI Agent</a>
+      <a class="btn ai-agent" href="#about1">Our AI Agent</a>
     </div>
   </section>
 
-  <!-- 第一个About板块：Wanlon-Ciraduro 滑动图片框 -->
-  <section class="about glass">
+  <!-- 第一个About板块：Wanlon-Ciraduro → 组1：slide1+slide2 → 手机端联动 -->
+  <section id="about1" class="about glass">
     <h2>Wanlon-Ciraduro: Our AI Agent</h2>
     <div class="about-content">
       <div class="about-text">
@@ -279,127 +301,165 @@
         <p>I can write poems and articles for you!!!</p>
         <p>Can I do you a favor?</p>
       </div>
-      <!-- 滑动图片框：替换原有单张图片，id=slide1 独立控制 -->
-      <div class="slide-box" id="slide1">
-        <div class="slide-inner" id="slideInner1">
-          <!-- 图片1：原有图片，可直接加多张 -->
-          <div class="slide-item">
-            <img src="./images/Wanlon-logo1.jpg" alt="Wanlon-Ciraduro-1">
+      <!-- 图片框组1：标记group="1" -->
+      <div class="slide-box-group" group="1">
+        <!-- 滑动框1：group1  -->
+        <div class="slide-box" id="slide1" group="1">
+          <div class="slide-inner" id="slideInner1">
+            <div class="slide-item"><img src="./images/Wanlon-logo1.jpg" alt="Wanlon-Ciraduro-1"></div>
+            <div class="slide-item"><img src="./images/Wanlon-logo2.jpg" alt="Wanlon-Ciraduro-2"></div>
+            <div class="slide-item"><img src="./images/Wanlon-logo3.png" alt="Wanlon-Ciraduro-3"></div>
           </div>
-          <!-- 图片2：复制此段改路径即可新增，无限加 -->
-          <div class="slide-item">
-            <img src="./images/Wanlon-logo2.jpg" alt="Wanlon-Ciraduro-2">
-          </div>
-          <!-- 图片3：示例，可删除/新增 -->
-          <div class="slide-item">
-            <img src="./images/Wanlon-logo3.jpg" alt="Wanlon-Ciraduro-3">
-          </div>
+          <button class="slide-btn slide-prev" onclick="changeSlide('slide1', -1)"><<i class="fas fa-chevron-left"></</i></button>
+          <button class="slide-btn slide-next" onclick="changeSlide('slide1', 1)"><<i class="fas fa-chevron-right"></</i></button>
         </div>
-        <!-- 切换箭头 -->
-        <button class="slide-btn slide-prev" onclick="prevSlide(1)"><i class="fas fa-chevron-left"></i></button>
-        <button class="slide-btn slide-next" onclick="nextSlide(1)"><i class="fas fa-chevron-right"></i></button>
+        <!-- 滑动框2：group1  -->
+        <div class="slide-box" id="slide2" group="1">
+          <div class="slide-inner" id="slideInner2">
+            <div class="slide-item"><img src="./images/Wanlon-logo4.jpg" alt="Wanlon-Ciraduro-4"></div>
+            <div class="slide-item"><img src="./images/Wanlon-logo5.jpg" alt="Wanlon-Ciraduro-5"></div>
+            <div class="slide-item"><img src="./images/Wanlon-logo6.png" alt="Wanlon-Ciraduro-6"></div>
+          </div>
+          <button class="slide-btn slide-prev" onclick="changeSlide('slide2', -1)"><<i class="fas fa-chevron-left"></</i></button>
+          <button class="slide-btn slide-next" onclick="changeSlide('slide2', 1)"><<i class="fas fa-chevron-right"></</i></button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 第二个About板块：Wanlon-Lauch'rft 滑动图片框 -->
-  <section class="about glass">
+  <!-- 第二个About板块：Wanlon-Lauch'rft → 组2：slide3+slide4 → 手机端联动 -->
+  <section id="about2" class="about glass">
     <h2>Wanlon-Lauch'rft: The Dictionary of Wanlon-Lesa</h2>
     <div class="about-content">
       <div class="about-text">
-        <p>This is the ever first Wanlon-Lesa Lauch'rft.</p>
+        <p>This is the ever first Wanlon-Lesa Forhigour.</p>
         <p>We love to learn Wanlon-Lesa from it.</p>
         <p>You can gain your vocabularies here.</p>
         <p>So, please enjoy yourself!</p>
       </div>
-      <!-- 滑动图片框：id=slide2 独立控制 -->
-      <div class="slide-box" id="slide2">
-        <div class="slide-inner" id="slideInner2">
-          <!-- 图片1：原有图片 -->
-          <div class="slide-item">
-            <img src="./images/Wanlon-book.png" alt="Wanlon-Lauch'rft-1">
+      <!-- 图片框组2：标记group="2"，手机端联动 -->
+      <div class="slide-box-group" group="2">
+        <!-- 滑动框3：group2 → 电脑独立/手机联动 -->
+        <div class="slide-box" id="slide3" group="2">
+          <div class="slide-inner" id="slideInner3">
+            <div class="slide-item"><img src="./images/Wanlon-book.png" alt="Forhigour-1"></div>
+            <div class="slide-item"><img src="./images/Wanlon-book2.png" alt="Forhigour-2"></div>
+            <div class="slide-item"><img src="./images/Wanlon-book3.png" alt="Forhigour-3"></div>
           </div>
-          <!-- 图片2：新增示例 -->
-          <div class="slide-item">
-            <img src="./images/Wanlon-book2.png" alt="Wanlon-Lauch'rft-2">
-          </div>
-          <!-- 图片3：新增示例 -->
-          <div class="slide-item">
-            <img src="./images/Wanlon-book3.png" alt="Wanlon-Lauch'rft-3">
-          </div>
-          <!-- 图片4：新增示例 -->
-          <div class="slide-item">
-            <img src="./images/Wanlon-book4.png" alt="Wanlon-Lauch'rft-4">
-          </div>
+          <button class="slide-btn slide-prev" onclick="changeSlide('slide3', -1)"><<i class="fas fa-chevron-left"></</i></button>
+          <button class="slide-btn slide-next" onclick="changeSlide('slide3', 1)"><<i class="fas fa-chevron-right"></</i></button>
         </div>
-        <!-- 切换箭头 -->
-        <button class="slide-btn slide-prev" onclick="prevSlide(2)"><i class="fas fa-chevron-left"></i></button>
-        <button class="slide-btn slide-next" onclick="nextSlide(2)"><i class="fas fa-chevron-right"></i></button>
+        <!-- 滑动框4：group2 → 电脑独立/手机联动（修复按钮绑定！） -->
+        <div class="slide-box" id="slide4" group="2">
+          <div class="slide-inner" id="slideInner4">
+            <div class="slide-item"><img src="./images/Wanlon-book4.png" alt="Forhigour-4"></div>
+            <div class="slide-item"><img src="./images/Wanlon-book5.png" alt="Forhigour-5"></div>
+            <div class="slide-item"><img src="./images/Wanlon-book6.png" alt="Forhigour-6"></div>
+            <div class="slide-item"><img src="./images/Wanlon-book7.png" alt="Forhigour-7"></div>
+          </div>
+          <!-- 修复：把slide3改成slide4，绑定自己的ID -->
+          <button class="slide-btn slide-prev" onclick="changeSlide('slide4', -1)"><<i class="fas fa-chevron-left"></</i></button>
+          <button class="slide-btn slide-next" onclick="changeSlide('slide4', 1)"><<i class="fas fa-chevron-right"></</i></button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 核心JS：滑动图片框逻辑，两个框独立运行，支持拖拽+点击 -->
+  <!-- 核心JS：解决滑动失效+统一高度+电脑独立/手机联动 -->
   <script>
-    // 初始化两个滑动框的当前图片索引
-    let slideIndex1 = 0, slideIndex2 = 0;
+    // 初始化所有滑动框的索引，存储为对象，更易维护
+    const slideIndexes = {
+      slide1: 0,
+      slide2: 0,
+      slide3: 0,
+      slide4: 0
+    };
 
-    // 更新滑动框显示的图片
-    function updateSlide(slideNum) {
-      const inner = document.getElementById(`slideInner${slideNum}`);
-      const items = inner.querySelectorAll('.slide-item');
-      const index = window[`slideIndex${slideNum}`];
-      inner.style.transform = `translateX(-${index * 100}%)`; // 核心滑动计算
+    // 检测是否为手机端（768px以下）
+    function isMobile() {
+      return window.innerWidth <= 768;
     }
 
-    // 上一张图片
-    function prevSlide(slideNum) {
-      const inner = document.getElementById(`slideInner${slideNum}`);
+    // 核心滑动函数：id=滑动框ID，step=1(下一张)/-1(上一张)
+    function changeSlide(boxId, step) {
+      // 获取当前滑动框、内层容器、图片项
+      const box = document.getElementById(boxId);
+      const inner = document.getElementById(`slideInner${boxId.slice(-1)}`);
       const items = inner.querySelectorAll('.slide-item');
-      const indexKey = `slideIndex${slideNum}`;
-      window[indexKey] = (window[indexKey] - 1 + items.length) % items.length;
-      updateSlide(slideNum);
-    }
+      if (!box || !inner || items.length === 0) return; // 防错
 
-    // 下一张图片
-    function nextSlide(slideNum) {
-      const inner = document.getElementById(`slideInner${slideNum}`);
-      const items = inner.querySelectorAll('.slide-item');
-      const indexKey = `slideIndex${slideNum}`;
-      window[indexKey] = (window[indexKey] + 1) % items.length;
-      updateSlide(slideNum);
+      // 获取当前组、当前索引
+      const group = box.getAttribute('group');
+      let currentIndex = slideIndexes[boxId];
+      // 计算新索引（循环切换）
+      currentIndex = (currentIndex + step + items.length) % items.length;
+      slideIndexes[boxId] = currentIndex;
+      // 执行滑动
+      inner.style.transform = `translateX(-${currentIndex * 100}%)`;     
     }
-
-    // 鼠标拖拽滑动功能（电脑端友好）
+    // 鼠标拖拽滑动：适配所有滑动框，电脑独立/手机联动
     document.querySelectorAll('.slide-box').forEach(box => {
       let startX = 0, moveX = 0;
-      // 按下鼠标记录初始位置
-      box.addEventListener('mousedown', (e) => {
+      const boxId = box.id;
+      const group = box.getAttribute('group');
+      // 鼠标按下/触摸开始（兼容手机触摸）
+      box.addEventListener('mousedown', startDrag);
+      box.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // 阻止浏览器默认滚动
+        startDrag(e.touches[0]);
+      });
+      // 鼠标移动/触摸移动
+      document.addEventListener('mousemove', moveDrag);
+      document.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        moveDrag(e.touches[0]);
+      });
+      // 鼠标松开/触摸结束
+      document.addEventListener('mouseup', endDrag);
+      document.addEventListener('touchend', (e) => {
+        endDrag(e.changedTouches[0]);
+      });
+      // 鼠标离开
+      box.addEventListener('mouseleave', endDrag);
+
+      // 开始拖拽：记录初始位置
+      function startDrag(e) {
         startX = e.clientX;
         box.style.cursor = 'grabbing';
-      });
-      // 移动鼠标计算拖拽距离
-      box.addEventListener('mousemove', (e) => {
-        if (e.buttons !== 1) return; // 仅左键按下时生效
+        moveX = 0;
+      }
+      // 拖拽中：计算移动距离
+      function moveDrag(e) {
+        if (startX === 0) return;
         moveX = e.clientX - startX;
-      });
-      // 松开鼠标判断是否切换图片（拖拽距离超50px触发）
-      box.addEventListener('mouseup', () => {
+      }
+      // 结束拖拽：判断是否切换图片（拖拽距离>50px触发）
+      function endDrag() {
         box.style.cursor = 'grab';
-        const slideNum = box.id.slice(-1); // 获取滑动框编号1/2
-        if (moveX < -50) nextSlide(slideNum); // 左拖切下一张
-        else if (moveX > 50) prevSlide(slideNum); // 右拖切上一张
-        startX = moveX = 0;
+        if (Math.abs(moveX) > 50) {
+          // 左拖=下一张(1)，右拖=上一张(-1)
+          const step = moveX < 0 ? 1 : -1;
+          changeSlide(boxId, step);
+        }
+        startX = 0;
+        moveX = 0;
+      }
+    });
+
+    // 初始化鼠标样式
+    document.querySelectorAll('.slide-box').forEach(box => {
+      box.style.cursor = 'grab';
+    });
+
+    // 窗口大小变化时，重置索引（防止布局错乱）
+    window.addEventListener('resize', () => {
+      Object.keys(slideIndexes).forEach(boxId => {
+        const inner = document.getElementById(`slideInner${boxId.slice(-1)}`);
+        if (inner) inner.style.transform = `translateX(0)`;
+        slideIndexes[boxId] = 0;
       });
-      // 鼠标离开重置
-      box.addEventListener('mouseleave', () => {
-        box.style.cursor = 'grab';
-        startX = moveX = 0;
-      });
-      box.style.cursor = 'grab'; // 初始鼠标样式
     });
   </script>
 
 </body>
-
 </html>
