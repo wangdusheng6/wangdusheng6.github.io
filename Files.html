@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Wanlon-Lesa</title>
+  <!-- 引入Google在线哥特体（全用户兼容） -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* 全局样式重置 + 液态玻璃基础配置 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    /* 全局图片样式：强制覆盖，配合滑动框统一高度 */
+    img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover; /* 裁剪保持比例，不拉伸 */
+      border: 0;
+    }
+
+    body {
+      font-family: "Gothic A1", "Eagle Lake", Century Gothic, Arial, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 50%, #333 50%, #111 100%);
+      background-attachment: fixed;
+      color: #000;
+      padding-bottom: 50px;
+      padding: 0 10px; /* 手机端左右留边 */
+    }
+
+    /* 液态玻璃核心样式 */
+    .glass {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin: 0 auto 40px; /* 模块之间留间距，居中 */
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      padding: 10px 16px;
+      width: 100%;
+      max-width: 1200px;
+    }
+    nav {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap; /* 手机端导航换行 */
+    }
+
+    /* 导航栏logo容器：文字+图片水平居中，文字左、logo右 */
+    .logo {
+      font-weight: bold;
+      font-size: 24px;
+      color: #000;
+      display: flex;
+      align-items: center;
+      gap: 12px; /* 文字和logo的间距 */
+    }
+    /* 导航栏本地小logo：圆角+柔化边缘+防变形 */
+    .Wanlon-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px; /* 圆润圆角 */
+      filter: blur(0.8px); /* 柔化边缘 */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      object-fit: cover;
+    }
+
+    ul {
+      list-style: none;
+      display: flex;
+      gap: 16px; /* 缩小导航间距，适配手机 */
+      margin-top: 10px;
+    }
+    a {
+      color: #000;
+      text-decoration: none;
+      font-size: 16px; /* 缩小导航文字 */
+      transition: all 0.3s ease;
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+    a:hover {
+      background: rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(4px);
+    }
+
+    .hero {
+      max-width: 1200px;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .hero h1 {
+      margin: 0 0 16px;
+      font-size: 36px; /* 缩小主标题，适配手机 */
+      font-weight: bold;
+    }
+    .hero p {
+      margin: 0 0 24px;
+      font-size: 18px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+    .btn.contact {
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+    }
+    .btn.files, .btn.ai-agent {
+      background: rgba(255, 255, 255, 0.6);
+      color: #000;
+    }
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    /* About板块：核心样式 */
+    .about {
+      max-width: 1200px;
+      padding: 30px 20px;
+    }
+    .about h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+    /* 图文容器：适配电脑/手机布局 */
+    .about-content {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    /* 文字容器：自适应宽度 */
+    .about-text {
+      flex: 1;
+      min-width: 280px;
+      font-size: 18px;
+    }
+    .about-text p {
+      margin-bottom: 8px;
+    }
+    
+  </style>
+</head>
+
+<body>
+  <header class="glass">
+    <nav>
+      <div class="logo">
+        Wanlon-lesa
+        <img src="./images/Wanlon-logo.png" alt="Wanlon-lesa nav logo" class="Wanlon-logo">
+      </div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="Files.html">Files</a></li>
+        <li><a href="AIagent.html">AI Agent</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero glass">
+    <h1>Wanlon-Lesa</h1>
+    <p>Build the Babel Tower of the world!!!</p>
+    <div class="buttons">
+      <a class="btn contact" href="#contact">Contact Us</a>
+      <a class="btn files" download>Files Access</a>
+      <a class="btn ai-agent" href="#about1">Our AI Agent</a>
+    </div>
+  </section>
+  <section class="hero glass">
+    <h1>Wanlon-Lauch'rft: The Dictionary of Wanlon-Lesa</h1>
+    <h3>Build the Babel Tower of the world!!!</h3>
+  </n>
+    <div class="about-content">
+      <div class="about-text">
+        <p>This is the ever first Wanlon-Lesa Forhigour.</p>
+        <p>We love to learn Wanlon-Lesa from it.</p>
+        <p>You can gain your vocabularies here.</p>
+        <p>So, please enjoy yourself!</p>
+      </div>
+    </div>
+    <div class="buttons">   
+      <!-- 新增Excel下载按钮，带专属图标，样式统一 -->
+      <a class="btn files" href="Wanlon-lesa.xlsx" download>
+        <i class="fas fa-file-excel"></i> Wanlon Vocabularies (zh)
+      </a>
+      <!-- 新增Excel下载按钮，带专属图标，样式统一 -->
+      <a class="btn files" href="Wanlon-lesa in English.xlsx" download>
+        <i class="fas fa-file-excel"></i> Wanlon Vocabularies (en)
+      </a>
+      <!-- 新增PDF下载按钮，带专属图标，样式统一 -->
+      <a class="btn files" href="WANLON LESA .pdf" download>
+        <i class="fas fa-file-pdf"></i> Wanlon Vocabularies (pdf)
+      </a>
+    </div>
+  </section>
+   
+</body>
+</html>
