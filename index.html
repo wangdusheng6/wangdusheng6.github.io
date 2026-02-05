@@ -1,8 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- 手机端视口标签（适配核心，必须加） -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta charset="utf-8">
   <title>Wanlon-Lesa</title>
   <!-- 引入Google在线哥特体（全用户兼容） -->
@@ -15,12 +13,6 @@
       padding: 0;
       box-sizing: border-box;
       user-select: none;
-      /* 强制所有元素继承字体，解决手机/电脑字体不一致 */
-      font-family: inherit;
-    }
-    /* 👇 新增：斜体专属类 - 想斜体的文字加这个类即可，不影响其他样式 */
-    .italic {
-      font-style: italic;
     }
     /* 全局图片样式：强制覆盖，配合滑动框统一高度 */
     img {
@@ -32,7 +24,7 @@
     }
 
     body {
-      font-family: "Gothic A1", "Eagle Lake", Century Gothic, Arial, sans-serif;
+      font-family: "Gothic A1", Century Gothic, Arial, sans-serif;
       min-height: 100vh;
       background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 50%, #333 50%, #111 100%);
       background-attachment: fixed;
@@ -128,7 +120,6 @@
       justify-content: center;
       gap: 15px;
       flex-wrap: wrap;
-      margin-top: 20px; /* 增加按钮区上间距，防止挤在一起 */
     }
     .btn {
       display: inline-block;
@@ -180,7 +171,6 @@
     }
     .about-text p {
       margin-bottom: 8px;
-      line-height: 1.8; /* 增加行高，文字不挤 */
     }
     /* 图片框容器：包裹同板块的两个滑动框，统一控制 */
     .slide-box-group {
@@ -202,7 +192,6 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.1);
       overflow: hidden; /* 隐藏超出图片，滑动核心 */
       flex-shrink: 0; /* 不被挤压，保持宽度 */
-      cursor: grab; /* 统一拖拽鼠标样式 */
     }
     /* 图片滚动容器：横向排列，滑动核心 */
     .slide-inner {
@@ -254,37 +243,24 @@
       box-shadow: 0 0 0 2px rgba(100,100,100,0.3);
     }
 
-    /* 响应式：手机端（768px以下）专属样式【全面优化：所有元素缩小+间距调整】 */
+    /* 响应式：手机端（768px以下）专属样式 */
     @media (max-width: 768px) {
-      /* 导航栏缩小 */
       .logo { font-size: 20px; }
       .Wanlon-logo { width: 32px; height: 32px; }
-      ul { gap: 8px; padding: 0 5px; }
-      a { font-size: 14px; padding: 4px 6px; }
-
-      /* hero板块：标题+文字缩小，增加间距 */
-      .hero { padding: 20px 15px; }
-      .hero h1 { font-size: 28px; margin-bottom: 12px; }
-      .hero p { font-size: 16px; margin-bottom: 18px; line-height: 1.6; }
-
-      /* 按钮缩小，间距减小，防止挤在一起 */
-      .btn { padding: 8px 16px; font-size: 14px; }
-      .buttons { gap: 10px; margin-top: 15px; }
-
-      /* About板块：标题+文字缩小，行高调整 */
-      .about { padding: 20px 15px; }
-      .about h2 { font-size: 24px; margin-bottom: 15px; }
-      .about-text { font-size: 16px; }
-      .about-text p { margin-bottom: 6px; line-height: 1.7; }
+      ul { gap: 10px; }
+      a { font-size: 14px; padding: 4px 8px; }
+      /* 手机端滑动框缩小，保持统一高度 */
+      .slide-box {
+        width: 160px;
+        height: 220px; /* 手机端也统一高度，和电脑端比例一致 */
+      }
+      .slide-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+      }
+      .slide-box-group { gap: 10px; }
       .about-content { gap: 15px; }
-
-      /* 滑动框+组缩小，间距减小 */
-      .slide-box { width: 160px; height: 220px; }
-      .slide-btn { width: 30px; height: 30px; font-size: 14px; }
-      .slide-box-group { gap: 8px; }
-
-      /* 板块之间间距减小，避免页面过长 */
-      .glass { margin: 0 auto 25px; }
     }
   </style>
 </head>
@@ -316,64 +292,70 @@
     </div>
   </section>
 
-  <!-- 第一个About板块：Wanlon-Ciraduro → 组1：slide1+slide2 -->
+  <!-- 第一个About板块：Wanlon-Ciraduro → 组1：slide1+slide2 → 手机端联动 -->
   <section id="about1" class="about glass">
     <h2>Wanlon-Ciraduro: Our AI Agent</h2>
     <div class="about-content">
-      <!-- 👇 给需要斜体的文字加 italic 类，保留斜体 -->
       <div class="about-text">
         <p>I am Wanlon-Ciraduro, a wanlon-lesa speaker.</p>
         <p>I am the royal bot of the Wanlon Empire.</p>
         <p>I can write poems and articles for you!!!</p>
         <p>Can I do you a favor?</p>
       </div>
+      <!-- 图片框组1：标记group="1" -->
       <div class="slide-box-group" group="1">
+        <!-- 滑动框1：group1  -->
         <div class="slide-box" id="slide1" group="1">
           <div class="slide-inner" id="slideInner1">
             <div class="slide-item"><img src="./images/Wanlon-logo1.jpg" alt="Wanlon-Ciraduro-1"></div>
             <div class="slide-item"><img src="./images/Wanlon-logo2.jpg" alt="Wanlon-Ciraduro-2"></div>
             <div class="slide-item"><img src="./images/Wanlon-logo3.png" alt="Wanlon-Ciraduro-3"></div>
           </div>
-          <button class="slide-btn slide-prev" onclick="changeSlide('slide1', -1)"><i class="fas fa-chevron-left"></i></button>
-          <button class="slide-btn slide-next" onclick="changeSlide('slide1', 1)"><i class="fas fa-chevron-right"></i></button>
+          <button class="slide-btn slide-prev" onclick="changeSlide('slide1', -1)"><<i class="fas fa-chevron-left"></</i></button>
+          <button class="slide-btn slide-next" onclick="changeSlide('slide1', 1)"><<i class="fas fa-chevron-right"></</i></button>
         </div>
+        <!-- 滑动框2：group1  -->
         <div class="slide-box" id="slide2" group="1">
           <div class="slide-inner" id="slideInner2">
             <div class="slide-item"><img src="./images/Wanlon-logo4.jpg" alt="Wanlon-Ciraduro-4"></div>
             <div class="slide-item"><img src="./images/Wanlon-logo5.jpg" alt="Wanlon-Ciraduro-5"></div>
             <div class="slide-item"><img src="./images/Wanlon-logo6.png" alt="Wanlon-Ciraduro-6"></div>
           </div>
-          <button class="slide-btn slide-prev" onclick="changeSlide('slide2', -1)"><i class="fas fa-chevron-left"></i></button>
-          <button class="slide-btn slide-next" onclick="changeSlide('slide2', 1)"><i class="fas fa-chevron-right"></i></button>
+          <button class="slide-btn slide-prev" onclick="changeSlide('slide2', -1)"><<i class="fas fa-chevron-left"></</i></button>
+          <button class="slide-btn slide-next" onclick="changeSlide('slide2', 1)"><<i class="fas fa-chevron-right"></</i></button>
         </div>
       </div>
-    </div>
-    <div class="buttons">
-      <a class="btn ai-agent" href="AIagent.html">Use ME!!!</a>
+    </n>
+      </div>
+        <div class="buttons">
+        <a class="btn ai-agent" href="AIagent.html">Use ME!!!</a>
+      </div>
     </div>
   </section>
 
-  <!-- 第二个About板块：Wanlon-Forhigour → 组2：slide3+slide4 -->
+  <!-- 第二个About板块：Wanlon-Forhigour → 组2：slide3+slide4 → 手机端联动 -->
   <section id="about2" class="about glass">
-    <h2 class="about-text italic">Wanlon-Forhigour: The Dictionary of Wanlon-Lesa</h2>
+    <h2>Wanlon-Forhigour: The Dictionary of Wanlon-Lesa</h2>
     <div class="about-content">
-      <!-- 👇 给需要斜体的文字加 italic 类，保留斜体 -->
-      <div class="about-text italic">
+      <div class="about-text">
         <p>This is the ever first Wanlon-Lesa Forhigour.</p>
         <p>We love to learn Wanlon-Lesa from it.</p>
         <p>You can gain your vocabularies here.</p>
         <p>So, please enjoy yourself!</p>
       </div>
+      <!-- 图片框组2：标记group="2"，手机端联动 -->
       <div class="slide-box-group" group="2">
+        <!-- 滑动框3：group2 → 电脑独立/手机联动 -->
         <div class="slide-box" id="slide3" group="2">
           <div class="slide-inner" id="slideInner3">
             <div class="slide-item"><img src="./images/Wanlon-book.png" alt="Forhigour-1"></div>
             <div class="slide-item"><img src="./images/Wanlon-book2.png" alt="Forhigour-2"></div>
             <div class="slide-item"><img src="./images/Wanlon-book3.png" alt="Forhigour-3"></div>
           </div>
-          <button class="slide-btn slide-prev" onclick="changeSlide('slide3', -1)"><i class="fas fa-chevron-left"></i></button>
-          <button class="slide-btn slide-next" onclick="changeSlide('slide3', 1)"><i class="fas fa-chevron-right"></i></button>
+          <button class="slide-btn slide-prev" onclick="changeSlide('slide3', -1)"><<i class="fas fa-chevron-left"></</i></button>
+          <button class="slide-btn slide-next" onclick="changeSlide('slide3', 1)"><<i class="fas fa-chevron-right"></</i></button>
         </div>
+        <!-- 滑动框4：group2 → 电脑独立/手机联动（修复按钮绑定！） -->
         <div class="slide-box" id="slide4" group="2">
           <div class="slide-inner" id="slideInner4">
             <div class="slide-item"><img src="./images/Wanlon-book4.png" alt="Forhigour-4"></div>
@@ -381,77 +363,115 @@
             <div class="slide-item"><img src="./images/Wanlon-book6.png" alt="Forhigour-6"></div>
             <div class="slide-item"><img src="./images/Wanlon-book7.png" alt="Forhigour-7"></div>
           </div>
-          <button class="slide-btn slide-prev" onclick="changeSlide('slide4', -1)"><i class="fas fa-chevron-left"></i></button>
-          <button class="slide-btn slide-next" onclick="changeSlide('slide4', 1)"><i class="fas fa-chevron-right"></i></button>
+          <!-- 修复：把slide3改成slide4，绑定自己的ID -->
+          <button class="slide-btn slide-prev" onclick="changeSlide('slide4', -1)"><<i class="fas fa-chevron-left"></</i></button>
+          <button class="slide-btn slide-next" onclick="changeSlide('slide4', 1)"><<i class="fas fa-chevron-right"></</i></button>
         </div>
       </div>
-    </div>
-    <div class="buttons">
-      <a class="btn files" href="Files.html">Download Here^~^</a>
+    </n>
+      </div>
+        <div class="buttons">
+          <a class="btn files" href="Files.html">Download Here^~^</a>
+      </div>
     </div>
   </section>
 
-  <!-- 核心JS：滑动+拖拽功能 -->
+  <!-- 核心JS：解决滑动失效+统一高度+电脑独立/手机联动 -->
   <script>
-    const slideIndexes = { slide1:0, slide2:0, slide3:0, slide4:0 };
-    function isMobile() { return window.innerWidth <= 768; }
+    // 初始化所有滑动框的索引，存储为对象，更易维护
+    const slideIndexes = {
+      slide1: 0,
+      slide2: 0,
+      slide3: 0,
+      slide4: 0
+    };
+
+    // 检测是否为手机端（768px以下）
+    function isMobile() {
+      return window.innerWidth <= 768;
+    }
+
+    // 核心滑动函数：id=滑动框ID，step=1(下一张)/-1(上一张)
     function changeSlide(boxId, step) {
+      // 获取当前滑动框、内层容器、图片项
       const box = document.getElementById(boxId);
-      const inner = document.getElementById(`slideInner${boxId}`);
-      const items = inner ? inner.querySelectorAll('.slide-item') : [];
-      if (!box || !inner || items.length === 0) return;
+      const inner = document.getElementById(`slideInner${boxId.slice(-1)}`);
+      const items = inner.querySelectorAll('.slide-item');
+      if (!box || !inner || items.length === 0) return; // 防错
+
+      // 获取当前组、当前索引
       const group = box.getAttribute('group');
       let currentIndex = slideIndexes[boxId];
+      // 计算新索引（循环切换）
       currentIndex = (currentIndex + step + items.length) % items.length;
       slideIndexes[boxId] = currentIndex;
-      inner.style.transform = `translateX(-${currentIndex * 100}%)`;
-      // 手机端组内联动
-      if (isMobile()) {
-        document.querySelectorAll(`.slide-box[group="${group}"]`).forEach(otherBox => {
-          if (otherBox.id !== boxId) {
-            const otherInner = document.getElementById(`slideInner${otherBox.id}`);
-            const otherItems = otherInner.querySelectorAll('.slide-item');
-            const otherIndex = (currentIndex + otherItems.length) % otherItems.length;
-            slideIndexes[otherBox.id] = otherIndex;
-            otherInner.style.transform = `translateX(-${otherIndex * 100}%)`;
-          }
-        });
-      }
+      // 执行滑动
+      inner.style.transform = `translateX(-${currentIndex * 100}%)`;     
     }
-    // 鼠标/触摸拖拽
+    // 鼠标拖拽滑动：适配所有滑动框，电脑独立/手机联动
     document.querySelectorAll('.slide-box').forEach(box => {
       let startX = 0, moveX = 0;
       const boxId = box.id;
       const group = box.getAttribute('group');
+      // 鼠标按下/触摸开始（兼容手机触摸）
       box.addEventListener('mousedown', startDrag);
-      box.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag(e.touches[0]); });
+      box.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // 阻止浏览器默认滚动
+        startDrag(e.touches[0]);
+      });
+      // 鼠标移动/触摸移动
       document.addEventListener('mousemove', moveDrag);
-      document.addEventListener('touchmove', (e) => { e.preventDefault(); moveDrag(e.touches[0]); });
+      document.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        moveDrag(e.touches[0]);
+      });
+      // 鼠标松开/触摸结束
       document.addEventListener('mouseup', endDrag);
-      document.addEventListener('touchend', (e) => { endDrag(e.changedTouches[0]); });
+      document.addEventListener('touchend', (e) => {
+        endDrag(e.changedTouches[0]);
+      });
+      // 鼠标离开
       box.addEventListener('mouseleave', endDrag);
-      function startDrag(e) { startX = e.clientX; box.style.cursor = 'grabbing'; moveX = 0; }
-      function moveDrag(e) { if (startX !== 0) moveX = e.clientX - startX; }
+
+      // 开始拖拽：记录初始位置
+      function startDrag(e) {
+        startX = e.clientX;
+        box.style.cursor = 'grabbing';
+        moveX = 0;
+      }
+      // 拖拽中：计算移动距离
+      function moveDrag(e) {
+        if (startX === 0) return;
+        moveX = e.clientX - startX;
+      }
+      // 结束拖拽：判断是否切换图片（拖拽距离>50px触发）
       function endDrag() {
         box.style.cursor = 'grab';
         if (Math.abs(moveX) > 50) {
+          // 左拖=下一张(1)，右拖=上一张(-1)
           const step = moveX < 0 ? 1 : -1;
           changeSlide(boxId, step);
         }
-        startX = 0; moveX = 0;
+        startX = 0;
+        moveX = 0;
       }
     });
-    // 窗口重置
+
+    // 初始化鼠标样式
+    document.querySelectorAll('.slide-box').forEach(box => {
+      box.style.cursor = 'grab';
+    });
+
+    // 窗口大小变化时，重置索引（防止布局错乱）
     window.addEventListener('resize', () => {
       Object.keys(slideIndexes).forEach(boxId => {
-        const inner = document.getElementById(`slideInner${boxId}`);
+        const inner = document.getElementById(`slideInner${boxId.slice(-1)}`);
         if (inner) inner.style.transform = `translateX(0)`;
         slideIndexes[boxId] = 0;
       });
     });
-    // 初始化拖拽样式
-    document.querySelectorAll('.slide-box').forEach(box => box.style.cursor = 'grab');
   </script>
 
 </body>
+
 </html>
