@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 三语标题自动匹配，和主站逻辑一致 -->
+  <title>笃笃猫 - 王笃生 个人主页</title>
+  <!-- 引入Tailwind CSS（和主站一致） -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome图标（和主站一致，包含箭头、联系方式图标） -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- 自定义Tailwind配置：复用液态玻璃颜色变量 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            glass: {
+              primary: 'rgba(255, 255, 255, 0.15)',
+              border: 'rgba(255, 255, 255, 0.25)',
+            },
+          },
+          fontFamily: {
+            sans: ['sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <!-- 复用主站所有样式：液态玻璃、按钮、轮播、语言切换 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      /* 液态玻璃核心样式（和主站完全一致） */
+      .lang-item:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+      .liquid-glass {
+        backdrop-filter: blur(12px) saturate(180%);
+        -webkit-backdrop-filter: blur(12px) saturate(180%);
+        background-color: theme('colors.glass.primary');
+        border: 1px solid theme('colors.glass.border');
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        transition: all 0.4s ease-in-out;
+      }
+      .liquid-glass:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+      /* 导航项hover（和主站一致） */
+      .nav-item:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+      /* 背景遮罩（和主站一致） */
+      .bg-mask {
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.4) 100%);
+      }
+      /* 隐藏文件上传原生按钮（主站复用） */
+      .file-input-hidden {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+      /* 按钮组样式（和主站一致） */
+      .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+      /* 基础按钮样式（和主站一致） */
+      .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+      }
+      .btn.contact {
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+      }
+      .btn.files, .btn.ai-agent {
+        background: rgba(255, 255, 255, 0.6);
+        color: #000;
+      }
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      }
+      /* 轮播图核心样式（和主站一致，保证轮播功能正常） */
+      .slide-box {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        overflow: hidden;
+        border-radius: 16px;
+      }
+      .slide-inner {
+        display: flex;
+        transition: transform 0.5s ease;
+        height: auto;
+      }
+      .slide-item {
+        flex: 0 0 100%;
+        width: 100%;
+      }
+      .slide-item img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+      }
+      .slide-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 48px;
+        height: 48px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+      .slide-btn:hover {
+        background: rgba(0, 0, 0, 0.8);
+        transform: translateY(-50%) scale(1.1);
+      }
+      .slide-prev {
+        left: 15px;
+      }
+      .slide-next {
+        right: 15px;
+      }
+      /* 个人信息卡片样式：贴合液态玻璃风格 */
+      .info-card {
+        backdrop-filter: blur(15px) saturate(180%);
+        -webkit-backdrop-filter: blur(15px) saturate(180%);
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 30px;
+        margin: 20px 0;
+      }
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: 15px 0;
+        font-size: 18px;
+      }
+      .info-item i {
+        width: 24px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+  </style>
+</head>
+<!-- 背景图复用主站风格，可自行替换为喜欢的背景 -->
+<body class="min-h-screen w-full overflow-x-hidden font-sans text-white bg-cover bg-center bg-fixed" style="background-image: url('./images/background1.jpg');">
+  <!-- 背景遮罩（和主站一致，保证文字可读性） -->
+  <div class="fixed inset-0 z-0 bg-mask"></div>
+
+  <!-- 顶部Header：复用主站导航+三语切换，新增返回主站按钮 -->
+  <header class="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+    <div class="liquid-glass rounded-2xl px-6 py-3 flex items-center justify-between mx-auto max-w-7xl">
+      <!-- 左侧标题：三语切换适配 -->
+      <h2 class="text-xl font-bold" data-i18n="headerTitle">笃笃猫 - 个人主页</h2>
+
+      <!-- 右侧：导航+语言切换（和主站一致，新增返回主站） -->
+      <div class="relative flex items-center gap-3">
+        <!-- 大屏导航：返回主站+首页/关于/联系（和主站联动） -->
+        <nav class="hidden md:flex items-center gap-4">
+          <a href="index.html" class="liquid-glass nav-item rounded-xl px-4 py-2 transition-all" data-i18n="backHome">返回主站</a>
+          <a href="#home" class="liquid-glass nav-item rounded-xl px-4 py-2 transition-all" data-i18n="homeNav">个人简介</a>
+          <a href="#gallery" class="liquid-glass nav-item rounded-xl px-4 py-2 transition-all" data-i18n="galleryNav">作品展示</a>
+          <a href="#contact" class="liquid-glass nav-item rounded-xl px-4 py-2 transition-all" data-i18n="contactNav">联系方式</a>
+        </nav>
+        
+
+        <!-- 小屏：菜单按钮+语言按钮（和主站一致） -->
+        <div class="flex items-center gap-2">
+          <button id="mobile-nav-btn" class="liquid-glass rounded-xl px-4 py-2 md:hidden" data-i18n="navBtn">菜单</button>
+          <button id="lang-btn" class="liquid-glass rounded-xl px-4 py-2 flex items-center gap-2">
+            <i class="fas fa-language text-sm"></i>
+            <span id="current-lang-text" data-i18n="currentLang">zh</span>
+          </button>
+        </div>
+        
+
+        <!-- 语言切换列表（和主站一致，三语适配） -->
+        <div id="lang-list" class="hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
+          <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="zh-CN" data-i18n="langZh">zh 中文</div>
+          <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="en-US" data-i18n="langEn">en 英语</div>
+          <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="eo" data-i18n="langEo">eo 世界语</div>
+        </div>
+
+        <!-- 小屏导航列表（和主站一致） -->
+        <div id="mobile-nav-list" class="hidden md:hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
+          <a href="index.html" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="backHome">返回主站</a>
+          <a href="#home" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="homeNav">个人简介</a>
+          <a href="#gallery" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="galleryNav">作品展示</a>
+          <a href="#contact" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="contactNav">联系方式</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区：和主站间距一致，适配小屏 -->
+  <main class="relative z-20 w-full px-4 py-32 md:py-40 max-w-4xl mx-auto">
+    <!-- 1. 个人简介区 -->
+    <section id="home" class="liquid-glass rounded-2xl p-8 mb-12 text-center">
+      <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold mb-6" data-i18n="nickname">笃笃猫 | duducat</h1>
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-semibold mb-8 opacity-90" data-i18n="realname">王笃生</h2>
+      <div class="info-card max-w-2xl mx-auto" data-i18n="intro">
+        大家好，我是笃笃猫（王笃生），来自江苏南京，性格开朗随和，喜欢探索新鲜事物，乐于交流和分享。日常专注于各类兴趣研究和实践，期待和志同道合的朋友一起交流成长！
+      </div>
+    </section>
+
+    <!-- 2. 作品展示轮播区（复用主站轮播风格，可自行替换图片） -->
+    <section id="gallery" class="liquid-glass rounded-2xl p-8 mb-12 text-center">
+      <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-8" data-i18n="galleryTitle">作品展示</h2>
+      <div class="slide-box" id="slideDudu" group="3" style="aspect-ratio: 9/16; max-width: 720px;">
+        <div class="slide-inner" id="slideInnerDudu">
+          <div class="slide-item"><img src="./images/Wanlon-book4.png" alt="duducat-1" data-i18n="work1"></div>
+          <div class="slide-item"><img src="./images/Wanlon-book5.png" alt="duducat-2" data-i18n="work2"></div>
+          <div class="slide-item"><img src="./images/Wanlon-book6.png" alt="duducat-3" data-i18n="work3"></div>
+          <div class="slide-item"><img src="./images/Wanlon-book7.png" alt="duducat-4" data-i18n="work4"></div>
+        </div>
+        <button class="slide-btn slide-prev" onclick="changeSlide('slideDudu', -1)"><i class="fas fa-chevron-left"></i></button>
+        <button class="slide-btn slide-next" onclick="changeSlide('slideDudu', 1)"><i class="fas fa-chevron-right"></i></button>
+        <!-- 新增跳转按钮 -->
+         </div>
+        <div class="buttons mt-6">
+          <a href="wanlonhome.html" class="btn ai-agent" title="" data-i18n="goWanlonBtn">前往万综语主页</a>
+        </div>
+      
+    </section>
+
+    <!-- 3. 联系方式区（核心信息：微信/QQ/电话，三语适配，图标可视化） -->
+    <section id="contact" class="liquid-glass rounded-2xl p-8 text-center">
+      <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-8" data-i18n="contactTitle">联系方式</h2>
+      <div class="info-card max-w-2xl mx-auto text-left">
+        <div class="info-item" data-i18n="location">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>江苏 · 南京</span>
+        </div>
+        <div class="info-item" data-i18n="wechat">
+          <i class="fab fa-weixin"></i>
+          <span>wds051018</span>
+        </div>
+        <div class="info-item" data-i18n="qq">
+          <i class="fab fa-qq"></i>
+          <span>2073976595</span>
+        </div>
+        <div class="info-item" data-i18n="phone">
+          <i class="fas fa-phone-alt"></i>
+          <span>+86 17327715671</span>
+        </div>
+      </div>
+      <!-- 返回主站按钮（和主站按钮风格一致） -->
+      <div class="buttons mt-8">
+        <a href="index.html" class="btn contact" data-i18n="backMainBtn">返回主站</a>
+        <a href="javascript:copyWechat()" class="btn files" data-i18n="copyWechatBtn">复制微信号</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- 底部版权：三语适配，和主站风格一致 -->
+  <footer class="relative z-20 text-center text-gray-300 text-sm pb-8" data-i18n="copyright">
+    喵喵哒咪咪哒咪喵哒咕嘟哒
+  </footer>
+
+  <!-- 核心JS：复用主站所有功能（三语切换+轮播+移动端导航+复制微信） -->
+  <script>
+    // 三语配置对象：个人主页专属文案，和主站格式一致
+    const langConfig = {
+      'zh-CN': {
+        headerTitle: '笃笃猫 - 个人主页',
+        navBtn: '菜单',
+        backHome: '返回主站',
+        homeNav: '个人简介',
+        galleryNav: '作品展示',
+        contactNav: '联系方式',
+        nickname: '笃笃猫 | duducat',
+        realname: '王笃生',
+        intro: '大家好，我是笃笃猫（王笃生），来自江苏南京，性格开朗随和，喜欢探索新鲜事物，乐于交流和分享。日常专注于各类兴趣研究和实践，期待和志同道合的朋友一起交流成长！',
+        galleryTitle: '作品展示',
+        work1: '作品1',
+        work2: '作品2',
+        work3: '作品3',
+        work4: '作品4',
+        contactTitle: '联系方式',
+        location: '江苏 · 南京',
+        wechat: '微信：wds051018',
+        qq: 'QQ：2073976595',
+        phone: '电话：+86 17327715671',
+        goWanlonBtn:'前往万综语主页',
+        backMainBtn: '返回主站',
+        copyWechatBtn: '复制微信号',
+        copyright: '喵喵哒咪咪哒咪喵哒咕嘟哒',
+        currentLang: 'zh',
+        langZh: 'zh 中文',
+        langEn: 'en 英语',
+        langEo: 'eo 世界语',
+        copyTip: '微信号复制成功！'
+      },
+      'en-US': {
+        headerTitle: 'Duducat - Personal Homepage',
+        navBtn: 'Menu',
+        backHome: 'Back to Main',
+        homeNav: 'About Me',
+        galleryNav: 'Works',
+        contactNav: 'Contact',
+        nickname: 'Duducat',
+        realname: 'Wang Dusheng',
+        intro: 'Hello, I am Duducat (Wang Dusheng), from Nanjing, Jiangsu. I am cheerful and easy-going, fond of exploring new things, and willing to communicate and share. I focus on various interest research and practice in daily life, and look forward to communicating and growing with like-minded friends!',
+        galleryTitle: 'My Works',
+        work1: 'Work 1',
+        work2: 'Work 2',
+        work3: 'Work 3',
+        work4: 'Work 4',
+        contactTitle: 'Contact Me',
+        location: 'Nanjing, Jiangsu',
+        wechat: 'WeChat：wds051018',
+        qq: 'QQ：2073976595',
+        phone: 'Phone：+86 17327715671',
+        goWanlonBtn:'Go to Wanlon Homepage',
+        backMainBtn: 'Back to Main',
+        copyWechatBtn: 'Copy WeChat',
+        copyright: 'meow meow meow meow meow',
+        currentLang: 'en',
+        langZh: 'zh Chinese',
+        langEn: 'en English',
+        langEo: 'eo Esperanto',
+        copyTip: 'WeChat copied successfully!'
+      },
+      'eo': {
+        headerTitle: 'Duducat - Persona Paĝeto',
+        navBtn: 'Menuo',
+        backHome: 'Reen al Ĉefpaĝo',
+        homeNav: 'Pri Mi',
+        galleryNav: 'Opusoj',
+        contactNav: 'Kontakto',
+        nickname: 'Duducat',
+        realname: 'Wang Dusheng',
+        intro: 'Saluton, mi estas Duducat (Wang Dusheng), de Nankino, Jiangsu. Mi estas ĝoja kaj facila, ŝatas esplori novajn aferojn, kaj volas komuniki kaj dividi. Mi koncentras min al diversaj interesaj esploroj kaj praktikoj en la ĉiutago, kaj esperas komuniki kaj kreski kun sintemaj amikoj!',
+        galleryTitle: 'Miaj Opusoj',
+        work1: 'Opuso 1',
+        work2: 'Opuso 2',
+        work3: 'Opuso 3',
+        work4: 'Opuso 4',
+        contactTitle: 'Kontaktu Min',
+        location: 'Nankino, Jiangsu',
+        wechat: 'WeChat：wds051018',
+        qq: 'QQ：2073976595',
+        phone: 'Telefono：+86 17327715671',
+        goWanlonBtn: 'Iri al Wanlon Ĉefpaĝo',
+        backMainBtn: 'Reen al Ĉefpaĝo',
+        copyWechatBtn: 'Kopii WeChat',
+        copyright: 'miau miau miau miau miau',
+        currentLang: 'eo',
+        langZh: 'zh Ĉina',
+        langEn: 'en Angla',
+        langEo: 'eo Esperanto',
+        copyTip: 'WeChat kopiita sukcese!'
+      }
+    };
+
+    // 全局变量（和主站一致）
+    let currentLang = document.documentElement.lang;
+    const bgContainer = document.querySelector('body');
+    const mobileNavBtn = document.getElementById('mobile-nav-btn');
+    const mobileNavList = document.getElementById('mobile-nav-list');
+    const langBtn = document.getElementById('lang-btn');
+    const langList = document.getElementById('lang-list');
+
+    // 1. 多语渲染（和主站一致）
+    function renderI18n(lang) {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = langConfig[lang][key];
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    el.title = langConfig[lang][key];
+  });
+      document.documentElement.lang = lang;
+      const titleMap = {
+        'zh-CN': '笃笃猫 - 王笃生 个人主页',
+        'en-US': 'Duducat - Wang Dusheng Personal Homepage',
+        'eo': 'Duducat - Wang Dusheng Persona Paĝeto'
+      };
+      document.title = titleMap[lang];
+    }
+
+    // 2. 移动端导航（和主站一致，解决点击冲突）
+    function initMobileNav() {
+      mobileNavBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobileNavList.classList.toggle('hidden');
+        langList.classList.add('hidden');
+      });
+      document.querySelectorAll('#mobile-nav-list a').forEach(link => {
+        link.addEventListener('click', () => mobileNavList.classList.add('hidden'));
+      });
+      document.addEventListener('click', (e) => {
+        if (!mobileNavBtn.contains(e.target) && !mobileNavList.contains(e.target)) {
+          mobileNavList.classList.add('hidden');
+        }
+      });
+    }
+
+    // 3. 三语切换（和主站一致）
+    function initLangSwitch() {
+      langBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langList.classList.toggle('hidden');
+        mobileNavList.classList.add('hidden');
+      });
+      document.querySelectorAll('#lang-list .lang-item').forEach(item => {
+        item.addEventListener('click', () => {
+          currentLang = item.getAttribute('data-lang');
+          renderI18n(currentLang);
+          langList.classList.add('hidden');
+        });
+      });
+      document.addEventListener('click', () => langList.classList.add('hidden'));
+    }
+
+    // 4. 轮播图核心函数（和主站一致，支持多轮播图）
+    function changeSlide(slideId, step) {
+      const slideBox = document.getElementById(slideId);
+      const slideInner = document.getElementById(`slideInner${slideId.replace('slide', '')}`);
+      const slideItems = slideInner.querySelectorAll('.slide-item');
+      const itemCount = slideItems.length;
+      let currentIndex = 0;
+
+      // 获取当前滚动位置，计算索引
+      const translateX = parseFloat(getComputedStyle(slideInner).transform.split(',')[4] || 0);
+      currentIndex = Math.round(-translateX / slideInner.clientWidth);
+
+      // 计算新索引，边界判断
+      let newIndex = currentIndex + step;
+      if (newIndex < 0) newIndex = itemCount - 1;
+      if (newIndex >= itemCount) newIndex = 0;
+
+      // 滚动到新索引
+      slideInner.style.transform = `translateX(-${newIndex * 100}%)`;
+    }
+
+    // 5. 新增：复制微信号功能（带三语提示）
+    function copyWechat() {
+      const wechat = 'wds051018';
+      navigator.clipboard.writeText(wechat).then(() => {
+        alert(langConfig[currentLang].copyTip);
+      }).catch(err => {
+        console.error('复制失败：', err);
+        alert('复制失败，请手动复制！');
+      });
+    }
+
+    // 页面初始化（按顺序执行）
+    window.onload = () => {
+      renderI18n(currentLang);
+      initMobileNav();
+      initLangSwitch();
+    };
+  </script>
+</body>
+</html>
