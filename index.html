@@ -95,17 +95,17 @@
             <span id="current-lang-text" data-i18n="currentLang">zh</span>
         </button>
     </div>
-    <!<!-- 移动端语言按钮 -->
-    <button id="lang-btn-mobile" class="liquid-glass rounded-xl px-4 py-2 flex items-center gap-2">
+    <!-- 大屏语言按钮：单独显示，和导航并排 -->
+    <button id="lang-btn" class="hidden md:flex liquid-glass rounded-xl px-4 py-2 items-center gap-2">
         <i class="fas fa-language text-sm"></i>
         <span id="current-lang-text" data-i18n="currentLang">zh</span>
     </button>
-    
-    <!-- 大屏语言按钮 -->
-    <button id="lang-btn-desktop" class="hidden md:flex liquid-glass rounded-xl px-4 py-2 items-center gap-2">
-        <i class="fas fa-language text-sm"></i>
-        <span id="current-lang-text" data-i18n="currentLang">zh</span>
-    </button>
+    <!-- 语言展开列表：全局唯一 -->
+    <div id="lang-list" class="hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
+        <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="zh-CN" data-i18n="langZh">zh 中文</div>
+        <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="en-US" data-i18n="langEn">en 英语</div>
+        <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="eo" data-i18n="langEo">eo 世界语</div>
+    </div>
         <!-- 移动端导航列表：原有代码 -->
     <div id="mobile-nav-list" class="hidden md:hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
         <a href="#home" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navHome">Home</a>
@@ -259,8 +259,7 @@ const bgImgs = ['./images/background1.jpg', './images/background2.jpg'];
 const mobileNavBtn = document.getElementById('mobile-nav-btn');
 const mobileNavList = document.getElementById('mobile-nav-list');
 // 三语切换
-const langBtnMobile = document.getElementById('lang-btn-mobile');
-const langBtnDesktop = document.getElementById('lang-btn-desktop');
+const langBtn = document.getElementById('lang-btn');
 const langList = document.getElementById('lang-list');
 
 // 1. 随机设置背景图（原有功能）
@@ -332,17 +331,13 @@ function initMobileNav() {
   });
 }
 
-// 修改初始化函数
+// 6. 三语切换核心逻辑（展开列表+点击切换+收起）
 function initLangSwitch() {
-  // 同时为两个按钮绑定事件
-  [langBtnMobile, langBtnDesktop].forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      langList.classList.toggle('hidden');
-      mobileNavList.classList.add('hidden');
-    });
+  langBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    langList.classList.toggle('hidden');
+    mobileNavList.classList.add('hidden'); // 打开语言列表时收起导航
   });
-  
   // 点击语言选项切换
   document.querySelectorAll('#lang-list .lang-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -351,7 +346,6 @@ function initLangSwitch() {
       langList.classList.add('hidden');
     });
   });
-  
   // 点击页面其他区域收起
   document.addEventListener('click', () => langList.classList.add('hidden'));
 }
