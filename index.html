@@ -28,6 +28,20 @@
   </script>
   <style type="text/tailwindcss">
     @layer utilities {
+      .menu-bg-img {
+    /* 替换成你自己的图片路径，建议用相对路径或网络图片 */
+    background-image: url('/image/SoSoCat.png');
+    /* 保证图片适配容器 */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* 叠加半透明遮罩，保证文字清晰 */
+    background-blend-mode: overlay;
+    /* 保留液态玻璃的模糊效果 */
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background-color: rgba(0, 0, 0, 0.7);
+  }
       /* 液态玻璃核心样式 */
       .lang-item:hover {
         transform: scale(1.05);
@@ -87,27 +101,28 @@
             <a href="#about" class="liquid-glass nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navAbout">About</a>
             <a href="#contact" class="liquid-glass nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navPersonal">Personal-Homepage</a>
         </nav>
-        <!-- 移动端菜单按钮+语言按钮：小屏横向并排 -->
-    <div class="flex items-center gap-2 md:hidden">
-        <button id="mobile-nav-btn" class="liquid-glass rounded-xl px-4 py-2" data-i18n="navBtn">菜单</button>
-        <button id="lang-btn" class="liquid-glass rounded-xl px-4 py-2 flex items-center gap-2">
-            <i class="fas fa-language text-sm"></i>
-            <span id="current-lang-text" data-i18n="currentLang">zh</span>
-        </button>
-    </div>
-    <!-- 大屏语言按钮：单独显示，和导航并排 -->
-    <button id="lang-btn" class="hidden md:flex liquid-glass rounded-xl px-4 py-2 items-center gap-2">
-        <i class="fas fa-language text-sm"></i>
-        <span id="current-lang-text" data-i18n="currentLang">zh</span>
-    </button>
+        <!-- 大屏语言按钮：把 id 改成类名，保留原有样式 -->
+<button class="lang-btn hidden md:flex liquid-glass rounded-xl px-4 py-2 items-center gap-2">
+    <i class="fas fa-language text-sm"></i>
+    <span class="current-lang-text" data-i18n="currentLang">zh</span>
+</button>
+<!-- 移动端菜单按钮+语言按钮：小屏横向并排 -->
+<div class="flex items-center gap-2 md:hidden">
+  <button id="mobile-nav-btn" class="liquid-glass rounded-xl px-4 py-2" data-i18n="navBtn">菜单</button>
+  <!-- 移动端语言按钮：加 md:hidden 只在小屏显示 -->
+  <button class="lang-btn liquid-glass rounded-xl px-4 py-2 flex items-center gap-2">
+    <i class="fas fa-language text-sm"></i>
+    <span class="current-lang-text" data-i18n="currentLang">zh</span>
+  </button>
+</div>
     <!-- 语言展开列表：全局唯一 -->
-    <div id="lang-list" class="hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
+    <div id="lang-list" class="menu-bg-img hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
         <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="zh-CN" data-i18n="langZh">zh 中文</div>
         <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="en-US" data-i18n="langEn">en 英语</div>
         <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="eo" data-i18n="langEo">eo 世界语</div>
     </div>
         <!-- 移动端导航列表：原有代码 -->
-    <div id="mobile-nav-list" class="hidden md:hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
+    <div id="mobile-nav-list" class="menu-bg-img hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
         <a href="#home" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navHome">Home</a>
         <a href="#about" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navAbout">About</a>
         <a href="#contact" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navPersonal">Personal-Homepage</a>
@@ -259,7 +274,8 @@ const bgImgs = ['./images/background1.jpg', './images/background2.jpg'];
 const mobileNavBtn = document.getElementById('mobile-nav-btn');
 const mobileNavList = document.getElementById('mobile-nav-list');
 // 三语切换
-const langBtn = document.getElementById('lang-btn');
+// 替换原有的 const langBtn = document.getElementById('lang-btn');
+const langBtns = document.querySelectorAll('.lang-btn'); // 获取所有语言按钮
 const langList = document.getElementById('lang-list');
 
 // 1. 随机设置背景图（原有功能）
@@ -330,23 +346,28 @@ function initMobileNav() {
     }
   });
 }
-
-// 6. 三语切换核心逻辑（展开列表+点击切换+收起）
 function initLangSwitch() {
-  langBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    langList.classList.toggle('hidden');
-    mobileNavList.classList.add('hidden'); // 打开语言列表时收起导航
+  // 为每个语言按钮绑定点击事件
+  langBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langList.classList.toggle('hidden');
+      mobileNavList.classList.add('hidden'); // 打开语言列表时收起导航
+    });
   });
-  // 点击语言选项切换
+  
+  // 点击语言选项切换（新增更新按钮文字）
   document.querySelectorAll('#lang-list .lang-item').forEach(item => {
     item.addEventListener('click', () => {
       currentLang = item.getAttribute('data-lang');
       renderI18n(currentLang);
+      // 新增：更新所有语言按钮上的文字
+      document.querySelectorAll('.current-lang-text').forEach(el => {
+        el.textContent = langConfig[currentLang].currentLang;
+      });
       langList.classList.add('hidden');
     });
   });
-  // 点击页面其他区域收起
   document.addEventListener('click', () => langList.classList.add('hidden'));
 }
 
