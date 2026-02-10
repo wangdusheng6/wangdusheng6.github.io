@@ -1,26 +1,368 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>猫豆小窝 - The petit nest of DuSô</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome图标 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- 自定义Tailwind配置：简化字体、保留玻璃色值 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            glass: {
+              primary: 'rgba(255, 255, 255, 0.15)',
+              border: 'rgba(255, 255, 255, 0.25)',
+            },
+          },
+          fontFamily: {
+            sans: ['sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      /* 液态玻璃核心样式 */
+      .lang-item:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.4);
+        }
+      .liquid-glass {
+        backdrop-filter: blur(12px) saturate(180%);
+        -webkit-backdrop-filter: blur(12px) saturate(180%);
+        background-color: theme('colors.glass.primary');
+        border: 1px solid theme('colors.glass.border');
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        transition: all 0.4s ease-in-out;
+      }
+      .liquid-glass:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+      /* 导航项hover（轻微缩放，不与卡片hover冲突） */
+      .nav-item:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+      /* 背景遮罩 */
+      .bg-mask {
+        background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.4) 100%);
+      }
+      /* 隐藏文件上传原生按钮 */
+      .file-input-hidden {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+    }
+  </style>
 </head>
-<body>
-    <button id="lang-btn-mobile">Mobile Language Button</button>
-    <button id="lang-btn-desktop">Desktop Language Button</button>
+<body class="min-h-screen w-full overflow-x-hidden font-sans text-white">
+  <!-- 背景容器：移除多余闭合div，保留原有类名 -->
+  <div id="bg-container" class="fixed inset-0 z-0 bg-cover bg-center"></div>
+  <div class="fixed inset-0 z-10 bg-mask"></div>
 
-    <script>
-        // JavaScript to initialize both buttons
-        const mobileButton = document.getElementById('lang-btn-mobile');
-        const desktopButton = document.getElementById('lang-btn-desktop');
+  <!-- 顶部Header（含右侧导航列表）- 液态玻璃风格，固定顶部 -->
+<header class="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+  <div class="liquid-glass rounded-2xl px-6 py-3 flex items-center justify-between mx-auto max-w-7xl">
+    <!-- 左侧Logo/标题 -->
+    <h2 class="text-xl font-bold" data-i18n="headerTitle">猫豆小窝</h2>
 
-        mobileButton.addEventListener('click', function() {
-            console.log('Mobile button clicked');
-        });
+    <!-- 关键修复：给导航区域加relative，让absolute的列表相对这里定位 -->
+    <div class="relative flex items-center gap-2">
+        <!-- 大屏导航列表：原有代码，无修改 -->
+        <nav class="hidden md:flex items-center gap-4">
+            <a href="#home" class="liquid-glass nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navHome">Home</a>
+            <a href="#about" class="liquid-glass nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navAbout">About</a>
+            <a href="#contact" class="liquid-glass nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navPersonal">Personal-Homepage</a>
+        </nav>
+        <!-- 移动端菜单按钮+语言按钮：小屏横向并排 -->
+    <div class="flex items-center gap-2 md:hidden">
+        <button id="mobile-nav-btn" class="liquid-glass rounded-xl px-4 py-2" data-i18n="navBtn">菜单</button>
+        <button id="lang-btn" class="liquid-glass rounded-xl px-4 py-2 flex items-center gap-2">
+            <i class="fas fa-language text-sm"></i>
+            <span id="current-lang-text" data-i18n="currentLang">zh</span>
+        </button>
+    </div>
+    <!<!-- 移动端语言按钮 -->
+    <button id="lang-btn-mobile" class="liquid-glass rounded-xl px-4 py-2 flex items-center gap-2">
+        <i class="fas fa-language text-sm"></i>
+        <span id="current-lang-text" data-i18n="currentLang">zh</span>
+    </button>
+    
+    <!-- 大屏语言按钮 -->
+    <button id="lang-btn-desktop" class="hidden md:flex liquid-glass rounded-xl px-4 py-2 items-center gap-2">
+        <i class="fas fa-language text-sm"></i>
+        <span id="current-lang-text" data-i18n="currentLang">zh</span>
+    </button>
+        <!-- 移动端导航列表：原有代码 -->
+    <div id="mobile-nav-list" class="hidden md:hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
+        <a href="#home" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navHome">Home</a>
+        <a href="#about" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navAbout">About</a>
+        <a href="#contact" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="navPersonal">Personal-Homepage</a>
+    </div>
+    </div>
+  </div>
+</header>
 
-        desktopButton.addEventListener('click', function() {
-            console.log('Desktop button clicked');
-        });
-    <\/script>
+  <!-- 主内容容器 - 预留顶部间距（适配fixed header），分3个锚点区域 -->
+  <div class="relative z-20 w-full px-4 py-32 md:py-40 max-w-4xl mx-auto">
+    <!-- 第一个Section：Home - 猫豆小窝/The petit nest of DuSô 标题+介绍 -->
+    <section id="home" class="liquid-glass rounded-2xl p-8 mb-12">
+      <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-center mb-8" data-i18n="homeTitle">The petit nest of DuSô</h1>
+      <div class="text-gray-200 text-lg leading-relaxed mb-4" data-i18n="homeDesc1">
+        猫豆小窝是笃笃猫和豆豆猫的专属小天地，这里藏着两人的日常、喜好与小美好，是一个温馨、治愈的私人空间。
+      </div>
+      <div class="text-gray-200 text-lg leading-relaxed" data-i18n="homeDesc2">
+        我们用心打理这片小角落，记录生活里的点滴温暖，也希望这份美好能给路过的你带来一丝治愈。
+      </div>
+    </section>
+
+    <!-- 第二个Section：About - 补充介绍（承接需求，丰富内容） -->
+    <section id="about" class="liquid-glass rounded-2xl p-8 mb-12">
+      <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-8 text-center" data-i18n="aboutTitle">About Us</h2>
+      <div class="text-gray-200 text-lg leading-relaxed" data-i18n="aboutDesc">
+        笃笃猫和豆豆猫是一对热爱生活的伙伴，喜欢探索美好事物、记录日常瞬间。猫豆小窝的诞生，是为了拥有一个属于彼此的独立空间，在这里可以分享我们的故事、收藏喜欢的一切，让平凡的日子多一份仪式感。
+      </div>
+    </section>
+
+    <!-- 第三个Section：Contact - 联系方式+个人主页跳转（du.html / so.html） -->
+    <section id="contact" class="liquid-glass rounded-2xl p-8">
+      <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-8 text-center" data-i18n="contactTitle">联系方式 & 个人主页</h2>
+      <!-- 联系方式文案 -->
+      <div class="text-gray-200 text-lg text-center mb-10" data-i18n="contactDesc">
+        想了解更多关于笃笃猫和豆豆猫的故事，可进入各自的个人主页，也欢迎随时交流～
+      </div>
+      <!-- 跳转按钮：du.html / so.html 液态玻璃风格，并排布局 -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="du.html" target="_blank" class="liquid-glass rounded-xl w-full sm:w-1/2 py-4 flex items-center justify-center gap-3 text-lg">
+          <i class="fas fa-user-circle text-xl"></i>
+          <span data-i18n="btnDu">笃笃猫的个人主页</span>
+        </a>
+        <a href="so.html" target="_blank" class="liquid-glass rounded-xl w-full sm:w-1/2 py-4 flex items-center justify-center gap-3 text-lg">
+          <i class="fas fa-user-circle text-xl"></i>
+          <span data-i18n="btnSo">豆豆猫的个人主页</span>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <!-- 底部功能区：背景上传+语言切换（保留原有核心功能） -->
+  <div class="relative z-20 w-full max-w-md px-4 py-8 mx-auto mb-12">
+    <div class="flex flex-col gap-4">
+      <!-- 上传背景按钮 -->
+      <label class="liquid-glass rounded-xl w-full py-4 flex items-center justify-center gap-3 cursor-pointer relative">
+        <i class="fas fa-upload text-xl"></i>
+        <span data-i18n="uploadBtn">上传自定义背景</span>
+        <input type="file" accept="image/*" class="file-input-hidden" id="bg-upload">
+      </label>
+    </div>
+  </div>
+
+  <!-- 底部版权 -->
+  <footer class="relative z-20 text-center text-gray-300 text-sm pb-8" data-i18n="copyright">
+    喵喵哒咪咪哒咪喵哒咕嘟哒
+  </footer>
+
+  <script>
+    // 三语配置对象：中文/英文/世界语 完整配置（无重复）
+const langConfig = {
+  'zh-CN': {
+    headerTitle: '猫豆小窝',
+    navBtn: '菜单',
+    navHome: '首页',
+    navAbout: '关于我们',
+    navPersonal: '个人主页',
+    homeTitle: '猫豆小窝',
+    homeDesc1: '猫豆小窝是笃笃猫和豆豆猫的专属小天地，这里藏着两人的日常、喜好与小美好，是一个温馨、治愈的私人空间。',
+    homeDesc2: '我们用心打理这片小角落，记录生活里的点滴温暖，也希望这份美好能给路过的你带来一丝治愈。',
+    aboutTitle: '关于我们',
+    aboutDesc: '笃笃猫和豆豆猫是一对热爱生活的伙伴，喜欢探索美好事物、记录日常瞬间。猫豆小窝的诞生，是为了拥有一个属于彼此的独立空间，在这里可以分享我们的故事、收藏喜欢的一切，让平凡的日子多一份仪式感。',
+    contactTitle: '联系方式 & 个人主页',
+    contactDesc: '想了解更多关于笃笃猫和豆豆猫的故事，可进入各自的个人主页，也欢迎随时交流～',
+    btnDu: '笃笃猫的个人主页',
+    btnSo: '豆豆猫的个人主页',
+    uploadBtn: '上传自定义背景',
+    copyright: '喵喵哒咪咪哒咪喵哒咕嘟哒',
+    // 语言切换专属文案
+    currentLang: 'zh',
+    langZh: 'zh 中文',
+    langEn: 'en 英语',
+    langEo: 'eo 世界语'
+  },
+  'en-US': {
+    headerTitle: 'The petit nest of DuSô',
+    navBtn: 'Menu',
+    navHome: 'Home',
+    navAbout: 'About',
+    navPersonal: 'Personal-Homepage',
+    homeTitle: 'The petit nest of DuSô',
+    homeDesc1: 'The petit nest of DuSô is the exclusive little world of Du and Sô, hiding their daily life, hobbies and small beauties, a warm and healing private space.',
+    homeDesc2: 'We take care of this little corner with all our hearts, record the little warmth in life, and hope this beauty can bring a little healing to you who pass by.',
+    aboutTitle: 'About Us',
+    aboutDesc: 'Du and Sô are partners who love life, fond of exploring beautiful things and recording daily moments. The birth of The petit nest of DuSô is to have an independent space belonging to each other, where we can share our stories, collect all we like, and add a sense of ritual to ordinary days.',
+    contactTitle: 'Contact & Personal-Homepage',
+    contactDesc: 'To know more stories about Du and Sô, you can enter their personal homepages, and welcome to communicate at any time～',
+    btnDu: "Du's Personal Homepage",
+    btnSo: "Sô's Personal Homepage",
+    uploadBtn: 'Upload Custom Background',
+    copyright: 'meow meow meow meow meow',
+    // 语言切换专属文案
+    currentLang: 'en',
+    langZh: 'zh Chinese',
+    langEn: 'en English',
+    langEo: 'eo Esperanto'
+  },
+  'eo': {
+    headerTitle: 'La eta nesteto de DuSô',
+    navBtn: 'Menuo',
+    navHome: 'Hejmo',
+    navAbout: 'Pri Ni',
+    navPersonal: 'Persona Paĝeto',
+    homeTitle: 'La eta nesteto de DuSô',
+    homeDesc1: 'La eta nesteto de DuSô estas la ekskluziva eta mondo de Du kaj Sô, kie kaŝiĝas ilia ĉiutago, ŝatoj kaj belaj detaloj, estas varma kaj resaniga privata spaco.',
+    homeDesc2: 'Ni zorgas pri ĉi tiu eta angulo kun tuta koro, registras la malgrandajn varmojn en la vivo, kaj esperas ke ĉi tiu beleco povas porti iom da resanigo al vi, kiu preterpasas.',
+    aboutTitle: 'Pri Ni',
+    aboutDesc: 'Du kaj Sô estas partneroj kiuj amas la vivon, ŝatas esplori belajn aferojn kaj registri ĉiutagajn momentojn. La naskiĝo de La eta nesteto de DuSô estas por havi sendependan spacon apartenantan al ili ambaŭ, kie ni povas dividi niajn rakontojn, kolekti ĉion kion ni ŝatas, kaj aldoni iom da ritemo al la ordinaraj tagoj.',
+    contactTitle: 'Kontakto & Persona Paĝeto',
+    contactDesc: 'Por scii pli da rakontoj pri Du kaj Sô, vi povas eniri iliajn personajn paĝetojn, kaj bonvenas komuniki ĉiutempe～',
+    btnDu: 'La Persona Paĝeto de Du',
+    btnSo: 'La Persona Paĝeto de Sô',
+    uploadBtn: 'Alŝuti Kutiman Fondon',
+    copyright: 'miau miau miau miau miau',
+    // 语言切换专属文案
+    currentLang: 'eo',
+    langZh: 'zh Ĉina',
+    langEn: 'en Angla',
+    langEo: 'eo Esperanto'
+  }
+};
+
+// 【全局变量统一定义】无重复、按功能分类
+let currentLang = document.documentElement.lang; // 初始语言：中文
+// 背景相关
+const bgContainer = document.getElementById('bg-container');
+const bgUpload = document.getElementById('bg-upload');
+const bgImgs = ['./images/background1.jpg', './images/background2.jpg'];
+// 移动端导航
+const mobileNavBtn = document.getElementById('mobile-nav-btn');
+const mobileNavList = document.getElementById('mobile-nav-list');
+// 三语切换
+const langBtnMobile = document.getElementById('lang-btn-mobile');
+const langBtnDesktop = document.getElementById('lang-btn-desktop');
+const langList = document.getElementById('lang-list');
+
+// 1. 随机设置背景图（原有功能）
+function setRandomBg() {
+  const randomIndex = Math.floor(Math.random() * 2);
+  bgContainer.style.backgroundImage = `url(${bgImgs[randomIndex]})`;
+}
+
+// 2. 渲染多语文案（适配三语，更新页面标题）
+function renderI18n(lang) {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = langConfig[lang][key];
+  });
+  document.documentElement.lang = lang;
+  // 三语对应页面标题
+  const titleMap = {
+    'zh-CN': '猫豆小窝',
+    'en-US': 'The petit nest of DuSô',
+    'eo': 'La eta nesteto de DuSô'
+  };
+  document.title = titleMap[lang];
+}
+
+// 3. 自定义背景上传（三语弹窗提示）
+bgUpload.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file || !file.type.startsWith('image/')) {
+    const tipMap = {
+      'zh-CN': '请选择有效的图片文件！',
+      'en-US': 'Please select a valid image file!',
+      'eo': 'Bonvolu elekti validan bilddosieron!'
+    };
+    alert(tipMap[currentLang]);
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    bgContainer.style.backgroundImage = `url(${e.target.result})`;
+    bgUpload.value = '';
+  };
+  reader.readAsDataURL(file);
+});
+
+// 4. 导航锚点平滑滚动（原有功能）
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// 5. 移动端导航展开/收起（原有功能，优化点击冲突）
+function initMobileNav() {
+  mobileNavBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    mobileNavList.classList.toggle('hidden');
+    langList.classList.add('hidden'); // 打开导航时收起语言列表
+  });
+  // 点击导航项收起
+  document.querySelectorAll('#mobile-nav-list a').forEach(link => {
+    link.addEventListener('click', () => mobileNavList.classList.add('hidden'));
+  });
+  // 点击页面其他区域收起
+  document.addEventListener('click', (e) => {
+    if (!mobileNavBtn.contains(e.target) && !mobileNavList.contains(e.target)) {
+      mobileNavList.classList.add('hidden');
+    }
+  });
+}
+
+// 修改初始化函数
+function initLangSwitch() {
+  // 同时为两个按钮绑定事件
+  [langBtnMobile, langBtnDesktop].forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langList.classList.toggle('hidden');
+      mobileNavList.classList.add('hidden');
+    });
+  });
+  
+  // 点击语言选项切换
+  document.querySelectorAll('#lang-list .lang-item').forEach(item => {
+    item.addEventListener('click', () => {
+      currentLang = item.getAttribute('data-lang');
+      renderI18n(currentLang);
+      langList.classList.add('hidden');
+    });
+  });
+  
+  // 点击页面其他区域收起
+  document.addEventListener('click', () => langList.classList.add('hidden'));
+}
+
+// 页面统一初始化（按执行顺序）
+window.onload = () => {
+  setRandomBg();
+  renderI18n(currentLang);
+  initMobileNav();
+  initLangSwitch();
+};
+  </script>
 </body>
 </html>
