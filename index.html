@@ -27,21 +27,7 @@
     }
   </script>
   <style type="text/tailwindcss">
-    @layer utilities {
-      .menu-bg-img {
-    /* 替换成你自己的图片路径，建议用相对路径或网络图片 */
-    background-image: url('/image/SoSoCat.png');
-    /* 保证图片适配容器 */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    /* 叠加半透明遮罩，保证文字清晰 */
-    background-blend-mode: overlay;
-    /* 保留液态玻璃的模糊效果 */
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    background-color: rgba(0, 0, 0, 0.7);
-  }
+    
       /* 液态玻璃核心样式 */
       .lang-item:hover {
         transform: scale(1.05);
@@ -79,7 +65,20 @@
         height: 100%;
         cursor: pointer;
       }
-    }
+      .menu-bg-img {
+      /* 替换成你自己的图片路径，建议用相对路径或网络图片 */
+      background-image: url('/image/SoSoCat.png');
+      /* 保证图片适配容器 */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      /* 叠加半透明遮罩，保证文字清晰 */
+      background-blend-mode: overlay;
+      /* 保留液态玻璃的模糊效果 */
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+      background-color: rgba(0, 0, 0, 0.7);
+      }
   </style>
 </head>
 <body class="min-h-screen w-full overflow-x-hidden font-sans text-white">
