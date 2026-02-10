@@ -1,4 +1,3 @@
-// server.js - HKBU GenAI专用版本
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
@@ -414,4 +413,5 @@ app.listen(port, () => {
   
   🚀 服务器已启动! 按 Ctrl+C 停止
   `);
+
 });
