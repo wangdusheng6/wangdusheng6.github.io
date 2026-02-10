@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- 三语标题自动匹配，和主站逻辑一致 -->
+  <!-- 十三语标题自动匹配，和主站逻辑一致 -->
   <title>笃笃猫 - 王笃生 个人主页</title>
   <!-- 引入Tailwind CSS（和主站一致） -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -48,6 +48,17 @@
         box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
         border-color: rgba(255, 255, 255, 0.4);
       }
+      .menu-bg-img {
+    /* 强制覆盖背景色，避免被 liquid-glass 遮挡 */
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    /* 图片路径先保留，后面排查 */
+    background-image: url('/images/SoSoCat.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    /* 保证图片在最下层，遮罩在上层 */
+    background-blend-mode: overlay !important;
+    }
       /* 导航项hover（和主站一致） */
       .nav-item:hover {
         transform: scale(1.05);
@@ -208,7 +219,7 @@
         
 
         <!-- 语言切换列表（和主站一致，三语适配） -->
-        <div id="lang-list" class="hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
+        <div id="lang-list" class="menu-bg-img hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
           <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="zh-CN" data-i18n="langZh">zh 中文</div>
           <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="en-US" data-i18n="langEn">en 英语</div>
           <div class="lang-item rounded-xl px-4 py-2 transition-all cursor-pointer" data-lang="eo" data-i18n="langEo">eo 世界语</div>
@@ -226,10 +237,10 @@
         </div>
 
         <!-- 小屏导航列表（和主站一致） -->
-        <div id="mobile-nav-list" class="hidden md:hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
+        <div id="mobile-nav-list" class="menu-bg-img hidden md:hidden absolute right-0 top-full mt-2 w-48 liquid-glass rounded-xl px-4 py-2 flex flex-col gap-2 z-60">
           <a href="index.html" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="backHome">返回主站</a>
           <a href="#home" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="homeNav">个人简介</a>
-          <a href="#gallery" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="galleryNav">作品展示</a>
+          <a href"#gallery" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="galleryNav">作品展示</a>
           <a href="#contact" class="nav-item rounded-xl px-4 py-2 transition-all" data-i18n="contactNav">联系方式</a>
         </div>
       </div>
