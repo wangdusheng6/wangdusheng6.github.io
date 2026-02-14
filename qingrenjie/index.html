@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>猫豆一周年快乐 🐱💖</title>
+<style>
+* {
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: "Microsoft YaHei", sans-serif;
+}
+
+/* 视频背景 */
+.video-bg {
+  position: fixed;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
+  object-fit: cover;
+  z-index:-2;
+}
+
+body {
+  position: relative;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:2rem 1rem;
+}
+
+/* 头部 */
+header {
+  width:100%;
+  max-width:700px;
+  padding:1rem;
+  background:rgba(255,255,255,0.3);
+  border-radius:16px;
+  text-align:center;
+  margin-bottom:2rem;
+}
+.header-text {
+  color:#a32668;
+  font-size:1.5rem;
+  font-weight:bold;
+}
+
+/* 标题 */
+.title-card {
+  background:rgba(255,255,255,0.3);
+  padding:1.5rem 2rem;
+  border-radius:20px;
+  text-align:center;
+  margin-bottom:3rem;
+}
+.title-card h1 {
+  color:#a32668;
+  font-size:2.2rem;
+  margin-bottom:0.5rem;
+}
+.title-card p {
+  color:#8b2e5c;
+  font-size:1.1rem;
+}
+
+/* 真正爱心容器 —— 纯曲线，无直线，标准爱心 */
+.heart-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 1 / 1;
+  margin-bottom: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 真正爱心：曲线构成，无直线，不是圆不是盾牌 */
+.heart-shape {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(214, 51, 132, 0.1);
+  clip-path: path("M100,30 C100,0 60,0 50,30 C40,0 0,0 0,30 C0,100 50,170 50,170 C50,170 100,100 100,30 Z");
+  z-index: -1;
+}
+
+/* 内容卡片：完全不被爱心遮罩 */
+.content-card {
+  width: 75%;
+  padding: 2rem;
+  background: rgba(255,255,255,0.25);
+  border-radius: 20px;
+  z-index: 10;
+}
+
+.content-card h2 {
+  color:#9d226b;
+  font-size:1.6rem;
+  margin-bottom:1rem;
+  border-bottom:2px solid rgba(157, 34, 107, 0.2);
+  padding-bottom:0.5rem;
+}
+
+.content-card p {
+  color:#5a1a40;
+  font-size:1.1rem;
+  line-height:1.8;
+  margin-bottom:1rem;
+}
+
+.poem {
+  font-style:italic;
+  text-align:center;
+  padding:1rem;
+  background:rgba(255,255,255,0.15);
+  border-radius:12px;
+}
+
+.confession {
+  font-size:1.3rem;
+  color:#d63384;
+  font-weight:bold;
+  text-align:center;
+  margin-top:1rem;
+}
+
+/* 底部 */
+footer {
+  width:100%;
+  max-width:700px;
+  padding:1.5rem;
+  background:rgba(255,255,255,0.3);
+  border-radius:16px;
+  text-align:center;
+  margin-top:2rem;
+}
+.footer-text {
+  color:#a32668;
+  font-size:1.2rem;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 你的视频背景 -->
+<video class="video-bg" autoplay loop muted>
+  <source src="duso.mp4" type="video/mp4">
+</video>
+
+<header>
+  <div class="header-text">🐱 万浓帝国 · 一周年纪念 🎉</div>
+</header>
+
+<div class="title-card">
+  <h1>🐱 猫豆一周年快乐 💖</h1>
+  <p>On浓，豆豆🫘猫陛下 ✨ </p>
+</div>
+
+<!-- ====================== 你的原文完整保留 ====================== -->
+
+<div class="heart-wrapper">
+  <div class="heart-shape"></div>
+  <div class="content-card">
+    <h2>🎂 一周年喵喵哒</h2>
+    <p>今天是我们一周年哒日子，祝泥天天快乐、开心、幸福！！！🥳</p>
+    <p>一年365天，每天和豆豆🫘猫陛下在一起的日子都香甜可口、爱意满满🍬，是猫猫臣下一生中最幸福的时光！</p>
+  </div>
+</div>
+
+<div class="heart-wrapper">
+  <div class="heart-shape"></div>
+  <div class="content-card">
+    <h2>📝 猫豆其回忆</h2>
+    <p>豆豆🫘猫陛下，初见到泥还有些生哒，而今猫豆其已经融为一体，像是要融化成一只小猫一样🐈，</p>
+    <p>在图书馆里面，猫豆就经常提灯苦读📖；在大理和哈尔滨，猫豆其白天游山玩水🏞️，晚上其共度良宵，好不自在；在猫豆哒小窝，猫豆也浓浓哒喵喵哒搭建好啦🏠；猫豆又可以找到保险公司哒工作，成为“卖保险”哒大陆人💼；白山黑水，南诏风光，巫山云雨，香港哒中西结合🌏，无不纳入万浓帝国，豆豆🫘陛下哒麾下</p>
+  </div>
+</div>
+
+<div class="heart-wrapper">
+  <div class="heart-shape"></div>
+  <div class="content-card">
+    <h2>💝 猫豆其情意咕</h2>
+    <p>一周年以来，豆豆🫘陛下对于猫呢一片爱心：豆豆🫘猫陛下其赐予猫猫臣下御笔肖画百幅🖌️，其都喵喵哒嘟嘟哒，猫猫微臣其感激陛下喵咪哒恩葱；每逢佳节，豆豆🫘陛下哒猫爪亦会笔写猫喵哒爱意哒文字✍️，猫其爱，其珍视哒。豆豆🫘陛下哒墨宝，其都是万浓帝国哒无形财产。每当猫其屁，帝国行将分崩离析哒时候，豆豆🫘陛下其不计前嫌，猫豆其喵嘟哒甜🍬。</p>
+    <div class="confession">
+      豆豆🫘猫陛下，我爱你！！！窝爱泥！！！喵喵哒~嘟嘟哒~咕喵喵~😘<br>
+      猫豆要永远在一起哟 💞
+    </div>
+  </div>
+</div>
+
+<div class="heart-wrapper">
+  <div class="heart-shape"></div>
+  <div class="content-card">
+    <h2>📜 猫机其献上小诗~</h2>
+    <p>猫机其作诗一首，猫猫其修改并翻译：</p>
+    <div class="poem">
+      Un Anosin de Aimorin<br>
+    </n>
+      Un anosin la luona ftsil<br>
+      La aimorin de Cass en SôSô<br>
+      Gra la perla ano ociano<br>
+      Gra la velstic ano noctu<br><br>
+      La dus hadreit cuobinet deven un<br>
+      La dus velstic en cihimmel danzorin<br>
+      La anosin si la ildomeatus de fnoah<br>
+      La heulax ano mond nonfinis<br><br>
+      La Sô utlafomesci di Splendor<br>
+      -Sapienta-Auctoritas-Virtus<br>
+      La Cass utlafomesci di Astutia<br>
+      -Elegantia-Auctoritas-Mysterium!
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-text">猫豆喵喵哒咪咪哒嘟嘟哒喵嘟咕 🐾</div>
+</footer>
+
+</body>
+</html>
