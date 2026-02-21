@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>求職分享會 · AMHKY 26 學術嘉年華</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft YaHei', 'Helvetica Neue', 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #f9f5f0;
+            color: #1e2b3c;
+            line-height: 1.6;
+        }
+
+        /* 導航列 (與主站一致) */
+        .navbar {
+            background: #ffffff;
+            box-shadow: 0 6px 18px rgba(0, 30, 40, 0.06);
+            padding: 0.8rem 0;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand a {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: #0f3b4f;
+            letter-spacing: 1px;
+            padding: 0.4rem 0;
+            display: inline-block;
+            border-bottom: 3px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .brand a.active {
+            border-bottom-color: #0f3b4f;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #2e4b5c;
+            font-weight: 500;
+            font-size: 1.2rem;
+            padding: 0.4rem 0;
+            border-bottom: 3px solid transparent;
+            transition: border-color 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .nav-links a:hover {
+            border-bottom-color: #1d7a7c;
+            color: #0f3b4f;
+        }
+
+        .nav-links a.active-nav {
+            border-bottom-color: #0f3b4f;
+            font-weight: 600;
+        }
+
+        /* 主要容器 */
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.8rem 3rem;
+        }
+
+        /* 頁面標題 */
+        .page-header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            color: #0b3345;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .page-header .sub-title {
+            font-size: 1.4rem;
+            color: #2e5a6b;
+            font-weight: 350;
+            border-bottom: 2px dashed #c0cfd6;
+            padding-bottom: 0.8rem;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        /* 活動簡介 / 資訊卡 */
+        .info-card {
+            background: white;
+            border-radius: 2.2rem;
+            padding: 2.5rem;
+            margin: 2rem 0 2.8rem;
+            box-shadow: 0 15px 30px -12px rgba(11, 51, 69, 0.15);
+            border: 1px solid rgba(220, 235, 240, 0.7);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+            margin-top: 1.8rem;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-item .emoji {
+            font-size: 2rem;
+            background: #ecf3f6;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-item .text {
+            flex: 1;
+        }
+
+        .info-item .text strong {
+            display: block;
+            font-size: 1.2rem;
+            color: #0f3b4f;
+        }
+
+        .info-item .text span {
+            color: #2b5a6c;
+        }
+
+        /* 嘉賓卡片 (含圖片) */
+.speaker-section {
+    margin: 3.5rem 0;
+}
+
+.section-title {
+    font-size: 2.2rem;
+    font-weight: 650;
+    color: #0f3b4f;
+    border-left: 8px solid #1b6e76;
+    padding-left: 1.3rem;
+    margin-bottom: 2.2rem;
+}
+
+.speaker-card {
+    background: white;
+    border-radius: 2.5rem;
+    padding: 2rem 2.2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 25px -8px rgba(0,40,50,0.1);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.8rem;
+    border: 1px solid #deeef3;
+    transition: all 0.2s;
+    width: 100%;
+    overflow: visible;
+}
+
+.speaker-card:hover {
+    box-shadow: 0 18px 30px -10px #0b334533;
+}
+
+.speaker-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #b7d7e0;
+    border: 3px solid white;
+    box-shadow: 0 8px 12px rgba(11,51,69,0.2);
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+/* 嘉賓姓名容器 */
+.speaker-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.3rem 0.5rem;
+    margin-bottom: 0.2rem;
+}
+
+.speaker-name .chinese-name {
+    font-size: 2rem;
+    font-weight: 650;
+    color: #123d4f;
+    line-height: 1.2;
+    white-space: nowrap;  /* 中文名強制不換行 */
+}
+
+.speaker-name .english-name {
+    font-size: 1.2rem;
+    color: #2b6d7a;
+    font-weight: 500;
+    white-space: normal;  /* 英文名允許換行 */
+    word-break: break-word;
+}
+
+/* 自我介紹段落 */
+.speaker-bio {
+    color: #244c5c;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+/* B站鏈接段落 */
+.speaker-bili {
+    margin-top: 0.8rem;
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.speaker-bili a {
+    color: #1b6e76;
+    text-decoration: underline;
+    font-weight: 500;
+    word-break: break-word;
+}
+.speaker-detail {
+    flex: 1 1 0;
+    min-width: 260px;
+    display: block;
+    width: 100%;
+    overflow-wrap: break-word;      /* 強制長單字換行 */
+    word-wrap: break-word;          /* 相容舊版瀏覽器 */
+    word-break: break-word;         /* 防止長網址或連續英文溢出 */
+    hyphens: auto;                  /* 自動添加連字符（英文） */
+}
+
+.speaker-detail h3 {
+    font-size: 2rem;
+    font-weight: 650;
+    color: #123d4f;
+    margin-bottom: 0.2rem;
+    line-height: 1.2;
+    width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.speaker-detail .sub {
+    font-size: 1.2rem;
+    color: #2b6d7a;
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+    width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.speaker-detail p {
+    color: #244c5c;
+    margin-bottom: 1rem;
+    width: 100%;
+    display: block;
+    clear: both;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.speaker-detail p:last-of-type {
+    margin-bottom: 0;
+}
+
+.speaker-detail a {
+    color: #1b6e76;
+    text-decoration: underline;
+    font-weight: 500;
+    word-break: break-word;         /* 連結強制換行 */
+    overflow-wrap: break-word;
+}
+        /* 報名方式區域 */
+        .register-section {
+            background: linear-gradient(115deg, #e7f1f4, #faf5ed);
+            border-radius: 3rem;
+            padding: 2.5rem 2.5rem;
+            margin: 3rem 0;
+        }
+
+        .register-title {
+            font-size: 2rem;
+            font-weight: 650;
+            color: #0f3b4f;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .register-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2.5rem;
+            justify-content: space-between;
+        }
+
+        .contact-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 1.8rem 2rem;
+            flex: 1 1 260px;
+            box-shadow: 0 12px 20px -14px #163a47;
+        }
+
+        .contact-card h4 {
+            font-size: 1.4rem;
+            border-left: 5px solid #1b6e76;
+            padding-left: 0.8rem;
+            margin-bottom: 1.2rem;
+            color: #0f3b4f;
+        }
+
+        .wechat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.2rem 0;
+            background: #f1f2f6;
+            border-radius: 3rem;
+            padding: 0.5rem 1.2rem;
+        }
+
+        .qr-placeholder {
+            width: 90px;
+            height: 90px;
+            background: repeating-linear-gradient(45deg, #ccc 0px, #ccc 8px, #ddd 8px, #ddd 16px);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #333;
+            font-weight: bold;
+            border: 2px dashed #1b6e76;
+        }
+
+        .qr-note {
+            font-size: 0.9rem;
+            color: #2f4f5e;
+        }
+
+        .form-link-box {
+            background: white;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            margin-top: 1.8rem;
+            border: 2px solid #c0dae3;
+        }
+
+        .big-link {
+            word-break: break-all;
+            font-size: 1.2rem;
+            background: #0f3b4f;
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 3rem;
+            display: inline-block;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 1rem 0 0.3rem;
+        }
+
+        .footnote {
+            color: #2f6373;
+            margin-top: 0.8rem;
+        }
+
+        /* 按鈕 */
+        .btn {
+            background: linear-gradient(125deg, #0f3b4f, #1b6e76);
+            color: white;
+            text-decoration: none;
+            padding: 0.9rem 2rem;
+            border-radius: 3rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 16px -8px #0f3b4faa;
+            transition: 0.2s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* 頁尾 */
+        .footer {
+            border-top: 1px solid #d4e0e5;
+            text-align: center;
+            padding: 2.5rem 1.8rem;
+            background: #f4efe9;
+            color: #4f6f7e;
+        }
+
+        .footer small {
+            font-size: 0.9rem;
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 700px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .nav-links { gap: 1.8rem; }
+            .page-header h1 { font-size: 2.3rem; }
+            .speaker-avatar { width: 80px; height: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 固定導航欄（求職頁面專用，無 emoji） -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="brand">
+      <a href="index.html">返回主頁</a>
+    </div>
+    <div class="nav-links">
+      <a href="#speakers">嘉賓快照</a>
+      <a href="#register">報名鏈接</a>
+      <a href="exchange.html">轉到交換</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+    <div class="main-container">
+
+        <!-- 頁面主標 -->
+        <div class="page-header">
+            <h1>求職分享會</h1>
+            <div class="sub-title">浸大手足 · 經驗相傳</div>
+        </div>
+
+        <!-- 活動簡介 + 基本資訊 -->
+        <div class="info-card">
+            <p style="font-size:1.3rem; margin-bottom:1.5rem;">📌 同學們正面臨求職與實習的迷茫，既缺乏經驗，亦對學校資源和職場平台感到陌生，更不清楚從何獲取有效資訊。<br>AMHKY社團將邀請<strong>浸會大學背景的學長以及老師</strong>分享實戰經驗，為大家答疑解惑，陪你我走穩求職第一步。</p>
+            <div class="info-grid">
+                <div class="info-item"><div class="emoji">📅</div><div class="text"><strong>活動日期</strong><span>2026年2月28日 (求職場)</span></div></div>
+                <div class="info-item"><div class="emoji">⏰</div><div class="text"><strong>活動時間</strong><span>19:30 - 21:30</span></div></div>
+                <div class="info-item"><div class="emoji">📍</div><div class="text"><strong>活動地點</strong><span>線上 Zoom 平台 (暫定)</span></div></div>
+                <div class="info-item"><div class="emoji">🗣️</div><div class="text"><strong>活動語言</strong><span>漢語普通話</span></div></div>
+                <div class="info-item"><div class="emoji">👥</div><div class="text"><strong>活動受眾</strong><span>AMHKY 會員</span></div></div>
+                <div class="info-item"><div class="emoji">💰</div><div class="text"><strong>活動費用</strong><span>免費</span></div></div>
+            </div>
+        </div>
+
+        <!-- 嘉賓檔案 (含真實圖片) -->
+        <div class="speaker-section" id="speakers">
+            <h2 class="section-title">嘉賓檔案</h2>
+
+            <!-- 嘉賓 1: 邴略 Eric Bing -->
+            <div class="speaker-card">
+                <img src="image/eric.jpg" alt="邴略 Eric Bing" class="speaker-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="speaker-detail">
+                    <h3>邴略 <span style="font-size:1.2rem;">Eric Bing</span></h3>
+                    <div class="sub">畢業於香港浸會大學統計及運籌學理學士（副修金融）</div>
+                    <p>曾任恒生銀行金融服務實習生，及後於中國工商銀行（亞洲）歷任個人銀行主任、管理培訓生、副分行經理及高級分行經理，現領導銅鑼灣旗艦分行。曾管理逾30億港元營收，主導KPI制定、個人貸款產品設計及分行營運優化，屢獲佳績；持有AFP理財規劃師、保險及證券從業資格，並獲院長嘉許名單榮譽。</p>
+                </div>
+            </div>
+
+            <!-- 嘉賓 2: 李易軒 Shaun -->
+            <div class="speaker-card">
+                <img src="image/shaun.jpg" alt="李易軒 Shaun" class="speaker-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="speaker-detail">
+                    <h3>李易軒 <span style="font-size:1.2rem;">Shaun</span></h3>
+                    <div class="sub">創意藝術學院音樂學專業25屆畢業生</div>
+                    <p>現任高中音樂教師及校團委書記。將於分享會講述求職歷程與秋招期間自身權益維護。</p>
+                </div>
+            </div>
+
+<!-- 嘉賓 3: 王浩 Simon Wang -->
+<div class="speaker-card">
+    <img src="image/simon.jpg" alt="王浩 Simon Wang" class="speaker-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="speaker-detail">
+        <div class="speaker-name">
+            <span class="chinese-name">王浩</span>
+            <span class="english-name">Simon Wang</span>
+        </div>
+        <div class="sub">香港浸會大學語文中心講師兼創新主任</div>
+        <p class="speaker-bio">擁有香港城市大學英文博士、牛津大學教育碩士及華盛頓大學歷史學士學位，研究領域為話語分析及電腦輔助語言學習，曾獲逾40萬港元資助開發學術寫作與口語教學項目，於SSCI期刊及Nature職業專欄發表多篇論文，並長期為《信報》及南華早報撰寫專欄文章，致力推動自由文化運動與數位時代下的學術素養培育。</p>
+        <p class="speaker-bio"><strong>最後我們特地請來王浩博士為我們講解：如何運用IDE裡的智能體（Agentic AI）為求職與入職做準備？乾貨滿滿，敬請期待！</strong></p>
+        <p class="speaker-bili">提前預習 · 老師B站視頻：<a href="https://b23.tv/WzXYrjH" target="_blank">【Feb 20 workshop Agentic AI 101】</a></p>
+    </div>
+</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 報名方式 (依照原文) -->
+        <div class="register-section" id="register">
+            <div class="register-title"><span>📋</span> 報名方式</div>
+            <div class="register-flex">
+                <!-- 負責人微信 -->
+                <div class="contact-card">
+                    <h4>負責人：王篤生</h4>
+                    <div class="wechat-item"><span style="font-weight:600;">微信：</span>wds051018</div>
+                    <img src="image/hbef.jpg" alt="負責人微信二維碼" style="width:120px; height:120px; border-radius:16px; object-fit:cover; border:2px solid #1b6e76;">
+                    <div class="qr-note">微信二維碼 (如上)</div>
+                </div>
+                <!-- 主席微信 -->
+                <div class="contact-card">
+                    <h4>主席微信</h4>
+                    <div class="wechat-item"><span style="font-weight:600;">微信號：</span>Heli001117</div>
+                    <img src="image/hbef2.jpg" alt="主席微信二維碼" style="width:120px; height:120px; border-radius:16px; object-fit:cover; border:2px solid #1b6e76;">
+                    <div class="qr-note">微信二維碼 (如上)</div>
+                </div>
+                <!-- 報名表 & 活動網站 -->
+                <div class="contact-card" style="flex:2 1 300px;">
+                    <h4>掃碼填寫報名表</h4>
+                    <img src="image/hbef.jpg" alt="報名表二維碼" style="width:120px; height:120px; border-radius:16px; object-fit:cover; border:2px solid #1b6e76;">
+                </div>
+            </div>
+
+            <div style="margin-top:2rem; background: white; border-radius: 3rem; padding: 1.5rem; text-align: center; border:2px solid #b8d5e0;">
+                <p style="font-size:1.3rem;"><strong>講座時間 & 地點</strong></p>
+                <p>2026.2.28 (求職場) · 3.1 (交換場) · 19:30 - 21:30 · Zoom (線上)</p>
+            </div>
+
+            <!-- 加註 B站 帳號 -->
+            <div style="margin-top:1.5rem; text-align: right; opacity:0.8;">
+                <small>活動結束後錄屏發送至B站官方帳號：AMHKY-HKBU</small>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>AMHKY 香港浸會大學內地香港青年聯合會</p>
+    <small>點擊導航切換至「交換分享會」</small>
+</footer>
+</body>
+</html>

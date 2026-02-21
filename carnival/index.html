@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMHKY26 學術嘉年華</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'PingFang TC', 'Microsoft YaHei', 'Helvetica Neue', 'Segoe UI', Roboto, Arial, sans-serif;
+      background-color: #f9f5f0;
+      color: #1e2b3c;
+      line-height: 1.5;
+    }
+
+    /* 導航列 */
+    .navbar {
+      background: #ffffff;
+      box-shadow: 0 6px 18px rgba(0, 30, 40, 0.06);
+      padding: 0.8rem 0;
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.8rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand a {
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: #0f3b4f;
+      letter-spacing: 1px;
+      padding: 0.4rem 0;
+      display: inline-block;
+      border-bottom: 3px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .brand a.active {
+      border-bottom-color: #0f3b4f;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #2e4b5c;
+      font-weight: 500;
+      font-size: 1.2rem;
+      padding: 0.4rem 0;
+      border-bottom: 3px solid transparent;
+      transition: border-color 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .nav-links a:hover {
+      border-bottom-color: #1d7a7c;
+      color: #0f3b4f;
+    }
+
+    /* 主要容器 */
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.8rem;
+    }
+
+    /* 英雄區 */
+    .hero {
+      text-align: center;
+      padding: 4.5rem 0 2.5rem;
+    }
+
+    .hero h1 {
+      font-size: 3.2rem;
+      font-weight: 700;
+      color: #0b3345;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.8rem;
+      text-shadow: 0 2px 4px rgba(0,30,40,0.08);
+    }
+
+    .hero .subhead {
+      font-size: 1.4rem;
+      color: #2e5a6b;
+      max-width: 700px;
+      margin: 0 auto;
+      font-weight: 350;
+      border-top: 2px dashed #c0cfd6;
+      padding-top: 1.2rem;
+      display: inline-block;
+    }
+
+    /* 卡片區域 */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
+      margin: 4rem 0 5rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 2.2rem;
+      padding: 2.5rem 2rem 2.8rem;
+      box-shadow: 0 20px 30px -10px rgba(11, 51, 69, 0.15);
+      transition: transform 0.25s ease, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(220, 235, 240, 0.6);
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 30px 35px -8px rgba(8, 50, 70, 0.2);
+    }
+
+    .card h2 {
+      font-size: 2.3rem;
+      font-weight: 650;
+      color: #0f3b4f;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card p {
+      font-size: 1.15rem;
+      color: #2b4d5e;
+      margin-bottom: 2.2rem;
+      flex-grow: 1;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: inline-block;
+      background: linear-gradient(125deg, #0f3b4f, #1b6e76);
+      color: white;
+      text-decoration: none;
+      padding: 1rem 2.2rem;
+      border-radius: 3rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: 0.8px;
+      box-shadow: 0 10px 16px -6px #0f3b4f55;
+      transition: all 0.2s;
+      align-self: flex-start;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: linear-gradient(125deg, #1b6e76, #0f3b4f);
+      box-shadow: 0 15px 20px -6px #0b3345aa;
+      transform: scale(1.02);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    /* 頁尾 */
+    .footer {
+      border-top: 1px solid #d4e0e5;
+      text-align: center;
+      padding: 2rem 0 2.5rem;
+      color: #4f6f7e;
+      font-size: 1rem;
+      background-color: #f4efe9;
+      margin-top: 2rem;
+    }
+
+    .footer p {
+      max-width: 600px;
+      margin: 0 auto;
+      opacity: 0.9;
+    }
+
+    .footer small {
+      font-size: 0.9rem;
+      display: block;
+      margin-top: 0.8rem;
+      color: #6a8796;
+    }
+
+    /* 響應式調整 */
+    @media (max-width: 700px) {
+      .nav-container {
+        flex-direction: column;
+        gap: 0.8rem;
+        padding: 0.8rem 1.2rem;
+      }
+      .nav-links {
+        gap: 2rem;
+      }
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      .hero .subhead {
+        font-size: 1.2rem;
+      }
+      .card h2 {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 450px) {
+      .nav-links {
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .brand a {
+        font-size: 1.5rem;
+      }
+      .btn {
+        padding: 0.8rem 1.8rem;
+      }
+    }
+
+    /* 裝飾性點綴 */
+    .dot-pattern {
+      background: radial-gradient(circle at 30% 30%, #dbe9ee 2px, transparent 2px);
+      background-size: 28px 28px;
+      opacity: 0.2;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- 固定導航欄 -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <!-- 當前頁面 (嘉年華首頁) 使用 active 樣式 -->
+        <a href=" " class="active">AMHKY 學術嘉年華</a >
+      </div>
+      <div class="nav-links">
+        <a href="exchange.html"><span>🌍</span> 交換分享會</a >
+        <a href="jobseek.html"><span>💼</span> 求職分享會</a >
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="main-container">
+      <!-- 英雄區塊 -->
+      <section class="hero">
+        <h1>學術嘉年華</h1>
+        <p class="subhead">交換分享會·求職分享會</p >
+      </section>
+
+      <!-- 卡片區：交換 & 求職 詳細介紹，亦可直接跳轉對應頁面 -->
+      <section class="cards-grid">
+        <!-- 交換卡片 -->
+        <div class="card">
+          <h2><span>🌍</span> 交換經驗</h2>
+          <p>
+            初入大學，同學們對交換計劃心中總有許多疑問：我們學校究竟如何申請交換？值不值得走出去看看？又能去往哪些地方？申請流程究竟如何？
+            AMHKY社團將邀請學長學姐親身分享，以過來人的經驗，為你一一揭開交換之旅的神秘面紗，詳盡講解各項事宜。
+          </p >
+          <a href="exchange.html" class="btn">了解更多 →</a >
+        </div>
+        <!-- 求職卡片 -->
+        <div class="card">
+          <h2><span>💼</span> 求職指南</h2>
+          <p>
+            同學們正面臨求職與實習的迷茫，既缺乏經驗，亦對學校資源和職場平台感到陌生，更不清楚從何獲取有效資訊。
+            AMHKY社團將邀請浸會大學背景的學長以及老師分享實戰經驗，為大家答疑解惑，陪你我走穩求職第一步。
+          </p >
+          <a href="jobseek.html" class="btn">了解更多 →</a >
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="footer">
+    <div class="main-container">
+      <p>點擊導航欄或卡片按鈕，切換至交換 / 求職專頁</p >
+      <small>AMHKY 香港浸會大學內地香港青年聯合會</small>
+    </div>
+  </footer>
+
+  <!-- 頁面底層微裝飾（純視覺） -->
+  <div class="dot-pattern" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1;"></div>
+</body>
+</html>
