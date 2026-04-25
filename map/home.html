@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -12,12 +13,12 @@
             background: linear-gradient(135deg, #0a1620 0%, #1a2a3a 100%);
             padding: 20px;
         }
-        
+
         .home-container {
             max-width: 800px;
             margin: 0 auto;
         }
-        
+
         /* 用户信息栏 */
         .user-header {
             background: #1e2a32cc;
@@ -32,13 +33,13 @@
             gap: 12px;
             border: 1px solid #6c8fb0;
         }
-        
+
         .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
         .user-avatar {
             width: 48px;
             height: 48px;
@@ -49,23 +50,23 @@
             justify-content: center;
             font-size: 24px;
         }
-        
+
         .user-details h3 {
             margin: 0;
             color: #ffd966;
         }
-        
+
         .user-details p {
             margin: 4px 0 0;
             font-size: 12px;
             color: #8aaec0;
         }
-        
+
         .btn-group {
             display: flex;
             gap: 10px;
         }
-        
+
         .btn-group button {
             background: #2c7da0;
             border: none;
@@ -76,19 +77,19 @@
             font-size: 13px;
             transition: 0.2s;
         }
-        
+
         .btn-group button:hover {
             background: #1f6390;
         }
-        
+
         .btn-danger {
             background: #a04141 !important;
         }
-        
+
         .btn-danger:hover {
             background: #7a3030 !important;
         }
-        
+
         /* 新建存档卡片 */
         .create-card {
             background: #1e2a32cc;
@@ -99,7 +100,7 @@
             border: 1px dashed #6c8fb0;
             text-align: center;
         }
-        
+
         .create-card input {
             background: #2d3e4b;
             border: 1px solid #7f9cbb;
@@ -109,7 +110,7 @@
             width: 250px;
             margin-right: 10px;
         }
-        
+
         .create-card button {
             background: #2c7da0;
             border: none;
@@ -118,14 +119,14 @@
             border-radius: 40px;
             cursor: pointer;
         }
-        
+
         /* 存档列表 */
         .archive-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
-        
+
         .archive-card {
             background: #1e2a32cc;
             backdrop-filter: blur(8px);
@@ -137,12 +138,12 @@
             border: 1px solid #6c8fb0;
             transition: 0.2s;
         }
-        
+
         .archive-card:hover {
             border-color: #ffaa66;
             transform: translateX(4px);
         }
-        
+
         .archive-icon {
             width: 60px;
             height: 60px;
@@ -155,41 +156,41 @@
             flex-shrink: 0;
             overflow: hidden;
         }
-        
+
         .archive-icon img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
+
         .archive-info {
             flex: 1;
         }
-        
+
         .archive-name {
             font-weight: bold;
             color: #ffdd99;
             margin-bottom: 4px;
         }
-        
+
         .archive-id {
             font-size: 11px;
             color: #8aaec0;
             font-family: monospace;
             margin-bottom: 4px;
         }
-        
+
         .archive-date {
             font-size: 10px;
             color: #6c8fb0;
         }
-        
+
         .archive-actions {
             display: flex;
             gap: 8px;
             flex-shrink: 0;
         }
-        
+
         .archive-actions button {
             background: transparent;
             border: 1px solid #6c8fb0;
@@ -200,36 +201,39 @@
             font-size: 11px;
             transition: 0.2s;
         }
-        
+
         .archive-actions button:hover {
             background: #2c7da0;
             border-color: #2c7da0;
         }
-        
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
             color: #8aaec0;
         }
-        
+
         .loading {
             text-align: center;
             padding: 40px;
             color: #ffdd99;
         }
-        
+
         @media (max-width: 600px) {
             .user-header {
                 flex-direction: column;
                 text-align: center;
             }
+
             .archive-card {
                 flex-wrap: wrap;
             }
+
             .archive-actions {
                 width: 100%;
                 justify-content: center;
             }
+
             .create-card input {
                 width: 100%;
                 margin-bottom: 10px;
@@ -237,14 +241,17 @@
         }
     </style>
 </head>
+
 <body>
     <div class="home-container">
         <!-- 用户信息栏 -->
         <div class="user-header" id="user-header">
             <div class="user-info">
                 <!-- 用户头像图标，可点击更换 -->
-                <img id="user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='%23ffaa66'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" 
-                    width="48" height="48" style="border-radius: 50%; cursor: pointer; background: #2d3e4b; padding: 8px; object-fit: cover;"
+                <img id="user-avatar"
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='%23ffaa66'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"
+                    width="48" height="48"
+                    style="border-radius: 50%; cursor: pointer; background: #2d3e4b; padding: 8px; object-fit: cover;"
                     title="点击更换头像" id="user-avatar">
                 <div class="user-details">
                     <h3 id="username-display">加载中...</h3>
@@ -256,7 +263,7 @@
                 <button id="change-pwd-home" class="btn-danger">修改密码</button>
             </div>
         </div>
-        
+
         <!-- 新建存档 -->
         <div class="create-card">
             <h3 style="margin-top: 0; color: #ffd966;">创建新存档</h3>
@@ -279,11 +286,11 @@
     </div>
 
     <script type="module">
-        import { 
+        import {
             openDB, getDB,
-            getUserArchives, 
-            saveArchive, 
-            deleteArchive, 
+            getUserArchives,
+            saveArchive,
+            deleteArchive,
             duplicateArchive,
             changePassword
         } from './db.js';
@@ -316,10 +323,10 @@
                 window.location.href = 'index.html';
                 return;
             }
-            
+
             await openDB();
             const db = getDB();
-            
+
             // 验证用户是否存在
             const tx = db.transaction(['users'], 'readonly');
             const userStore = tx.objectStore('users');
@@ -327,19 +334,24 @@
                 const req = userStore.get(accountId);
                 req.onsuccess = () => resolve(req.result);
             });
-            
+
             if (!user) {
                 alert('用户不存在，请重新登录');
                 window.location.href = 'index.html';
                 return;
             }
-            
+
             currentUser = user;
-            
+            // 存储当前登录用户到 localStorage
+            localStorage.setItem('currentUser', JSON.stringify({
+                accountId: user.accountId,
+                username: user.username
+            }));
+
             // 显示用户信息
             document.getElementById('username-display').innerText = username || user.username;
             document.getElementById('accountid-display').innerHTML = `账号ID: <span id="copy-account-id" style="cursor: pointer; color: #ffaa66; ">${accountId}</span>`;
-            
+
             // 加载存档列表
             await loadArchives();
             // 加载用户头像
@@ -352,16 +364,17 @@
 
             // 绑定更换头像事件
             document.getElementById('user-avatar').onclick = changeUserAvatar;
-                        
+
             // 绑定事件
             document.getElementById('logout-home').onclick = () => {
+                localStorage.removeItem('currentUser');
                 window.location.href = 'index.html';
             };
-            
+
             document.getElementById('change-pwd-home').onclick = () => {
                 window.location.href = `index.html?accountId=${accountId}&username=${username || user.username}`;
             };
-            
+
             document.getElementById('btn-create-archive').onclick = createNewArchive;
             // 搜索按钮
             document.getElementById('btn-search-user').onclick = async () => {
@@ -401,13 +414,13 @@
                 window.location.href = `map.html?accountId=${user.accountId}&archiveId=${trimmedId}`;
             };
         }
-        
+
         async function loadArchives() {
             const container = document.getElementById('archive-list');
             container.innerHTML = '<div class="loading">加载中...</div>';
-            
+
             archives = await getUserArchives(accountId);
-            
+
             if (archives.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -417,9 +430,9 @@
                 `;
                 return;
             }
-            
+
             container.innerHTML = '';
-            
+
             for (const archive of archives) {
                 const card = document.createElement('div');
                 card.className = 'archive-card';
@@ -440,14 +453,14 @@
                 `;
                 container.appendChild(card);
             }
-            
+
             // 绑定按钮事件
             document.querySelectorAll('.enter-btn').forEach(btn => {
                 btn.onclick = () => {
                     window.location.href = `map.html?accountId=${accountId}&archiveId=${btn.dataset.id}`;
                 };
             });
-            
+
             document.querySelectorAll('.copy-btn').forEach(btn => {
                 btn.onclick = async () => {
                     const newName = prompt('请输入新存档名称:', archives.find(a => a.archiveId === btn.dataset.id)?.name + ' (副本)');
@@ -457,7 +470,7 @@
                     }
                 };
             });
-            
+
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.onclick = async () => {
                     if (confirm('确定删除这个存档吗？')) {
@@ -476,11 +489,11 @@
                 });
             });
         }
-        
+
         async function createNewArchive() {
             let name = document.getElementById('new-archive-name').value.trim();
             if (!name) name = '我的世界地图';
-            
+
             // 创建空白地图数据
             const canvas = document.createElement('canvas');
             canvas.width = 2048;
@@ -489,15 +502,15 @@
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, 2048, 1024);
             const mapDataUrl = canvas.toDataURL();
-            
+
             const archive = await saveArchive(accountId, name, null, mapDataUrl, [], []);
             alert(`存档创建成功！\n存档ID: ${archive.archiveId}`);
             await loadArchives();
             document.getElementById('new-archive-name').value = '我的世界地图';
         }
-        
+
         function escapeHtml(str) {
-            return str.replace(/[&<>]/g, function(m) {
+            return str.replace(/[&<>]/g, function (m) {
                 if (m === '&') return '&amp;';
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
@@ -520,7 +533,7 @@
             input.onchange = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                
+
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const avatarUrl = event.target.result;
@@ -535,4 +548,5 @@
         startup();
     </script>
 </body>
+
 </html>
