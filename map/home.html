@@ -263,7 +263,14 @@
             <input type="text" id="new-archive-name" placeholder="存档名称" value="我的世界地图">
             <button id="btn-create-archive">创建存档</button>
         </div>
-        
+        <!-- 搜索好友 -->
+        <div class="create-card">
+            <h3 style="margin-top: 0; color: #ffd966;">查找好友</h3>
+            <input type="text" id="search-wechat" placeholder="对方的微信号" style="width: 100%; margin-bottom: 8px;">
+            <button id="btn-search-user">搜索</button>
+            <div id="search-result" style="margin-top: 10px; display: none;"></div>
+        </div>
+
         <!-- 存档列表 -->
         <h3 style="color: #ffdd99; margin-bottom: 12px;">我的存档</h3>
         <div id="archive-list" class="archive-list">
@@ -280,6 +287,20 @@
             duplicateArchive,
             changePassword
         } from './db.js';
+
+        // 通过微信号查找用户
+        async function findUserByWechat(wechat) {
+            const db = getDB();
+            const tx = db.transaction(['users'], 'readonly');
+            const store = tx.objectStore('users');
+            const index = store.index('wechat');
+            const user = await new Promise((resolve) => {
+                const req = index.get(wechat);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => resolve(null);
+            });
+            return user;
+        }
 
         let currentUser = null;
         let archives = [];
@@ -317,12 +338,17 @@
             
             // 显示用户信息
             document.getElementById('username-display').innerText = username || user.username;
-            document.getElementById('accountid-display').innerText = `账号ID: ${accountId}`;
+            document.getElementById('accountid-display').innerHTML = `账号ID: <span id="copy-account-id" style="cursor: pointer; color: #ffaa66; ">${accountId}</span>`;
             
             // 加载存档列表
             await loadArchives();
             // 加载用户头像
             loadUserAvatar();
+            // 复制账号ID
+            document.getElementById('copy-account-id')?.addEventListener('click', () => {
+                navigator.clipboard.writeText(accountId);
+                alert('账号ID已复制');
+            });
 
             // 绑定更换头像事件
             document.getElementById('user-avatar').onclick = changeUserAvatar;
@@ -332,11 +358,48 @@
                 window.location.href = 'index.html';
             };
             
-document.getElementById('change-pwd-home').onclick = () => {
-    window.location.href = `index.html?accountId=${accountId}&username=${username || user.username}`;
-};
+            document.getElementById('change-pwd-home').onclick = () => {
+                window.location.href = `index.html?accountId=${accountId}&username=${username || user.username}`;
+            };
             
             document.getElementById('btn-create-archive').onclick = createNewArchive;
+            // 搜索按钮
+            document.getElementById('btn-search-user').onclick = async () => {
+                const wechat = document.getElementById('search-wechat').value.trim();
+                const resultDiv = document.getElementById('search-result');
+                if (!wechat) {
+                    alert('请输入微信号');
+                    return;
+                }
+                resultDiv.innerHTML = '<div style="color: #ffdd99;">搜索中...</div>';
+                resultDiv.style.display = 'block';
+                const user = await findUserByWechat(wechat);
+                if (!user) {
+                    resultDiv.innerHTML = '<span style="color: #ffaa88;">未找到该微信号的用户</span>';
+                    return;
+                }
+                // 显示搜索结果
+                resultDiv.innerHTML = `<div style="background: #2d3e4b; padding: 10px; border-radius: 12px;">
+                    <div style="color: #ffd966;">找到用户：${user.username}</div>
+                    <div style="color: #8aaec0; margin-top: 5px;">账号ID: <span style="color: #ffaa66; font-family: monospace;">${user.accountId}</span></div>
+                </div>`;
+                // 弹出弹窗，让对方输入存档ID
+                const archiveId = prompt(`请输入 ${user.username} 的存档ID：`);
+                if (!archiveId || !archiveId.trim()) {
+                    alert('已取消');
+                    return;
+                }
+                const trimmedId = archiveId.trim();
+                // 验证存档ID是否属于该用户（注意：传入 user.accountId，不是当前用户的 accountId）
+                const archives = await getUserArchives(user.accountId);
+                const validArchive = archives.find(a => a.archiveId === trimmedId);
+                if (!validArchive) {
+                    alert(`存档ID错误！\n${user.username} 没有这个存档，请核对后重新输入`);
+                    return;
+                }
+                // 验证通过，进入存档
+                window.location.href = `map.html?accountId=${user.accountId}&archiveId=${trimmedId}`;
+            };
         }
         
         async function loadArchives() {
@@ -366,7 +429,7 @@ document.getElementById('change-pwd-home').onclick = () => {
                     </div>
                     <div class="archive-info">
                         <div class="archive-name">${escapeHtml(archive.name)}</div>
-                        <div class="archive-id">ID: ${archive.archiveId}</div>
+                        <div class="archive-id">ID: <span class="copy-archive-id" data-id="${archive.archiveId}" style="cursor: pointer; color: #ffaa66; text-decoration: underline;">${archive.archiveId}</span> <span style="font-size: 10px;">(点击复制)</span></div>
                         <div class="archive-date">更新于: ${new Date(archive.updatedAt).toLocaleString()}</div>
                     </div>
                     <div class="archive-actions">
@@ -402,6 +465,15 @@ document.getElementById('change-pwd-home').onclick = () => {
                         await loadArchives();
                     }
                 };
+            });
+            // 复制存档ID
+            document.querySelectorAll('.copy-archive-id').forEach(elem => {
+                elem.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const archiveId = elem.dataset.id;
+                    navigator.clipboard.writeText(archiveId);
+                    alert('存档ID已复制');
+                });
             });
         }
         
