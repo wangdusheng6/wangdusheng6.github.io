@@ -245,8 +245,14 @@
             <button id="change-pwd-btn" class="logout-btn" style="background:#2c5a6e;">改密</button>
             <button id="delete-account-btn" class="logout-btn" style="background:#a04141; margin-left:5px;">注销账号</button>
         </div>
+
         <button id="btn-toggle-panel" style="position: absolute; top: 20px; left: 20px; background: #1e2a32cc; border: 1px solid #ffaa66; color: #ffdd99; border-radius: 30px; padding: 8px 16px; cursor: pointer; z-index: 200; backdrop-filter: blur(8px); font-size: 13px;">收起面板</button>
+        
         <div class="tool-bar" id="tool-bar" style="display: none;">
+            <div class="tool-section">
+                <div style="font-weight:bold; margin-bottom:6px;">当前存档</div>
+                <input type="text" id="save-name" value="新的世界存档" style="width:100%; background:#2d3e4b; border:1px solid #7f9cbb; color:white; border-radius:12px; padding:6px 8px; font-size:12px; box-sizing:border-box;">
+            </div>
             <div class="tool-section">
                 <div style="font-weight:bold; margin-bottom:6px;">模式</div>
                 <button id="btn-mouse">鼠标</button>
@@ -262,10 +268,11 @@
             </div>
             <div class="tool-section">
                 <div style="font-weight:bold; margin-bottom:6px;">标注工具</div>
-                <button id="btn-click-select">鼠标选点</button>
+                <button id="btn-click-select">选点</button>
                 <button id="btn-clear-markers">清除</button>
                 <button id="btn-reset">重置画布</button>
                 <button id="btn-import-image">导入</button>
+                <button id="btn-export-image">导出</button>
             </div>
             <div class="tool-section">
                 <div style="font-weight:bold; margin-bottom:6px;">画笔设置</div>                <div style="display:flex; align-items:center; gap:8px;">
@@ -816,7 +823,7 @@
                 background: rgba(0,0,0,0.75);
                 backdrop-filter: blur(8px);
                 color: #ffdd99;
-                padding: 6px 12px;
+                padding: 30px 30px;
                 border-radius: 20px;
                 border: 1px solid #ffaa66;
                 font-size: 12px;
@@ -911,6 +918,14 @@
             // 为了满足要求，额外标注我们用 localStorage+账号? 更好: 存数据库的另一个store。快速实现标注存储
             const markersData = await loadMarkers(user.accountId);
             if(markersData) markersData.forEach(m => addMarker(m.lat, m.lon, m.name));
+            // 加载存档名称
+            if (currentUser) {
+                const savedName = localStorage.getItem(`saveName_${currentUser.accountId}`);
+                const saveNameInput = document.getElementById('save-name');
+                if (saveNameInput && savedName) {
+                    saveNameInput.value = savedName;
+                }
+            }
         }
         async function saveMarkers(accountId, markers) {
             const tx = db.transaction(['markers'], 'readwrite');
@@ -1208,7 +1223,44 @@
             btnDraw.onclick = () => setDrawingMode('draw');
             btnFill.onclick = () => setDrawingMode('fill');
             btnEraser.onclick = () => setDrawingMode('eraser');
-            btnClickSelect.onclick = () => setDrawingMode('marker');
+            btnClickSelect.onclick = () => {
+                // 先进入地图选点模式（原来的功能）
+                setDrawingMode('marker');
+                const useInput = confirm('请选择添加标注方式：\n\n"确定" → 手动输入经纬度\n"取消" → 点击地图选点');
+                if (useInput) {
+                    // 手动输入经纬度
+                    const latStr = prompt('请输入纬度 (-90 ~ 90)：', '0');
+                    if (latStr === null) return;
+                    const lonStr = prompt('请输入经度 (-180 ~ 180)：', '0');
+                    if (lonStr === null) return;
+                    
+                    const lat = parseFloat(latStr);
+                    const lon = parseFloat(lonStr);
+                    
+                    if (isNaN(lat) || isNaN(lon)) {
+                        document.getElementById('status-msg').innerText = '请输入有效的数字';
+                        return;
+                    }
+                    if (lat < -90 || lat > 90) {
+                        document.getElementById('status-msg').innerText = '纬度范围: -90 ~ 90';
+                        return;
+                    }
+                    if (lon < -180 || lon > 180) {
+                        document.getElementById('status-msg').innerText = '经度范围: -180 ~ 180';
+                        return;
+                    }
+                    
+                    const name = prompt('请输入标注名称:', `坐标点 (${lat}, ${lon})`);
+                    const finalName = (name === null || name.trim() === '') ? `坐标点` : name.trim();
+                    
+                    selectedMarkerPoint = { lat, lon, name: finalName };
+                    addMarker(lat, lon, finalName);
+                    document.getElementById('status-msg').innerText = `已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
+                } else {
+                    // 地图选点模式
+                    setDrawingMode('marker');
+                }
+            };
             
             btnClearMarkers.onclick = () => {
                 clearMarkers();
@@ -1247,7 +1299,48 @@
                     input.click();
                 };
             }
-
+            const btnExportImage = document.getElementById('btn-export-image');
+            if (btnExportImage) {
+                btnExportImage.onclick = () => {
+                    if (!window.drawingCanvas) {
+                        document.getElementById('status-msg').innerText = '画布未就绪';
+                        return;
+                    }
+                    
+                    // 将 canvas 转换为 PNG 并下载
+                    const canvas = window.drawingCanvas;
+                    const link = document.createElement('a');
+                    link.download = `map_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    document.getElementById('status-msg').innerText = '已导出为 PNG 图片';
+                };
+            }
+            // 存档名称管理
+            const saveNameInput = document.getElementById('save-name');
+            if (saveNameInput) {
+                // 加载保存的存档名称
+                if (currentUser) {
+                    const savedName = localStorage.getItem(`saveName_${currentUser.accountId}`);
+                    if (savedName) {
+                        saveNameInput.value = savedName;
+                    }
+                }
+                
+                // 监听名称变化并保存
+                saveNameInput.onchange = () => {
+                    let name = saveNameInput.value.trim();
+                    if (name === '') {
+                        name = '新的世界存档';
+                        saveNameInput.value = name;
+                    }
+                    if (currentUser) {
+                        localStorage.setItem(`saveName_${currentUser.accountId}`, name);
+                    }
+                    document.getElementById('status-msg').innerText = `存档名称已更改为: ${name}`;
+                };
+            }
             const btnTogglePanel = document.getElementById('btn-toggle-panel');
             if (btnTogglePanel) {
                 let panelCollapsed = false;
