@@ -245,6 +245,7 @@
             <button id="change-pwd-btn" class="logout-btn" style="background:#2c5a6e;">改密</button>
             <button id="delete-account-btn" class="logout-btn" style="background:#a04141; margin-left:5px;">注销账号</button>
         </div>
+        <button id="btn-toggle-panel" style="position: absolute; top: 20px; left: 20px; background: #1e2a32cc; border: 1px solid #ffaa66; color: #ffdd99; border-radius: 30px; padding: 8px 16px; cursor: pointer; z-index: 200; backdrop-filter: blur(8px); font-size: 13px;">收起面板</button>
         <div class="tool-bar" id="tool-bar" style="display: none;">
             <div class="tool-section">
                 <div style="font-weight:bold; margin-bottom:6px;">模式</div>
@@ -264,6 +265,7 @@
                 <button id="btn-click-select">鼠标选点</button>
                 <button id="btn-clear-markers">清除</button>
                 <button id="btn-reset">重置画布</button>
+                <button id="btn-import-image">导入</button>
             </div>
             <div class="tool-section">
                 <div style="font-weight:bold; margin-bottom:6px;">画笔设置</div>                <div style="display:flex; align-items:center; gap:8px;">
@@ -1213,6 +1215,64 @@
                 document.getElementById('status-msg').innerText = '已清除所有标注';
             };
             
+            const btnImportImage = document.getElementById('btn-import-image');
+            if (btnImportImage) {
+                btnImportImage.onclick = () => {
+                    // 创建隐藏的文件选择器
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.onchange = (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                // 保存当前状态到撤销栈
+                                saveToUndoStack();
+                                // 清空画布并绘制导入的图片
+                                ctx.clearRect(0, 0, texWidth, texHeight);
+                                ctx.drawImage(img, 0, 0, texWidth, texHeight);
+                                updateTexture();
+                                document.getElementById('status-msg').innerText = '图片导入成功，可用橡皮擦删除';
+                                // 自动保存
+                                if (currentUser) saveCurrentSession();
+                            };
+                            img.src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    };
+                    input.click();
+                };
+            }
+
+            const btnTogglePanel = document.getElementById('btn-toggle-panel');
+            if (btnTogglePanel) {
+                let panelCollapsed = false;
+                btnTogglePanel.onclick = () => {
+                    const toolBar = document.getElementById('tool-bar');
+                    const userStatusBar = document.getElementById('user-status-bar');
+                    
+                    if (panelCollapsed) {
+                        // 展开
+                        toolBar.style.display = 'block';
+                        userStatusBar.style.display = 'flex';
+                        btnTogglePanel.textContent = '收起面板';
+                        btnTogglePanel.style.background = '#5a6e8a';
+                        panelCollapsed = false;
+                    } else {
+                        // 收起
+                        toolBar.style.display = 'none';
+                        userStatusBar.style.display = 'none';
+                        btnTogglePanel.textContent = '展开面板';
+                        btnTogglePanel.style.background = '#3a5a6a';
+                        panelCollapsed = true;
+                    }
+                };
+            }
+
             colorPicker.oninput = (e) => {
                 currentColor = e.target.value;
                 document.getElementById('status-msg').innerText = `颜色已改变: ${currentColor}`;
