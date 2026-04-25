@@ -232,7 +232,8 @@
                 <button id="btn-draw">手绘</button>
                 <button id="btn-fill">填色</button>
                 <button id="btn-eraser">橡皮</button>
-                    
+                <button id="btn-undo">撤销</button>
+                <button id="btn-redo" style="display:none;">重做</button>
             </div>
             <div class="tool-section">
                 <label style="display:flex; align-items:center; gap:6px;">颜色: <input type="color" id="color-picker" value="#ff3366" style="width:30px; height:24px; border:none; border-radius:4px; cursor:pointer;"></label>
@@ -296,6 +297,10 @@
         let originalWorldImage = null;
         let texWidth = 2048, texHeight = 1024;
         let ctx = null;
+        // 撤销/重做栈
+        let undoStack = [];      // 存储历史状态
+        let redoStack = [];      // 存储重做状态
+        let isUndoRedoAction = false;  // 防止撤销/重做时重复记录
         
         // ----- 数据库操作封装 -----
         function openDB() {
@@ -451,15 +456,41 @@
             controls.zoomSpeed = 1.2;
             controls.maxDistance = 7;
             
-            // 光照
-            const ambient = new THREE.AmbientLight(0x404060);
-            scene.add(ambient);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
-            dirLight.position.set(5, 3, 5);
-            scene.add(dirLight);
-            const fill = new THREE.PointLight(0x88aaff, 0.3);
-            fill.position.set(-2,1,3);
-            scene.add(fill);
+            // ========== 可调节的太阳光源 ==========
+            // 移除原有的固定光源，改用可调节的
+            // 环境光（基础照明）
+            const ambientLight = new THREE.AmbientLight(0x333344);
+            scene.add(ambientLight);
+            
+            // 背光补充光（让背阴面不至于太暗）
+            const backFillLight = new THREE.PointLight(0x556677, 0.3);
+            backFillLight.position.set(0, 0, 0);
+            scene.add(backFillLight);
+            
+            // 主光源方向光（模拟太阳）
+            let sunLight = new THREE.DirectionalLight(0xffeedd, 1.2);
+            sunLight.position.set(5, 3, 5);
+            scene.add(sunLight);
+            
+            // 添加一个亮球体代表太阳（视觉效果）
+            const sunGeometry = new THREE.SphereGeometry(10, 32, 32);
+            const sunMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffaa66,
+                emissive: 0xff4422,
+                emissiveIntensity: 1.0
+            });
+            const sunSphere = new THREE.Mesh(sunGeometry, sunMaterial);
+            scene.add(sunSphere);
+            
+            // 太阳光辅助点光源（让阳光方向更柔和）
+            const sunGlow = new THREE.PointLight(0xffaa66, 0.5);
+            scene.add(sunGlow);
+            
+            // 存储光源相关变量供后续调节
+            window.sunLight = sunLight;
+            window.sunSphere = sunSphere;
+            window.sunGlow = sunGlow;
+            window.backFillLight = backFillLight;
             
             // 星空
             const starGeo = new THREE.BufferGeometry();
@@ -566,14 +597,78 @@
         
         function updateTexture() {
             if (window.drawingTexture && window.drawingCanvas) {
-                // 直接更新现有纹理，告诉Three.js内容已改变
+                window.drawingTexture.image = window.drawingCanvas;
+                window.drawingTexture.needsUpdate = true;
+                if (earthMaterial) earthMaterial.needsUpdate = true;
+            }
+        }
+        // 保存当前状态到撤销栈
+        function saveToUndoStack() {
+            if (isUndoRedoAction) return;
+            if (!ctx) return;
+            
+            // 获取当前画布状态
+            const imageData = ctx.getImageData(0, 0, texWidth, texHeight);
+            undoStack.push(imageData);
+            
+            // 限制栈大小（最多50步）
+            if (undoStack.length > 50) {
+                undoStack.shift();
+            }
+            
+            // 新操作时清空重做栈
+            redoStack = [];
+        }
+        function undo() {
+            if (undoStack.length === 0) {
+                document.getElementById('status-msg').innerText = '没有可撤销的操作';
+                return;
+            }
+            isUndoRedoAction = true;
+            
+            // 保存当前状态到重做栈
+            const currentImageData = ctx.getImageData(0, 0, texWidth, texHeight);
+            redoStack.push(currentImageData);
+            
+            // 恢复到上一个状态
+            const lastImageData = undoStack.pop();
+            ctx.putImageData(lastImageData, 0, 0);
+            
+            // 强制刷新纹理
+            if (window.drawingTexture) {
                 window.drawingTexture.needsUpdate = true;
                 earthMaterial.needsUpdate = true;
             }
+            
+            isUndoRedoAction = false;
+            document.getElementById('status-msg').innerText = '已撤销上一步操作';
+        }
+
+        function redo() {
+            if (redoStack.length === 0) {
+                document.getElementById('status-msg').innerText = '没有可重做的操作';
+                return;
+            }
+            isUndoRedoAction = true;
+            
+            const currentImageData = ctx.getImageData(0, 0, texWidth, texHeight);
+            undoStack.push(currentImageData);
+            
+            const redoImageData = redoStack.pop();
+            ctx.putImageData(redoImageData, 0, 0);
+            
+            if (window.drawingTexture) {
+                window.drawingTexture.needsUpdate = true;
+                earthMaterial.needsUpdate = true;
+            }
+            
+            isUndoRedoAction = false;
+            document.getElementById('status-msg').innerText = '已重做操作';
         }
         // 一键还原原始空白内层地图
         async function resetDrawingCanvas() {
-                if (!ctx || !originalWorldImage) {
+            saveToUndoStack(); // 重置前先保存当前状态，方便撤销
+            if (!ctx || !originalWorldImage) {
                 console.warn('重置失败：画布或原始图像不存在');
                 return;
             }
@@ -590,10 +685,9 @@
         }
         
         function drawOnCanvas(lat, lon, color, radius = brushSize, isEraser = false) {
+            // 每次绘制前保存当前状态（用于撤销）
             if (!drawingReady) return;
-            
             const { x, y } = latLonToCanvas(lat, -lon);
-            
             ctx.save();
             ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
             
@@ -954,7 +1048,21 @@
             const btnEraser = document.getElementById('btn-eraser');
             const btnClickSelect = document.getElementById('btn-click-select');
             const btnClearMarkers = document.getElementById('btn-clear-markers');
-            
+            // 撤销按钮
+            const btnUndo = document.getElementById('btn-undo');
+            if (btnUndo) {
+                btnUndo.onclick = () => undo();
+            }
+
+            // 快捷键 Ctrl+Z
+            window.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'z') {
+                    e.preventDefault();
+                    if (currentUser) {
+                        undo();
+                    }
+                }
+            });
             // 登录后显示工具栏，并初始化为鼠标模式
             window.showToolBar = () => { 
                 toolBar.style.display = 'block'; 
@@ -999,13 +1107,16 @@
                 const { lat, lon } = result;
                 
                 if (drawingEnabled) {
+                    saveToUndoStack();
                     isDrawing = true;
                     drawOnCanvas(lat, lon, currentColor, brushSize, false);
                     lastPos = { lat, lon };
                 } else if (fillEnabled) {
+                    saveToUndoStack();
                     floodFill(lat, lon, currentColor);
                     document.getElementById('status-msg').innerText = '填色完成';
                 } else if (eraserEnabled) {
+                    saveToUndoStack();
                     isDrawing = true;
                     drawOnCanvas(lat, lon, '#000000', brushSize, true);
                     lastPos = { lat, lon };
@@ -1047,6 +1158,93 @@
             });
             
             window.addEventListener('mouseup', () => { isDrawing = false; lastPos = null; });
+
+                        // ========== 太阳/晨昏线控制 ==========
+            // 添加控制面板HTML（如果不存在则创建）
+            let sunControlPanel = document.getElementById('sun-control-panel');
+            if (!sunControlPanel) {
+                const toolBar = document.getElementById('tool-bar');
+                const newPanel = document.createElement('div');
+                newPanel.id = 'sun-control-panel';
+                newPanel.className = 'tool-section';
+                newPanel.style.marginTop = '10px';
+                newPanel.innerHTML = `
+                    <div style="font-weight:bold; margin-bottom:6px;">太阳/晨昏线</div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:11px;">纬度:</span>
+                        <input type="range" id="sun-lat" min="-23.26" max="23.26" step="1" value="23.5" style="flex:1;">
+                        <span id="sun-lat-val" style="width:35px;">23.26°</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:5px;">
+                        <span style="font-size:11px;">经度:</span>
+                        <input type="range" id="sun-lon" min="-180" max="180" step="1" value="0" style="flex:1;">
+                        <span id="sun-lon-val" style="width:35px;">0°</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:5px;">
+                        <span style="font-size:11px;">强度:</span>
+                        <input type="range" id="sun-intensity" min="0" max="2" step="0.01" value="1.2" style="flex:1;">
+                        <span id="sun-intensity-val" style="width:35px;">1.2</span>
+                    </div>
+                `;
+                toolBar.appendChild(newPanel);
+            }
+            // 经纬度转三维坐标
+            function updateSunPosition() {
+                const lat = parseFloat(document.getElementById('sun-lat').value);
+                const lon = parseFloat(document.getElementById('sun-lon').value);
+                const intensity = parseFloat(document.getElementById('sun-intensity').value);
+                
+                // 更新显示值
+                document.getElementById('sun-lat-val').innerText = lat + '°';
+                document.getElementById('sun-lon-val').innerText = lon + '°';
+                document.getElementById('sun-intensity-val').innerText = intensity;
+                
+                // 将经纬度转换为三维坐标（半径15，让太阳在地球外面）
+                const radius = 15;
+                const phi = (90 - lat) * Math.PI / 180;
+                const theta = lon * Math.PI / 180;
+                const x = radius * Math.sin(phi) * Math.cos(theta);
+                const y = radius * Math.cos(phi);
+                const z = radius * Math.sin(phi) * Math.sin(theta);
+                
+                // 更新光源位置
+                if (window.sunLight) {
+                    window.sunLight.position.set(x, y, z);
+                    window.sunLight.intensity = intensity;
+                }
+                
+                // 更新太阳球体位置
+                if (window.sunSphere) {
+                    window.sunSphere.position.set(x, y, z);
+                }
+                
+                // 更新光晕位置
+                if (window.sunGlow) {
+                    window.sunGlow.position.set(x, y, z);
+                    window.sunGlow.intensity = intensity * 0.4;
+                }
+                
+                // 调整背光补充光（纬度越高，背阴面越暗）
+                const absLat = Math.abs(lat);
+                const backIntensity = 0.2 + (1 - Math.min(intensity, 1.2)) * 0.3 + (90 - absLat) / 300;
+                if (window.backFillLight) {
+                    window.backFillLight.intensity = Math.min(0.5, backIntensity);
+                }
+                
+                document.getElementById('status-msg').innerText = `太阳位置: 纬度=${lat}°, 经度=${lon}° | 强度=${intensity}`;
+            }
+            
+            // 绑定事件
+            const sunLatSlider = document.getElementById('sun-lat');
+            const sunLonSlider = document.getElementById('sun-lon');
+            const sunIntensitySlider = document.getElementById('sun-intensity');
+            
+            if (sunLatSlider) sunLatSlider.oninput = updateSunPosition;
+            if (sunLonSlider) sunLonSlider.oninput = updateSunPosition;
+            if (sunIntensitySlider) sunIntensitySlider.oninput = updateSunPosition;
+            
+            // 初始化太阳位置
+            updateSunPosition();
         }
         
         startup();
