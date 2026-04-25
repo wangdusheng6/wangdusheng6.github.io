@@ -392,7 +392,6 @@
         }
         // 一键还原原始空白内层地图
         async function resetDrawingCanvas() {
-            saveToUndoStack(); // 重置前先保存当前状态，方便撤销
             if (!ctx || !originalWorldImage) {
                 console.warn('重置失败：画布或原始图像不存在');
                 return;
@@ -406,7 +405,7 @@
             updateTexture();
             document.getElementById('status-msg').innerText = '画布已重置为原始白色状态';
             // 自动保存当前会话
-            if (currentUser) saveCurrentSession();
+            saveCurrentSession();
         }
 
         function drawOnCanvas(lat, lon, color, radius = brushSize, isEraser = false) {
@@ -1015,7 +1014,6 @@
             window.showToolBar = () => {
                 toolBar.style.display = 'block';
                 setMouseMode();
-                document.getElementById('btn-reset').onclick = resetDrawingCanvas;
             };
             window.hideToolBar = () => { toolBar.style.display = 'none'; };
 
@@ -1370,6 +1368,13 @@
                     </div>
                 `;
                 toolBar.appendChild(newPanel);
+                // 重置画布按钮
+                document.getElementById('btn-reset').onclick = async () => {
+                    await resetDrawingCanvas();
+                    if (currentUser) {
+                        await saveCurrentSession();
+                    }
+                };
             }
             // 经纬度转三维坐标
             function updateSunPosition() {
