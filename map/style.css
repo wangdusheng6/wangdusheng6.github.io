@@ -255,7 +255,7 @@ hr {
                     transition: opacity 0.2s;
 }
 .tool-bar {
-    max-height: 85vh;
+    max-height: 70vh;
     overflow-y: auto;
     padding-right: 5px;
 }
