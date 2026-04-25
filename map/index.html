@@ -584,23 +584,41 @@
             ctx.fillRect(0, 0, texWidth, texHeight);
             // 更新纹理
             updateTexture();
-            document.getElementById('status-msg').innerText = '♻️ 画布已重置为原始白色状态';
+            document.getElementById('status-msg').innerText = '画布已重置为原始白色状态';
             // 自动保存当前会话
             if (currentUser) saveCurrentSession();
         }
         
-        // 绘图函数集成drawOnCanvas, floodFill... 简化复用之前的逻辑但需要引用ctx与canvas
         function drawOnCanvas(lat, lon, color, radius = brushSize, isEraser = false) {
             if (!drawingReady) return;
+            
             const { x, y } = latLonToCanvas(lat, -lon);
+            
             ctx.save();
             ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI*2);
-            if (isEraser) {ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = '#ffffff';}
-            else ctx.fillStyle = color;
-            ctx.fill();
+            
+            function drawAt(x, y) {
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                if (isEraser)  {
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.fillStyle = '#ffffff';}
+                else ctx.fillStyle = color;
+                ctx.fill();
+            }
+            // 主绘制
+            drawAt(x, y);
+            // 水平边界处理（经度）
+            if (x - radius < 0) {drawAt(x + texWidth, y);}
+            if (x + radius > texWidth) {drawAt(x - texWidth, y);}
+            // 垂直边界处理（纬度）- 解决极点溅射
+            if (y - radius < 0) {drawAt(x, y + texHeight);}
+            if (y + radius > texHeight) {drawAt(x, y - texHeight);}
+            // 四个角同时超出时的对角补全（避免极点四角溅射）
+            if (y - radius < 0 && x - radius < 0) {drawAt(x + texWidth, y + texHeight);}
+            if (y - radius < 0 && x + radius > texWidth) {drawAt(x - texWidth, y + texHeight);}
+            if (y + radius > texHeight && x - radius < 0) {drawAt(x + texWidth, y - texHeight);}
+            if (y + radius > texHeight && x + radius > texWidth) {drawAt(x - texWidth, y - texHeight);}
             ctx.restore();
             updateTexture();
         }
@@ -665,9 +683,9 @@
                 // 标准化坐标（确保球体半径=1，不影响计算）
                 p.normalize();
 
-                // ✅ 正确纬度计算（修复上下颠倒）
+                // 正确纬度计算（修复上下颠倒）
                 const lat = Math.asin(p.y) * 180 / Math.PI; 
-                // ✅ 标准经度计算
+                // 标准经度计算
                 const lon = Math.atan2(p.z, p.x) * 180 / Math.PI;
 
                 return { lat, lon };
@@ -826,7 +844,7 @@
             if (!currentUser) return;
             
             // 二次确认
-            const confirm1 = confirm(`⚠️ 警告：您确定要永久删除账号 "${currentUser.username}" 吗？\n删除后将无法恢复，所有绘图和标注数据都会丢失！`);
+            const confirm1 = confirm(`警告：您确定要永久删除账号 "${currentUser.username}" 吗？\n删除后将无法恢复，所有绘图和标注数据都会丢失！`);
             if (!confirm1) return;
             
             const confirm2 = confirm(`请再次确认：输入您的密码以删除账号`);
@@ -968,7 +986,7 @@
                 brushSizeSlider.oninput = (e) => {
                     brushSize = parseInt(e.target.value);
                     brushSizeValue.innerText = brushSize + 'px';
-                    document.getElementById('status-msg').innerText = `✏️ 画笔粗细已改为: ${brushSize}px`;
+                    document.getElementById('status-msg').innerText = `画笔粗细已改为: ${brushSize}px`;
                 };
             }
             
@@ -1005,7 +1023,7 @@
                         finalName = customName;
                     }
                     addMarker(lat, lon, finalName);
-                    document.getElementById('status-msg').innerText = `✅ 已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
+                    document.getElementById('status-msg').innerText = `已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
                     // 不退出标注模式，可以继续添加
                 }
             });
