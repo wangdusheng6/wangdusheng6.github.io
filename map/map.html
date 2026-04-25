@@ -3,1376 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>3D世界地图</title>
-    <!-- 引用公共样式 -->
+    <title>我的存档 - 3D世界地图</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        #mainMap {
-            height: 100vh;
-            /* 视口高度的100% */
-            width: 100%;
-            /* 视口宽度的100% */
+        body {
+            overflow: auto;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1620 0%, #1a2a3a 100%);
+            padding: 20px;
         }
-        #mainMap canvas {
-            touch-action: none;
+        
+        .home-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 用户信息栏 */
+        .user-header {
+            background: #1e2a32cc;
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #6c8fb0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            background: #2c7da0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .user-details h3 {
+            margin: 0;
+            color: #ffd966;
+        }
+        
+        .user-details p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: #8aaec0;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-group button {
+            background: #2c7da0;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        
+        .btn-group button:hover {
+            background: #1f6390;
+        }
+        
+        .btn-danger {
+            background: #a04141 !important;
+        }
+        
+        .btn-danger:hover {
+            background: #7a3030 !important;
+        }
+        
+        /* 新建存档卡片 */
+        .create-card {
+            background: #1e2a32cc;
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px dashed #6c8fb0;
+            text-align: center;
+        }
+        
+        .create-card input {
+            background: #2d3e4b;
+            border: 1px solid #7f9cbb;
+            border-radius: 40px;
+            padding: 10px 16px;
+            color: white;
+            width: 250px;
+            margin-right: 10px;
+        }
+        
+        .create-card button {
+            background: #2c7da0;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        
+        /* 存档列表 */
+        .archive-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .archive-card {
+            background: #1e2a32cc;
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid #6c8fb0;
+            transition: 0.2s;
+        }
+        
+        .archive-card:hover {
+            border-color: #ffaa66;
+            transform: translateX(4px);
+        }
+        
+        .archive-icon {
+            width: 60px;
+            height: 60px;
+            background: #2d3e4b;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        
+        .archive-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .archive-info {
+            flex: 1;
+        }
+        
+        .archive-name {
+            font-weight: bold;
+            color: #ffdd99;
+            margin-bottom: 4px;
+        }
+        
+        .archive-id {
+            font-size: 11px;
+            color: #8aaec0;
+            font-family: monospace;
+            margin-bottom: 4px;
+        }
+        
+        .archive-date {
+            font-size: 10px;
+            color: #6c8fb0;
+        }
+        
+        .archive-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .archive-actions button {
+            background: transparent;
+            border: 1px solid #6c8fb0;
+            color: #ffdd99;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: 0.2s;
+        }
+        
+        .archive-actions button:hover {
+            background: #2c7da0;
+            border-color: #2c7da0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8aaec0;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #ffdd99;
+        }
+        
+        @media (max-width: 600px) {
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .archive-card {
+                flex-wrap: wrap;
+            }
+            .archive-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            .create-card input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="mainMap">
-        <div id="user-status-bar" class="user-status" style="display: none;">
-    <!-- 左边：用户头像 + 存档图标 + 用户名 -->
-    <div style="display: flex; align-items: center; gap: 8px;">
-        <!-- 用户头像（新增） -->
-        <img id="user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='%23ffaa66'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" 
-             width="32" height="32" style="border-radius: 50%; cursor: pointer; background: #2d3e4b; padding: 4px; object-fit: cover;" 
-             title="点击更换头像" id="user-avatar">
-        <span id="user-name-display">未登录</span>
-    </div>
-                    
-                    <!-- 右边按钮组 -->
-                    <div style="display: flex; gap: 5px;">
-                    <button id="back-to-home" class="logout-btn" style="background:#2c7da0;">主页</button>
-                    <button id="logout-btn" class="logout-btn">退出</button>
-                    <button id="change-pwd-btn" class="logout-btn" style="background:#2c5a6e;">改密</button>
-                    <button id="delete-account-btn" class="logout-btn" style="background:#a04141;">注销</button>
-                    </div>
-                    </div>
-
-        <button id="btn-toggle-panel" style="position: absolute; top: 20px; left: 20px; background: #1e2a32cc; border: 1px solid #ffaa66; color: #ffdd99; border-radius: 30px; padding: 8px 16px; cursor: pointer; z-index: 200; backdrop-filter: blur(8px); font-size: 13px;">收起面板</button>
-        
-        <div class="tool-bar" id="tool-bar" style="display: none;">
-            <div class="tool-section">
-                <!-- 存档图标 -->
-                <img id="archive-icon" src="../images/Wanlon-logo.png" 
-                     width="32" height="32" style="border-radius: 8px; cursor: pointer; background: #2d3e4b; padding: 4px;" 
-                     title="点击更换存档图标" id="change-archive-icon">
-                <div style="font-weight:bold; margin-bottom:6px;">当前存档</div>
-                <input type="text" id="save-name" value="新的世界存档" style="width:100%; background:#2d3e4b; border:1px solid #7f9cbb; color:white; border-radius:12px; padding:6px 8px; font-size:12px; box-sizing:border-box;">
-                <div class="tool-section">
-                    <div style="font-weight:bold; margin-bottom:6px;">存档管理</div>
-                    <button id="btn-save-archive">保存为新存档</button>
-                    <button id="btn-copy-archive">复制当前存档</button>
-                    <button id="btn-delete-archive">删除存档</button>
-                    <div style="margin-top: 8px;">
-                    <select id="archive-selector" style="width:100%; background:#2d3e4b; border:1px solid #7f9cbb; color:white; border-radius:12px; padding:6px 8px;">
-                    <option value="">-- 加载其他存档 --</option>
-                    </select>
-                    </div>
-                    </div>
-            </div>
-            <div class="tool-section">
-                <div style="font-weight:bold; margin-bottom:6px;">模式</div>
-                <button id="btn-mouse">鼠标</button>
-                <button id="btn-draw">手绘</button>
-                <button id="btn-fill">填色</button>
-                <button id="btn-eraser">橡皮</button>
-                <button id="btn-undo">撤销</button>
-                <button id="btn-redo">重做</button>
-                <button id="btn-add-text">文本</button>
-            </div>
-            <div class="tool-section">
-                <label style="display:flex; align-items:center; gap:6px;">颜色: <input type="color" id="color-picker" value="#ff3366" style="width:30px; height:24px; border:none; border-radius:4px; cursor:pointer;"></label>
-            </div>
-            <div class="tool-section">
-                <div style="font-weight:bold; margin-bottom:6px;">标注工具</div>
-                <button id="btn-click-select">选点</button>
-                <button id="btn-clear-markers">清除</button>
-                <button id="btn-reset">重置画布</button>
-                <button id="btn-import-image">导入</button>
-                <button id="btn-export-image">导出</button>
-            </div>
-            <div class="tool-section">
-                <div style="font-weight:bold; margin-bottom:6px;">画笔设置</div>                <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:11px;">粗细:</span>
-                    <input type="range" id="brush-size" min="2" max="30" step="1" value="8" style="flex:1;">
-                    <span id="brush-size-value" style="width:30px; font-size:12px;">8px</span>
+    <div class="home-container">
+        <!-- 用户信息栏 -->
+        <div class="user-header" id="user-header">
+            <div class="user-info">
+                <!-- 用户头像图标，可点击更换 -->
+                <img id="user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='%23ffaa66'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" 
+                    width="48" height="48" style="border-radius: 50%; cursor: pointer; background: #2d3e4b; padding: 8px; object-fit: cover;"
+                    title="点击更换头像" id="user-avatar">
+                <div class="user-details">
+                    <h3 id="username-display">加载中...</h3>
+                    <p id="accountid-display"></p>
                 </div>
             </div>
-            <div class="status-msg" id="status-msg">第一次使用请先点击工具</div>
+            <div class="btn-group">
+                <button id="logout-home">退出登录</button>
+                <button id="change-pwd-home" class="btn-danger">修改密码</button>
+            </div>
+        </div>
+        
+        <!-- 新建存档 -->
+        <div class="create-card">
+            <h3 style="margin-top: 0; color: #ffd966;">创建新存档</h3>
+            <input type="text" id="new-archive-name" placeholder="存档名称" value="我的世界地图">
+            <button id="btn-create-archive">创建存档</button>
+        </div>
+        <!-- 搜索好友 -->
+        <div class="create-card">
+            <h3 style="margin-top: 0; color: #ffd966;">查找好友</h3>
+            <input type="text" id="search-wechat" placeholder="对方的微信号" style="width: 100%; margin-bottom: 8px;">
+            <button id="btn-search-user">搜索</button>
+            <div id="search-result" style="margin-top: 10px; display: none;"></div>
+        </div>
+
+        <!-- 存档列表 -->
+        <h3 style="color: #ffdd99; margin-bottom: 12px;">我的存档</h3>
+        <div id="archive-list" class="archive-list">
+            <div class="loading">加载中...</div>
         </div>
     </div>
 
-
-    <!-- Three.js 相关 (动态加载) -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
-            }
-        }
-    </script>
-
     <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
         import { 
-                    openDB, getDB,
-                    registerUser, loginByUsername, recoverPassword, changePassword, deleteAccount,
-                    saveDraft, loadDraft,
-                    saveTextMarkers, loadTextMarkers,
-                    saveMarkers, loadMarkers,
-                    saveArchive, getUserArchives, getArchive, updateArchive, deleteArchive, duplicateArchive
+            openDB, getDB,
+            getUserArchives, 
+            saveArchive, 
+            deleteArchive, 
+            duplicateArchive,
+            changePassword
         } from './db.js';
 
-        
-        let currentUser = null;        // 存储当前登录用户对象 { id, accountId, username, wechat, passwordHash? 实际用明文简单储存为了演示, 实际应加密, 但demo展示功能 }
-        let drawingCanvas = null;       // 绘图canvas上下文
-        let earthMaterial = null;
-        let earthMesh = null;
-        let scene, camera, renderer, labelRenderer, controls;
-        let markersList = [];
-        let currentColor = '#ff3366';
-        let brushSize = 5;  // 画笔粗细，默认5px
-        // 工具模式相关变量
-        let drawingEnabled = false, fillEnabled = false, eraserEnabled = false, selectMode = false, pickColorMode = false, clickToAddMarkerMode = false;
-        let isDrawing = false, lastPos = null;
-        let selectionPoints = [];
-        
-        // 等待绘图canvas初始化完成的Promise
-        let drawingReady = false;
-        let canvasTextureUpdateNeeded = false;
-        let originalWorldImage = null;
-        let texWidth = 2048, texHeight = 1024;
-        let ctx = null;
-        // 撤销/重做栈
-        let undoStack = [];      // 存储历史状态
-        let redoStack = [];      // 存储重做状态
-        let isUndoRedoAction = false;  // 防止撤销/重做时重复记录
-        let textMarkers = [];  // 存储文本框标注 { label, lat, lon, text }
-        let isAddTextMode = false;  // 贴文本框模式
-        let selectedMarkerPoint = null;  // 存储当前选中的点 { lat, lon }
-        let currentArchiveId = null;  // 当前加载的存档ID
-        
-        // ---------- Three.js 地球初始化 (与绘图板集成) ----------
-        async function initEarth() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x050b1a);
-            scene.fog = new THREE.FogExp2(0x050b1a, 0.0006);
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0.2, 3.5);
-            renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.getElementById('mainMap').appendChild(renderer.domElement);
-            labelRenderer = new CSS2DRenderer();
-            labelRenderer.setSize(window.innerWidth, window.innerHeight);
-            labelRenderer.domElement.style.position = 'absolute';
-            labelRenderer.domElement.style.top = '0px';
-            labelRenderer.domElement.style.left = '0px';
-            labelRenderer.domElement.style.pointerEvents = 'none';
-            document.getElementById('mainMap').appendChild(labelRenderer.domElement);
-            controls = new OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.rotateSpeed = 0.8;
-            controls.zoomSpeed = 1.2;
-            controls.maxDistance = 7;
-            
-            // ========== 可调节的太阳光源 ==========
-            // 移除原有的固定光源，改用可调节的
-            // 环境光（基础照明）
-            const ambientLight = new THREE.AmbientLight(0x333344);
-            scene.add(ambientLight);
-            
-            // 背光补充光（让背阴面不至于太暗）
-            const backFillLight = new THREE.PointLight(0x556677, 0.3);
-            backFillLight.position.set(0, 0, 0);
-            scene.add(backFillLight);
-            
-            // 主光源方向光（模拟太阳）
-            let sunLight = new THREE.DirectionalLight(0xffeedd, 1.2);
-            sunLight.position.set(5, 3, 5);
-            scene.add(sunLight);
-            
-            // 添加一个亮球体代表太阳（视觉效果）
-            const sunGeometry = new THREE.SphereGeometry(10, 32, 32);
-            const sunMaterial = new THREE.MeshStandardMaterial({
-                color: 0xffaa66,
-                emissive: 0xff4422,
-                emissiveIntensity: 1.0
+        // 通过微信号查找用户
+        async function findUserByWechat(wechat) {
+            const db = getDB();
+            const tx = db.transaction(['users'], 'readonly');
+            const store = tx.objectStore('users');
+            const index = store.index('wechat');
+            const user = await new Promise((resolve) => {
+                const req = index.get(wechat);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => resolve(null);
             });
-            const sunSphere = new THREE.Mesh(sunGeometry, sunMaterial);
-            scene.add(sunSphere);
-            
-            // 太阳光辅助点光源（让阳光方向更柔和）
-            const sunGlow = new THREE.PointLight(0xffaa66, 0.5);
-            scene.add(sunGlow);
-            
-            // 存储光源相关变量供后续调节
-            window.sunLight = sunLight;
-            window.sunSphere = sunSphere;
-            window.sunGlow = sunGlow;
-            window.backFillLight = backFillLight;
-            
-            // 星空
-            const starGeo = new THREE.BufferGeometry();
-            const starsPos = [];
-            for (let i=0;i<1500;i++) { starsPos.push((Math.random()-0.5)*800,(Math.random()-0.5)*800,(Math.random()-0.5)*200-80); }
-            starGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(starsPos),3));
-            scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.2})));
-            
-            // ========== 内层球体：白色底图（绘图层）==========
-            const baseCanvas = document.createElement('canvas');
-            baseCanvas.width = 2048;
-            baseCanvas.height = 1024;
-            const baseCtx = baseCanvas.getContext('2d');
-            baseCtx.fillStyle = '#ffffff';
-            baseCtx.fillRect(0, 0, 2048, 1024); 
-
-            const earthGeo = new THREE.SphereGeometry(1, 200, 200);
-            const drawTexture = new THREE.CanvasTexture(baseCanvas);
-            earthMaterial = new THREE.MeshStandardMaterial({
-                map: drawTexture,
-                color: 0xffffff,
-                roughness: 0.8
-            });
-            earthMesh = new THREE.Mesh(earthGeo, earthMaterial);
-            scene.add(earthMesh);
-
-            // ========== 外层球体：仅经纬线（透明顶层）==========
-            const lineCanvas = document.createElement('canvas');
-            lineCanvas.width = 2048;
-            lineCanvas.height = 1024;
-            const lineCtx = lineCanvas.getContext('2d');
-            // 完全透明底色
-            lineCtx.fillStyle = 'rgba(0,0,0,0)';
-            lineCtx.fillRect(0,0,2048,1024);
-
-            // 绘制经纬线
-            lineCtx.strokeStyle = '#cccccc';
-            lineCtx.lineWidth = 2;
-            const step = 1024 / 12;
-            for (let i=0; i<=12; i++) {
-                lineCtx.beginPath();
-                lineCtx.moveTo(0, i*step);
-                lineCtx.lineTo(2048, i*step);
-                lineCtx.stroke();
-            }
-            for (let i=0; i<=8; i++) {
-                lineCtx.beginPath();
-                lineCtx.moveTo(i*256, 0);
-                lineCtx.lineTo(i*256, 1024);
-                lineCtx.stroke();
-            }
-
-            const lineTexture = new THREE.CanvasTexture(lineCanvas);
-            const lineMaterial = new THREE.MeshBasicMaterial({
-                map: lineTexture,
-                transparent: true,
-                depthWrite: false
-            });
-            // 外层球体半径略大，保证在顶层
-            const lineMesh = new THREE.Mesh(earthGeo, lineMaterial);
-            lineMesh.scale.set(1.005, 1.005, 1.005);
-            scene.add(lineMesh);
-            // 初始化绘图Canvas - 复制拿到的政区地图
-            const canvas = document.createElement('canvas');
-            canvas.width = texWidth;
-            canvas.height = texHeight;
-            ctx = canvas.getContext('2d');
-            // 将基础政区地图拷贝到绘图canvas
-            ctx.drawImage(baseCanvas, 0, 0, texWidth, texHeight);
-            drawingReady = true;
-            const dynamicTexture = new THREE.CanvasTexture(canvas);
-            dynamicTexture.magFilter = THREE.LinearFilter;
-            dynamicTexture.minFilter = THREE.LinearFilter;
-            earthMaterial.map = dynamicTexture;
-            earthMaterial.needsUpdate = true;
-            originalWorldImage = canvas;
-            // 保存ctx和纹理引用到全局，便于更新
-            window.drawingCtx = ctx;
-            window.drawingCanvas = canvas;
-            window.drawingTexture = dynamicTexture;
-            
-            function animate() {
-                requestAnimationFrame(animate);
-                controls.update();
-                renderer.render(scene, camera);
-                labelRenderer.render(scene, camera);
-            }
-            animate();
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                labelRenderer.setSize(window.innerWidth, window.innerHeight);
-            });
-            return canvas;
-        }
-        
-        // 辅助函数: 经纬度转canvas坐标
-        function latLonToCanvas(lat, lon) {
-            const x = ((lon + 180) / 360) * texWidth;
-            const y = ((90 - lat) / 180) * texHeight;
-            return { x, y };
-        }
-        
-        function updateTexture() {
-            if (window.drawingTexture && window.drawingCanvas) {
-                window.drawingTexture.image = window.drawingCanvas;
-                window.drawingTexture.needsUpdate = true;
-                if (earthMaterial) earthMaterial.needsUpdate = true;
-            }
-        }
-        // 保存当前状态到撤销栈
-        function saveToUndoStack() {
-            if (isUndoRedoAction) return;
-            if (!ctx) return;
-            
-            // 获取当前画布状态
-            const imageData = ctx.getImageData(0, 0, texWidth, texHeight);
-            undoStack.push(imageData);
-            
-            // 限制栈大小（最多50步）
-            if (undoStack.length > 50) {
-                undoStack.shift();
-            }
-            
-            // 新操作时清空重做栈
-            redoStack = [];
-        }
-        function undo() {
-            if (undoStack.length === 0) {
-                document.getElementById('status-msg').innerText = '没有可撤销的操作';
-                return;
-            }
-            isUndoRedoAction = true;
-            
-            // 保存当前状态到重做栈
-            const currentImageData = ctx.getImageData(0, 0, texWidth, texHeight);
-            redoStack.push(currentImageData);
-            
-            // 恢复到上一个状态
-            const lastImageData = undoStack.pop();
-            ctx.putImageData(lastImageData, 0, 0);
-            
-            // 强制刷新纹理
-            if (window.drawingTexture) {
-                window.drawingTexture.needsUpdate = true;
-                earthMaterial.needsUpdate = true;
-            }
-            
-            isUndoRedoAction = false;
-            document.getElementById('status-msg').innerText = '已撤销上一步操作';
+            return user;
         }
 
-        function redo() {
-            if (redoStack.length === 0) {
-                document.getElementById('status-msg').innerText = '没有可重做的操作';
-                return;
-            }
-            isUndoRedoAction = true;
-            
-            const currentImageData = ctx.getImageData(0, 0, texWidth, texHeight);
-            undoStack.push(currentImageData);
-            
-            const redoImageData = redoStack.pop();
-            ctx.putImageData(redoImageData, 0, 0);
-            
-            if (window.drawingTexture) {
-                window.drawingTexture.needsUpdate = true;
-                earthMaterial.needsUpdate = true;
-            }
-            
-            isUndoRedoAction = false;
-            document.getElementById('status-msg').innerText = '已重做操作';
-        }
-        // 一键还原原始空白内层地图
-        async function resetDrawingCanvas() {
-            saveToUndoStack(); // 重置前先保存当前状态，方便撤销
-            if (!ctx || !originalWorldImage) {
-                console.warn('重置失败：画布或原始图像不存在');
-                return;
-            }
-            // 清空当前画布
-            ctx.clearRect(0, 0, texWidth, texHeight);
-            // 重新绘制原始白色底图
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, texWidth, texHeight);
-            // 更新纹理
-            updateTexture();
-            document.getElementById('status-msg').innerText = '画布已重置为原始白色状态';
-            // 自动保存当前会话
-            if (currentUser) saveCurrentSession();
-        }
-        
-        function drawOnCanvas(lat, lon, color, radius = brushSize, isEraser = false) {
-            // 每次绘制前保存当前状态（用于撤销）
-            if (!drawingReady) return;
-            const { x, y } = latLonToCanvas(lat, -lon);
-            ctx.save();
-            ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
-            
-            function drawAt(x, y) {
-                ctx.beginPath();
-                ctx.arc(x, y, radius, 0, Math.PI * 2);
-                if (isEraser)  {
-                    ctx.globalCompositeOperation = 'source-over';
-                    ctx.fillStyle = '#ffffff';}
-                else ctx.fillStyle = color;
-                ctx.fill();
-            }
-            // 主绘制
-            drawAt(x, y);
-            // 水平边界处理（经度）
-            if (x - radius < 0) {drawAt(x + texWidth, y);}
-            if (x + radius > texWidth) {drawAt(x - texWidth, y);}
-            // 垂直边界处理（纬度）- 解决极点溅射
-            if (y - radius < 0) {drawAt(x, y + texHeight);}
-            if (y + radius > texHeight) {drawAt(x, y - texHeight);}
-            // 四个角同时超出时的对角补全（避免极点四角溅射）
-            if (y - radius < 0 && x - radius < 0) {drawAt(x + texWidth, y + texHeight);}
-            if (y - radius < 0 && x + radius > texWidth) {drawAt(x - texWidth, y + texHeight);}
-            if (y + radius > texHeight && x - radius < 0) {drawAt(x + texWidth, y - texHeight);}
-            if (y + radius > texHeight && x + radius > texWidth) {drawAt(x - texWidth, y - texHeight);}
-            ctx.restore();
-            updateTexture();
-        }
-        
-        // 实现填色 (简易版)
-        function floodFill(lat, lon, fillColor) {
-            if (!drawingReady) return;
-            const { x, y } = latLonToCanvas(lat, -lon);
-            const ix = Math.floor(x), iy = Math.floor(y);
-            const imageData = ctx.getImageData(0,0,texWidth,texHeight);
-            const data = imageData.data;
-            const targetPos = (iy*texWidth + ix)*4;
-            const targetR = data[targetPos], targetG= data[targetPos+1], targetB=data[targetPos+2];
-            const fillRGB = hexToRgb(fillColor);
-            const stack = [{x:ix, y:iy}];
-            const visited = new Set();
-            while(stack.length) {
-                const {x:cx, y:cy} = stack.pop();
-                const key = `${cx},${cy}`;
-                if (cx<0 || cx>=texWidth || cy<0 || cy>=texHeight) continue;
-                if (visited.has(key)) continue;
-                const idx = (cy*texWidth + cx)*4;
-                if (Math.abs(data[idx]-targetR)<5 && Math.abs(data[idx+1]-targetG)<5 && Math.abs(data[idx+2]-targetB)<5) {
-                    data[idx]=fillRGB.r; data[idx+1]=fillRGB.g; data[idx+2]=fillRGB.b;
-                    visited.add(key);
-                    stack.push({x:cx+1,y:cy},{x:cx-1,y:cy},{x:cx,y:cy+1},{x:cx,y:cy-1});
-                }
-            }
-            ctx.putImageData(imageData,0,0);
-            updateTexture();
-        }
-        function hexToRgb(hex) { return {r:parseInt(hex.slice(1,3),16), g:parseInt(hex.slice(3,5),16), b:parseInt(hex.slice(5,7),16)}; }
-        
-        // 标注相关
-        function addMarker(lat, lon, name) {
-            const div = document.createElement('div');
-            div.textContent = `${name} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
-            div.style.cssText = 'background:#1e2a3aee; color:#ffdd99; padding:4px 12px; border-radius:30px; border:1px solid #ffaa66; font-size:13px; backdrop-filter:blur(4px); white-space:nowrap;';
-            const labelObj = new CSS2DObject(div);
-            const radius = 1.02;
-            const phi = (90 - lat) * Math.PI/180;
-            const theta = lon * Math.PI/180;
-            labelObj.position.set(radius*Math.sin(phi)*Math.cos(theta), radius*Math.cos(phi), radius*Math.sin(phi)*Math.sin(theta));
-            scene.add(labelObj);
-            markersList.push({label:labelObj, lat, lon, name});
-            return labelObj;
-        }
-        function clearMarkers() { markersList.forEach(m => scene.remove(m.label)); markersList = []; }
-        // 添加文本框标注
-        function addTextMarker(lat, lon, text) {
-            // 创建 CSS2D 文本框
-            const div = document.createElement('div');
-            div.textContent = text;
-            div.style.cssText = `
-                background: rgba(0,0,0,0.75);
-                backdrop-filter: blur(8px);
-                color: #ffdd99;
-                padding: 30px 30px;
-                border-radius: 20px;
-                border: 1px solid #ffaa66;
-                font-size: 12px;
-                font-family: monospace;
-                white-space: nowrap;
-                cursor: pointer;
-                transition: 0.2s;
-                pointer-events: auto;
-                opacity: 0;
-            `;
-            
-            // 悬停效果
-            div.addEventListener('mouseenter', () => {
-                div.style.opacity = '1';
-                div.style.background = 'rgba(0,0,0,0.9)';
-                div.style.transform = 'scale(1.05)';
-                div.style.border = '1px solid #ffcc88';
-            });
-            div.addEventListener('mouseleave', () => {
-                div.style.opacity = '0';
-                div.style.background = 'rgba(0,0,0,0.75)';
-                div.style.transform = 'scale(1)';
-                div.style.border = '1px solid #ffaa66';
-            });
-            
-            const labelObj = new CSS2DObject(div);
-            const radius = 1.02;
-            const phi = (90 - lat) * Math.PI / 180;
-            const theta = lon * Math.PI / 180;
-            labelObj.position.set(
-                radius * Math.sin(phi) * Math.cos(theta),
-                radius * Math.cos(phi),
-                radius * Math.sin(phi) * Math.sin(theta)
-            );
-            scene.add(labelObj);
-            textMarkers.push({ label: labelObj, lat, lon, text });
-            return labelObj;
-        }
+        let currentUser = null;
+        let archives = [];
 
-        // 清除所有文本框
-        function clearTextMarkers() {
-            textMarkers.forEach(m => scene.remove(m.label));
-            textMarkers = [];
-        }
-        // 射线拾取经纬度（修复上下颠倒问题）
-        function getLatLonFromMouse(event) {
-            const mouse = new THREE.Vector2();
-            mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-            mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
-            
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObject(earthMesh);
-            
-            if (intersects.length) {
-                const p = intersects[0].point;
-                // 标准化坐标（确保球体半径=1，不影响计算）
-                p.normalize();
+        // 从URL获取用户信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const accountId = urlParams.get('accountId');
+        const username = urlParams.get('username');
 
-                // 正确纬度计算（修复上下颠倒）
-                const lat = Math.asin(p.y) * 180 / Math.PI; 
-                // 标准经度计算
-                const lon = Math.atan2(p.z, p.x) * 180 / Math.PI;
-
-                return { lat, lon };
-            }
-            return null;
-        }
-                
-        // 加载用户存档 (标注和图片)
-        async function loadUserData(user) {
-            clearMarkers();
-            const draftData = await loadDraft(user.accountId);
-            if(draftData) {
-                const img = new Image();
-                img.onload = () => {
-                    ctx.clearRect(0,0,texWidth,texHeight);
-                    ctx.drawImage(img,0,0,texWidth,texHeight);
-                    updateTexture();
-                };
-                img.src = draftData;
-            } else {
-                // 重置默认地图
-                if(originalWorldImage) ctx.drawImage(originalWorldImage,0,0);
-                updateTexture();
-            }
-            // 加载标注 (自定义标注需单独存储，简易演示仅存储绘图，标注单独存储于另一个store 但为了完整演示单独加标注存储)
-            // 加载文本框（需要单独存储）
-            const textData = await loadTextMarkers(user.accountId);
-            if (textData) textData.forEach(m => addTextMarker(m.lat, m.lon, m.text));
-            // 这里简化: 不清空额外标注，可下次再扩展。为了体验，会存储标注到drafts的扩展字段 (实际可新增store)
-            // 为了满足要求，额外标注我们用 localStorage+账号? 更好: 存数据库的另一个store。快速实现标注存储
-            const markersData = await loadMarkers(user.accountId);
-            if(markersData) markersData.forEach(m => addMarker(m.lat, m.lon, m.name));
-            // 加载存档名称
-            if (currentUser) {
-                const savedName = localStorage.getItem(`saveName_${currentUser.accountId}`);
-                const saveNameInput = document.getElementById('save-name');
-                if (saveNameInput && savedName) {
-                    saveNameInput.value = savedName;
-                }
-            }
-        }
-        
-        // 升级数据库保证有markers
-        function upgradeDB() {
-            if(db && !db.objectStoreNames.contains('markers')) {
-                const newStore = db.createObjectStore('markers', { keyPath: 'accountId' });
-            }
-        }
-        
-       async function saveCurrentSession() {
-                    if(!currentUser) return;
-                    const canvas = window.drawingCanvas;
-                    const imageData = canvas.toDataURL();
-                    await saveDraft(currentUser.accountId, imageData);
-                    // 储存标注 (简单存)
-                    const markersSimple = markersList.map(m => ({lat: m.lat, lon: m.lon, name: m.name}));
-                    try {
-                    await saveMarkers(currentUser.accountId, markersSimple);
-                    } catch(e) {
-                    console.warn('保存标注失败:', e);
-                    }
-                    // 储存文本框
-                    const textSimple = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
-                    try {
-                    await saveTextMarkers(currentUser.accountId, textSimple);
-                    } catch(e) {
-                    console.warn('保存文本框失败:', e);
-                    }
-                    }
-        // UI事件绑定，绘图模式钩子
-        
-        // 暴露全局工具调用接口
-        window.toolManager = { currentColor, getLatLonFromMouse, drawOnCanvas, floodFill, addMarker, saveCurrentSession, clearMarkers };
-        
-        // 启动应用
         async function startup() {
+            if (!accountId) {
+                // 没有用户，跳转到登录
+                window.location.href = 'index.html';
+                return;
+            }
+            
             await openDB();
-                // 从URL参数获取用户ID和存档ID
-    const urlParams = new URLSearchParams(window.location.search);
-    const accountId = urlParams.get('accountId');
-    const archiveId = urlParams.get('archiveId');
-    
-    if (!accountId) {
-        // 没有用户ID，跳转到主页
-        window.location.href = 'index.html';
-        return;
-    }
-        // 加载用户信息
-    const db = getDB();
-    const tx = db.transaction(['users'], 'readonly');
-    const userStore = tx.objectStore('users');
-    const user = await new Promise(resolve => {
-        const req = userStore.get(accountId);
-        req.onsuccess = () => resolve(req.result);
-    });
-    
-    if (!user) {
-        alert('用户不存在，请重新登录');
-        window.location.href = 'index.html';
-        return;
-    }
-    
-    currentUser = user;
-    
-    // 显示UI
-    document.getElementById('user-status-bar').style.display = 'flex';
-    document.getElementById('tool-bar').style.display = 'block';
-    document.getElementById('user-name-display').innerHTML = ` ${user.username}`;
-    // 加载用户头像
-const savedAvatar = localStorage.getItem(`userAvatar_${accountId}`);
-if (savedAvatar) {
-document.getElementById('user-avatar').src = savedAvatar;
-}
-
-            try {
-                await initEarth();
-            } catch(err) {
-                console.error('地球初始化失败:', err);
-            }
-    // 如果有指定存档ID，加载该存档
-    if (archiveId) {
-        await loadSpecificArchive(archiveId);
-    } else {
-        await loadUserData(user);
-    }
-    
-    // 加载存档列表到下拉框
-    await loadArchiveDropdown(user.accountId);
+            const db = getDB();
             
-            // 图形工具按钮 (从之前设计复用部分)
-            attachToolEvents();
-            // 自动存档定时器
-            setInterval(() => { if(currentUser) saveCurrentSession(); }, 30000);
-        }
-
-        // 加载指定存档
-async function loadSpecificArchive(archiveId) {
-    const archive = await getArchive(archiveId);
-    if (!archive) return;
-    
-    // 加载地图数据
-    if (archive.mapDataUrl) {
-        const img = new Image();
-        img.onload = () => {
-            ctx.clearRect(0, 0, texWidth, texHeight);
-            ctx.drawImage(img, 0, 0, texWidth, texHeight);
-            updateTexture();
-        };
-        img.src = archive.mapDataUrl;
-    }
-    
-    // 加载点标注
-    clearMarkers();
-    if (archive.markersData) {
-        archive.markersData.forEach(m => addMarker(m.lat, m.lon, m.name));
-    }
-    
-    // 加载文本框
-    clearTextMarkers();
-    if (archive.textMarkersData) {
-        archive.textMarkersData.forEach(m => addTextMarker(m.lat, m.lon, m.text));
-    }
-    
-    // 更新存档名称显示
-    const saveNameInput = document.getElementById('save-name');
-    if (saveNameInput) saveNameInput.value = archive.name;
-    
-    // 更新图标
-    if (archive.iconDataUrl) {
-        document.getElementById('archive-icon').src = archive.iconDataUrl;
-    }
-    
-    currentArchiveId = archiveId;
-    document.getElementById('status-msg').innerText = `已加载存档: ${archive.name}`;
-}
-
-// 保存当前为新建存档
-async function saveAsNewArchive() {
-    if (!currentUser) return;
-    
-    const name = document.getElementById('save-name').value.trim() || '未命名存档';
-    const mapDataUrl = window.drawingCanvas.toDataURL();
-    const markersData = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-    const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
-    const iconDataUrl = document.getElementById('archive-icon').src;
-    
-    const archive = await saveArchive(currentUser.accountId, name, iconDataUrl, mapDataUrl, markersData, textMarkersData);
-    alert(`存档已保存！\n存档ID: ${archive.archiveId}`);
-    await loadArchiveDropdown(currentUser.accountId);
-    return archive;
-}
-
-// 保存当前存档（覆盖更新）
-async function saveCurrentArchive() {
-    if (!currentArchiveId) {
-        await saveAsNewArchive();
-        return;
-    }
-    
-    const name = document.getElementById('save-name').value.trim() || '未命名存档';
-    const mapDataUrl = window.drawingCanvas.toDataURL();
-    const markersData = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-    const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
-    const iconDataUrl = document.getElementById('archive-icon').src;
-    
-    await updateArchive(currentArchiveId, { name, mapDataUrl, markersData, textMarkersData, iconDataUrl });
-    alert('存档已更新');
-    await loadArchiveDropdown(currentUser.accountId);
-}
-
-// 加载存档下拉框
-async function loadArchiveDropdown(accountId) {
-    const archives = await getUserArchives(accountId);
-    const select = document.getElementById('archive-selector');
-    select.innerHTML = '<option value="">-- 加载其他存档 --</option>';
-    archives.forEach(archive => {
-        const option = document.createElement('option');
-        option.value = archive.archiveId;
-        option.textContent = `${archive.name} (${archive.archiveId.slice(-8)})`;
-        if (archive.archiveId === currentArchiveId) option.selected = true;
-        select.appendChild(option);
-    });
-    
-    // 切换存档事件
-    select.onchange = async () => {
-        const selectedId = select.value;
-        if (selectedId) {
-            if (confirm('切换存档前请保存当前进度？')) {
-                await saveCurrentArchive();
-            }
-            window.location.href = `map.html?accountId=${currentUser.accountId}&archiveId=${selectedId}`;
-        }
-    };
-}
-
-// 更换图标并自动保存
-async function changeArchiveIcon() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const iconUrl = event.target.result;
-            // 1. 更新页面显示
-            document.getElementById('archive-icon').src = iconUrl;
+            // 验证用户是否存在
+            const tx = db.transaction(['users'], 'readonly');
+            const userStore = tx.objectStore('users');
+            const user = await new Promise(resolve => {
+                const req = userStore.get(accountId);
+                req.onsuccess = () => resolve(req.result);
+            });
             
-            // 2. 自动保存到数据库
-            if (currentArchiveId) {
-                // 已有存档，更新
-                const name = document.getElementById('save-name').value.trim() || '未命名存档';
-                const mapDataUrl = window.drawingCanvas.toDataURL();
-                const markersData = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-                const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
-                
-                await updateArchive(currentArchiveId, { 
-                    name, 
-                    mapDataUrl, 
-                    markersData, 
-                    textMarkersData, 
-                    iconDataUrl: iconUrl 
-                });
-                document.getElementById('status-msg').innerText = '图标已更换并保存';
-            } else {
-                // 没有当前存档，提示先保存
-                document.getElementById('status-msg').innerText = '请先保存存档，图标会自动保存';
+            if (!user) {
+                alert('用户不存在，请重新登录');
+                window.location.href = 'index.html';
+                return;
             }
-        };
-        reader.readAsDataURL(file);
-    };
-    input.click();
-}
-        
-        let mouseMode = true; // 初始为鼠标模式
-        
-        
-        function resetToolModes() {
-            drawingEnabled = false; 
-            fillEnabled = false; 
-            eraserEnabled = false; 
-            clickToAddMarkerMode = false; 
-            isAddTextMode = false;
-            document.getElementById('btn-draw').classList.remove('active');
-            document.getElementById('btn-fill').classList.remove('active');
-            document.getElementById('btn-eraser').classList.remove('active');
-            document.getElementById('btn-click-select').classList.remove('active');
-            document.getElementById('btn-mouse').classList.remove('active');
-            document.getElementById('btn-add-text').classList.remove('active');
-            document.body.style.cursor = 'default';
-        }
-        
-        function setMouseMode() {
-            resetToolModes();
-            mouseMode = true;
-            controls.enabled = true;
-            document.getElementById('btn-mouse').classList.add('active');
-            document.getElementById('status-msg').innerText = '鼠标模式: 拖动并旋转地球';
-        }
-        
-        function setDrawingMode(mode) {
-            resetToolModes();
-            mouseMode = false;
-            controls.enabled = false;
             
-            if (mode === 'draw') {
-                drawingEnabled = true;
-                document.getElementById('btn-draw').classList.add('active');
-                document.getElementById('status-msg').innerText = '手绘模式: 按住鼠标左键按住拖动';
-            } else if (mode === 'fill') {
-                fillEnabled = true;
-                document.getElementById('btn-fill').classList.add('active');
-                document.getElementById('status-msg').innerText = '填色模式: 点击区域填充当前颜色';
-            } else if (mode === 'eraser') {
-                eraserEnabled = true;
-                document.getElementById('btn-eraser').classList.add('active');
-                document.getElementById('status-msg').innerText = '橡皮擦模式: 擦除涂鸦不分窗口内容';
-            } else if (mode === 'marker') {
-                clickToAddMarkerMode = true;
-                document.getElementById('btn-click-select').classList.add('active');
-                document.getElementById('status-msg').innerText = '鼠标选点模式: 点击地图位置添加标注（可在标注上添加文本框）';
-            } else if (mode === 'text') {
-                if (!selectedMarkerPoint) {
-                    document.getElementById('status-msg').innerText = '请先在"鼠标选点"模式中选择一个点';
-                    setMouseMode();
+            currentUser = user;
+            
+            // 显示用户信息
+            document.getElementById('username-display').innerText = username || user.username;
+            document.getElementById('accountid-display').innerHTML = `账号ID: <span id="copy-account-id" style="cursor: pointer; color: #ffaa66; ">${accountId}</span>`;
+            
+            // 加载存档列表
+            await loadArchives();
+            // 加载用户头像
+            loadUserAvatar();
+            // 复制账号ID
+            document.getElementById('copy-account-id')?.addEventListener('click', () => {
+                navigator.clipboard.writeText(accountId);
+                alert('账号ID已复制');
+            });
+
+            // 绑定更换头像事件
+            document.getElementById('user-avatar').onclick = changeUserAvatar;
+                        
+            // 绑定事件
+            document.getElementById('logout-home').onclick = () => {
+                window.location.href = 'index.html';
+            };
+            
+            document.getElementById('change-pwd-home').onclick = () => {
+                window.location.href = `index.html?accountId=${accountId}&username=${username || user.username}`;
+            };
+            
+            document.getElementById('btn-create-archive').onclick = createNewArchive;
+            // 搜索按钮
+            document.getElementById('btn-search-user').onclick = async () => {
+                const wechat = document.getElementById('search-wechat').value.trim();
+                const resultDiv = document.getElementById('search-result');
+                if (!wechat) {
+                    alert('请输入微信号');
                     return;
                 }
-                isAddTextMode = true;
-                document.getElementById('btn-add-text').classList.add('active');
-                document.getElementById('status-msg').innerText = `文本框模式: 在已选点位置 (${selectedMarkerPoint.lat.toFixed(2)}, ${selectedMarkerPoint.lon.toFixed(2)}) 上点击以添加文本框`;
-            }
+                resultDiv.innerHTML = '<div style="color: #ffdd99;">搜索中...</div>';
+                resultDiv.style.display = 'block';
+                const user = await findUserByWechat(wechat);
+                if (!user) {
+                    resultDiv.innerHTML = '<span style="color: #ffaa88;">未找到该微信号的用户</span>';
+                    return;
+                }
+                // 显示搜索结果
+                resultDiv.innerHTML = `<div style="background: #2d3e4b; padding: 10px; border-radius: 12px;">
+                    <div style="color: #ffd966;">找到用户：${user.username}</div>
+                    <div style="color: #8aaec0; margin-top: 5px;">账号ID: <span style="color: #ffaa66; font-family: monospace;">${user.accountId}</span></div>
+                </div>`;
+                // 弹出弹窗，让对方输入存档ID
+                const archiveId = prompt(`请输入 ${user.username} 的存档ID：`);
+                if (!archiveId || !archiveId.trim()) {
+                    alert('已取消');
+                    return;
+                }
+                const trimmedId = archiveId.trim();
+                // 验证存档ID是否属于该用户（注意：传入 user.accountId，不是当前用户的 accountId）
+                const archives = await getUserArchives(user.accountId);
+                const validArchive = archives.find(a => a.archiveId === trimmedId);
+                if (!validArchive) {
+                    alert(`存档ID错误！\n${user.username} 没有这个存档，请核对后重新输入`);
+                    return;
+                }
+                // 验证通过，进入存档
+                window.location.href = `map.html?accountId=${user.accountId}&archiveId=${trimmedId}`;
+            };
         }
         
-        function attachToolEvents() {
-            const toolBar = document.getElementById('tool-bar');
-            const statusMsg = document.getElementById('status-msg');
-            const colorPicker = document.getElementById('color-picker');
-            const btnMouse = document.getElementById('btn-mouse');
-            const btnDraw = document.getElementById('btn-draw');
-            const btnFill = document.getElementById('btn-fill');
-            const btnEraser = document.getElementById('btn-eraser');
-            const btnClickSelect = document.getElementById('btn-click-select');
-            const btnClearMarkers = document.getElementById('btn-clear-markers');
-            // 撤销按钮
-            const btnUndo = document.getElementById('btn-undo');
-            if (btnUndo) {
-                btnUndo.onclick = () => undo();
-            }
-            const btnRedo = document.getElementById('btn-redo');
-            if (btnRedo) {
-                btnRedo.onclick = () => redo();
-            }
-            // 点击存档图标直接更换
-                    document.getElementById('archive-icon').onclick = () => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/*';
-                    input.onchange = async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = async (event) => {
-                    const iconUrl = event.target.result;
-                    document.getElementById('archive-icon').src = iconUrl;
-                    
-                    // 自动保存
-                    if (currentArchiveId) {
-                    const name = document.getElementById('save-name').value.trim() || '未命名存档';
-                    const mapDataUrl = window.drawingCanvas.toDataURL();
-                    const markersData = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-                    const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
-                    await updateArchive(currentArchiveId, { name, mapDataUrl, markersData, textMarkersData, iconDataUrl: iconUrl });
-                    document.getElementById('status-msg').innerText = '图标已更换并保存';
-                    } else {
-                    document.getElementById('status-msg').innerText = '请先保存存档';
-                    }
-                    };
-                    reader.readAsDataURL(file);
-                    };
-                    input.click();
-                    };
-
-            const btnAddText = document.getElementById('btn-add-text');
-            if (btnAddText) {
-                btnAddText.onclick = () => setDrawingMode('text');
-            }
-
-            // 快捷键 Ctrl+Z
-            window.addEventListener('keydown', (e) => {
-                if (e.ctrlKey && e.key === 'z') {
-                    e.preventDefault();
-                    if (currentUser) {
-                        undo();
-                    }
-                }
-            });
-            // 登录后显示工具栏，并初始化为鼠标模式
-            window.showToolBar = () => { 
-                toolBar.style.display = 'block'; 
-                setMouseMode(); 
-                document.getElementById('btn-reset').onclick = resetDrawingCanvas;
-            };
-            window.hideToolBar = () => { toolBar.style.display = 'none'; };
+        async function loadArchives() {
+            const container = document.getElementById('archive-list');
+            container.innerHTML = '<div class="loading">加载中...</div>';
             
-            // 工具按钮点击事件
-            btnMouse.onclick = () => setMouseMode();
-            btnDraw.onclick = () => setDrawingMode('draw');
-            btnFill.onclick = () => setDrawingMode('fill');
-            btnEraser.onclick = () => setDrawingMode('eraser');
-            btnClickSelect.onclick = () => {
-                // 先进入地图选点模式（原来的功能）
-                setDrawingMode('marker');
-                const useInput = confirm('请选择添加标注方式：\n\n"确定" → 手动输入经纬度\n"取消" → 点击地图选点');
-                if (useInput) {
-                    // 手动输入经纬度
-                    const latStr = prompt('请输入纬度 (-90 ~ 90)：', '0');
-                    if (latStr === null) return;
-                    const lonStr = prompt('请输入经度 (-180 ~ 180)：', '0');
-                    if (lonStr === null) return;
-                    
-                    const lat = parseFloat(latStr);
-                    const lon = parseFloat(lonStr);
-                    
-                    if (isNaN(lat) || isNaN(lon)) {
-                        document.getElementById('status-msg').innerText = '请输入有效的数字';
-                        return;
-                    }
-                    if (lat < -90 || lat > 90) {
-                        document.getElementById('status-msg').innerText = '纬度范围: -90 ~ 90';
-                        return;
-                    }
-                    if (lon < -180 || lon > 180) {
-                        document.getElementById('status-msg').innerText = '经度范围: -180 ~ 180';
-                        return;
-                    }
-                    
-                    const name = prompt('请输入标注名称:', `坐标点 (${lat}, ${lon})`);
-                    const finalName = (name === null || name.trim() === '') ? `坐标点` : name.trim();
-                    
-                    selectedMarkerPoint = { lat, lon, name: finalName };
-                    addMarker(lat, lon, finalName);
-                    document.getElementById('status-msg').innerText = `已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
-                } else {
-                    // 地图选点模式
-                    setDrawingMode('marker');
-                }
-            };
+            archives = await getUserArchives(accountId);
             
-            btnClearMarkers.onclick = () => {
-                clearMarkers();
-                document.getElementById('status-msg').innerText = '已清除所有标注';
-            };
-            
-            const btnImportImage = document.getElementById('btn-import-image');
-            if (btnImportImage) {
-                btnImportImage.onclick = () => {
-                    // 创建隐藏的文件选择器
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/*';
-                    input.onchange = (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            const img = new Image();
-                            img.onload = () => {
-                                // 保存当前状态到撤销栈
-                                saveToUndoStack();
-                                // 清空画布并绘制导入的图片
-                                ctx.clearRect(0, 0, texWidth, texHeight);
-                                ctx.drawImage(img, 0, 0, texWidth, texHeight);
-                                updateTexture();
-                                document.getElementById('status-msg').innerText = '图片导入成功，可用橡皮擦删除';
-                                // 自动保存
-                                if (currentUser) saveCurrentSession();
-                            };
-                            img.src = event.target.result;
-                        };
-                        reader.readAsDataURL(file);
-                    };
-                    input.click();
-                };
-            }
-            const btnExportImage = document.getElementById('btn-export-image');
-            if (btnExportImage) {
-                btnExportImage.onclick = () => {
-                    if (!window.drawingCanvas) {
-                        document.getElementById('status-msg').innerText = '画布未就绪';
-                        return;
-                    }
-                    
-                    // 将 canvas 转换为 PNG 并下载
-                    const canvas = window.drawingCanvas;
-                    const link = document.createElement('a');
-                    link.download = `map_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    
-                    document.getElementById('status-msg').innerText = '已导出为 PNG 图片';
-                };
-            }
-            // 存档名称管理
-            const saveNameInput = document.getElementById('save-name');
-            if (saveNameInput) {
-                // 加载保存的存档名称
-                if (currentUser) {
-                    const savedName = localStorage.getItem(`saveName_${currentUser.accountId}`);
-                    if (savedName) {
-                        saveNameInput.value = savedName;
-                    }
-                }
-                
-                // 监听名称变化并保存
-                saveNameInput.onchange = () => {
-                    let name = saveNameInput.value.trim();
-                    if (name === '') {
-                        name = '新的世界存档';
-                        saveNameInput.value = name;
-                    }
-                    if (currentUser) {
-                        localStorage.setItem(`saveName_${currentUser.accountId}`, name);
-                    }
-                    document.getElementById('status-msg').innerText = `存档名称已更改为: ${name}`;
-                };
-            }
-            const btnTogglePanel = document.getElementById('btn-toggle-panel');
-            if (btnTogglePanel) {
-                let panelCollapsed = false;
-                btnTogglePanel.onclick = () => {
-                    const toolBar = document.getElementById('tool-bar');
-                    const userStatusBar = document.getElementById('user-status-bar');
-                    
-                    if (panelCollapsed) {
-                        // 展开
-                        toolBar.style.display = 'block';
-                        userStatusBar.style.display = 'flex';
-                        btnTogglePanel.textContent = '收起面板';
-                        btnTogglePanel.style.background = '#5a6e8a';
-                        panelCollapsed = false;
-                    } else {
-                        // 收起
-                        toolBar.style.display = 'none';
-                        userStatusBar.style.display = 'none';
-                        btnTogglePanel.textContent = '展开面板';
-                        btnTogglePanel.style.background = '#3a5a6a';
-                        panelCollapsed = true;
-                    }
-                };
-            }
-
-            colorPicker.oninput = (e) => {
-                currentColor = e.target.value;
-                document.getElementById('status-msg').innerText = `颜色已改变: ${currentColor}`;
-            };
-            const brushSizeSlider = document.getElementById('brush-size');
-            const brushSizeValue = document.getElementById('brush-size-value');
-
-            if (brushSizeSlider) {
-                brushSizeSlider.oninput = (e) => {
-                    brushSize = parseInt(e.target.value);
-                    brushSizeValue.innerText = brushSize + 'px';
-                    document.getElementById('status-msg').innerText = `画笔粗细已改为: ${brushSize}px`;
-                };
-            }
-            
-            // 地球鼠标事件（支持鼠标+触摸）
-            let isDrawing = false, lastPos = null;
-
-            function getPointerPos(e) {
-                if (e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                return { x: e.clientX, y: e.clientY };
-            }
-
-            function onPointerStart(e) {
-                if (!currentUser || mouseMode) return;
-                e.preventDefault();
-                const { x, y } = getPointerPos(e);
-                const result = getLatLonFromMouse({ clientX: x, clientY: y });
-                if (!result) return;
-                const { lat, lon } = result;
-                
-                if (drawingEnabled) {
-                    saveToUndoStack();
-                    isDrawing = true;
-                    drawOnCanvas(lat, lon, currentColor, brushSize, false);
-                    lastPos = { lat, lon };
-                } else if (fillEnabled) {
-                    saveToUndoStack();
-                    floodFill(lat, lon, currentColor);
-                    document.getElementById('status-msg').innerText = '填色完成';
-                } else if (eraserEnabled) {
-                    saveToUndoStack();
-                    isDrawing = true;
-                    drawOnCanvas(lat, lon, '#000000', brushSize, true);
-                    lastPos = { lat, lon };
-                } else if (clickToAddMarkerMode) {
-                    const defaultName = `地点`;
-                    const customName = prompt('请输入标注名称:', defaultName);
-                    let finalName;
-                    if (customName === null) {
-                        document.getElementById('status-msg').innerText = '已取消添加标注';
-                        return;
-                    } else if (customName.trim() === '') {
-                        finalName = defaultName;
-                    } else {
-                        finalName = customName;
-                    }
-                    selectedMarkerPoint = { lat, lon, name: finalName };
-                    addMarker(lat, lon, finalName);
-                    document.getElementById('status-msg').innerText = `已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)}) - 可点击"文本框"在此处添加文本`;
-                } else if (isAddTextMode) {
-                    if (selectedMarkerPoint && Math.abs(lat - selectedMarkerPoint.lat) < 0.5 && Math.abs(lon - selectedMarkerPoint.lon) < 0.5) {
-                        const customText = prompt('请输入文本框内容:');
-                        if (customText !== null && customText.trim() !== '') {
-                            addTextMarker(selectedMarkerPoint.lat, selectedMarkerPoint.lon, customText);
-                            document.getElementById('status-msg').innerText = `已添加文本框: ${customText}`;
-                        } else if (customText === '') {
-                            document.getElementById('status-msg').innerText = '已取消添加文本框（文本为空）';
-                        } else {
-                            document.getElementById('status-msg').innerText = '已取消添加文本框';
-                        }
-                    } else {
-                        document.getElementById('status-msg').innerText = `请点击已选点的位置 (${selectedMarkerPoint.lat.toFixed(2)}, ${selectedMarkerPoint.lon.toFixed(2)}) 添加文本框`;
-                    }
-                }
-            }
-
-            function onPointerMove(e) {
-                if (!isDrawing) return;
-                if (drawingEnabled || eraserEnabled) {
-                    e.preventDefault();
-                    const { x, y } = getPointerPos(e);
-                    const result = getLatLonFromMouse({ clientX: x, clientY: y });
-                    if (result && lastPos) {
-                        const { lat, lon } = result;
-                        const steps = 5;
-                        for (let i = 1; i <= steps; i++) {
-                            const t = i / steps;
-                            const interpLat = lastPos.lat + (lat - lastPos.lat) * t;
-                            const interpLon = lastPos.lon + (lon - lastPos.lon) * t;
-                            drawOnCanvas(interpLat, interpLon, eraserEnabled ? '#000' : currentColor, brushSize, eraserEnabled);
-                        }
-                        lastPos = { lat, lon };
-                    }
-                }
-            }
-
-            function onPointerEnd() {
-                isDrawing = false;
-                lastPos = null;
-            }
-
-            // 鼠标事件
-            renderer.domElement.addEventListener('mousedown', onPointerStart);
-            window.addEventListener('mousemove', onPointerMove);
-            window.addEventListener('mouseup', onPointerEnd);
-
-            // 触摸事件（手机端）
-            renderer.domElement.addEventListener('touchstart', onPointerStart, { passive: false });
-            window.addEventListener('touchmove', onPointerMove, { passive: false });
-            window.addEventListener('touchend', onPointerEnd);
-
-            // 存档管理按钮
-document.getElementById('btn-save-archive')?.addEventListener('click', saveAsNewArchive);
-document.getElementById('btn-copy-archive')?.addEventListener('click', async () => {
-    if (!currentArchiveId) {
-        await saveAsNewArchive();
-    } else {
-        const newArchive = await duplicateArchive(currentArchiveId);
-        alert(`已复制为新存档\n存档ID: ${newArchive.archiveId}`);
-        await loadArchiveDropdown(currentUser.accountId);
-    }
-});
-document.getElementById('btn-delete-archive')?.addEventListener('click', async () => {
-    if (!currentArchiveId) {
-        alert('没有可删除的存档');
-        return;
-    }
-    if (confirm('确定删除当前存档吗？')) {
-        await deleteArchive(currentArchiveId);
-        alert('存档已删除');
-        window.location.href = `home.html?accountId=${currentUser.accountId}`;
-    }
-});
-document.getElementById('change-archive-icon')?.addEventListener('click', changeArchiveIcon);
-document.getElementById('back-to-home')?.addEventListener('click', () => {
-    window.location.href = `home.html?accountId=${currentUser.accountId}&username=${encodeURIComponent(currentUser.username)}`;
-});
-
-// 修改退出按钮逻辑
-document.getElementById('logout-btn').onclick = async () => { 
-    await saveCurrentSession(); 
-    window.location.href = 'index.html';
-};
-
-// 更换用户头像
-document.getElementById('user-avatar')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const avatarUrl = event.target.result;
-            document.getElementById('user-avatar').src = avatarUrl;
-            localStorage.setItem(`userAvatar_${currentUser.accountId}`, avatarUrl);
-            document.getElementById('status-msg').innerText = '头像已更换';
-        };
-        reader.readAsDataURL(file);
-    };
-    input.click();
-});
-
-
-                        // ========== 太阳/晨昏线控制 ==========
-            // 添加控制面板HTML（如果不存在则创建）
-            let sunControlPanel = document.getElementById('sun-control-panel');
-            if (!sunControlPanel) {
-                const toolBar = document.getElementById('tool-bar');
-                const newPanel = document.createElement('div');
-                newPanel.id = 'sun-control-panel';
-                newPanel.className = 'tool-section';
-                newPanel.style.marginTop = '10px';
-                newPanel.innerHTML = `
-                    <div style="font-weight:bold; margin-bottom:6px;">太阳/晨昏线</div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:11px;">纬度:</span>
-                        <input type="range" id="sun-lat" min="-23.26" max="23.26" step="1" value="23.5" style="flex:1;">
-                        <span id="sun-lat-val" style="width:35px;">23.26°</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px; margin-top:5px;">
-                        <span style="font-size:11px;">经度:</span>
-                        <input type="range" id="sun-lon" min="-180" max="180" step="1" value="0" style="flex:1;">
-                        <span id="sun-lon-val" style="width:35px;">0°</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px; margin-top:5px;">
-                        <span style="font-size:11px;">强度:</span>
-                        <input type="range" id="sun-intensity" min="0" max="2" step="0.01" value="1.2" style="flex:1;">
-                        <span id="sun-intensity-val" style="width:35px;">1.2</span>
+            if (archives.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        暂无存档<br>
+                        点击上方"创建存档"开始你的第一张地图
                     </div>
                 `;
-                toolBar.appendChild(newPanel);
-            }
-            // 经纬度转三维坐标
-            function updateSunPosition() {
-                const lat = parseFloat(document.getElementById('sun-lat').value);
-                const lon = parseFloat(document.getElementById('sun-lon').value);
-                const intensity = parseFloat(document.getElementById('sun-intensity').value);
-                
-                // 更新显示值
-                document.getElementById('sun-lat-val').innerText = lat + '°';
-                document.getElementById('sun-lon-val').innerText = lon + '°';
-                document.getElementById('sun-intensity-val').innerText = intensity;
-                
-                // 将经纬度转换为三维坐标（半径15，让太阳在地球外面）
-                const radius = 15;
-                const phi = (90 - lat) * Math.PI / 180;
-                const theta = lon * Math.PI / 180;
-                const x = radius * Math.sin(phi) * Math.cos(theta);
-                const y = radius * Math.cos(phi);
-                const z = radius * Math.sin(phi) * Math.sin(theta);
-                
-                // 更新光源位置
-                if (window.sunLight) {
-                    window.sunLight.position.set(x, y, z);
-                    window.sunLight.intensity = intensity;
-                }
-                
-                // 更新太阳球体位置
-                if (window.sunSphere) {
-                    window.sunSphere.position.set(x, y, z);
-                }
-                
-                // 更新光晕位置
-                if (window.sunGlow) {
-                    window.sunGlow.position.set(x, y, z);
-                    window.sunGlow.intensity = intensity * 0.4;
-                }
-                
-                // 调整背光补充光（纬度越高，背阴面越暗）
-                const absLat = Math.abs(lat);
-                const backIntensity = 0.2 + (1 - Math.min(intensity, 1.2)) * 0.3 + (90 - absLat) / 300;
-                if (window.backFillLight) {
-                    window.backFillLight.intensity = Math.min(0.5, backIntensity);
-                }
-                
-                document.getElementById('status-msg').innerText = `太阳位置: 纬度=${lat}°, 经度=${lon}° | 强度=${intensity}`;
+                return;
             }
             
-            // 绑定事件
-            const sunLatSlider = document.getElementById('sun-lat');
-            const sunLonSlider = document.getElementById('sun-lon');
-            const sunIntensitySlider = document.getElementById('sun-intensity');
+            container.innerHTML = '';
             
-            if (sunLatSlider) sunLatSlider.oninput = updateSunPosition;
-            if (sunLonSlider) sunLonSlider.oninput = updateSunPosition;
-            if (sunIntensitySlider) sunIntensitySlider.oninput = updateSunPosition;
-                    // 修改密码按钮
-                    document.getElementById('change-pwd-btn')?.addEventListener('click', () => {
-                    window.location.href = `index.html?accountId=${currentUser.accountId}&username=${encodeURIComponent(currentUser.username)}`;
-                    });
-
-                    // 注销账号按钮
-                    document.getElementById('delete-account-btn')?.addEventListener('click', async () => {
-                    if (confirm('确定要永久注销账号吗？所有数据将丢失！')) {
-                    const password = prompt('请输入密码确认：');
-                    if (password) {
-                    try {
-                    await deleteAccount(currentUser.accountId, password);
-                    alert('账号已注销');
-                    window.location.href = 'index.html';
-                    } catch(e) {
-                    alert(e.message);
+            for (const archive of archives) {
+                const card = document.createElement('div');
+                card.className = 'archive-card';
+                card.innerHTML = `
+                    <div class="archive-icon">
+                        ${archive.iconDataUrl ? `<img src="${archive.iconDataUrl}" alt="图标">` : `<img src="../images/Wanlon-logo.png" alt="图标" style="width:100%; height:100%; object-fit:cover;">`}
+                    </div>
+                    <div class="archive-info">
+                        <div class="archive-name">${escapeHtml(archive.name)}</div>
+                        <div class="archive-id">ID: <span class="copy-archive-id" data-id="${archive.archiveId}" style="cursor: pointer; color: #ffaa66; text-decoration: underline;">${archive.archiveId}</span> <span style="font-size: 10px;">(点击复制)</span></div>
+                        <div class="archive-date">更新于: ${new Date(archive.updatedAt).toLocaleString()}</div>
+                    </div>
+                    <div class="archive-actions">
+                        <button class="enter-btn" data-id="${archive.archiveId}">进入</button>
+                        <button class="copy-btn" data-id="${archive.archiveId}">复制</button>
+                        <button class="delete-btn" data-id="${archive.archiveId}">删除</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+            
+            // 绑定按钮事件
+            document.querySelectorAll('.enter-btn').forEach(btn => {
+                btn.onclick = () => {
+                    window.location.href = `map.html?accountId=${accountId}&archiveId=${btn.dataset.id}`;
+                };
+            });
+            
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    const newName = prompt('请输入新存档名称:', archives.find(a => a.archiveId === btn.dataset.id)?.name + ' (副本)');
+                    if (newName) {
+                        await duplicateArchive(btn.dataset.id, newName);
+                        await loadArchives();
                     }
+                };
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    if (confirm('确定删除这个存档吗？')) {
+                        await deleteArchive(btn.dataset.id);
+                        await loadArchives();
                     }
-                    }
-                    });
-            // 初始化太阳位置
-            updateSunPosition();
+                };
+            });
+            // 复制存档ID
+            document.querySelectorAll('.copy-archive-id').forEach(elem => {
+                elem.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const archiveId = elem.dataset.id;
+                    navigator.clipboard.writeText(archiveId);
+                    alert('存档ID已复制');
+                });
+            });
         }
         
+        async function createNewArchive() {
+            let name = document.getElementById('new-archive-name').value.trim();
+            if (!name) name = '我的世界地图';
+            
+            // 创建空白地图数据
+            const canvas = document.createElement('canvas');
+            canvas.width = 2048;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 2048, 1024);
+            const mapDataUrl = canvas.toDataURL();
+            
+            const archive = await saveArchive(accountId, name, null, mapDataUrl, [], []);
+            alert(`存档创建成功！\n存档ID: ${archive.archiveId}`);
+            await loadArchives();
+            document.getElementById('new-archive-name').value = '我的世界地图';
+        }
+        
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        // 加载用户头像
+        function loadUserAvatar() {
+            const savedAvatar = localStorage.getItem(`userAvatar_${accountId}`);
+            if (savedAvatar) {
+                document.getElementById('user-avatar').src = savedAvatar;
+            }
+        }
+
+        // 更换用户头像
+        function changeUserAvatar() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const avatarUrl = event.target.result;
+                    document.getElementById('user-avatar').src = avatarUrl;
+                    // 保存到 localStorage
+                    localStorage.setItem(`userAvatar_${accountId}`, avatarUrl);
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
         startup();
     </script>
 </body>
