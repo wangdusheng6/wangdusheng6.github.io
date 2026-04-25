@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>3D世界地图 - 账号系统与绘图存档</title>
+    <title>3D世界地图</title>
     <style>
         * {
             box-sizing: border-box;
@@ -30,20 +30,6 @@
             font-family: monospace;
             pointer-events: auto !important;
         }
-        /* 透明边框容器 */
-        .app-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            pointer-events: none;  /* 让容器不拦截任何鼠标/触摸事件 */
-            z-index: 0;
-        }
-
         /* 确保交互元素在容器上方且可点击 */
         .modal, .user-status, .tool-bar {
             pointer-events: auto;
@@ -212,24 +198,28 @@
             .user-status { font-size: 10px; padding: 4px 10px; top: 10px; right: 10px; }
             .tool-bar { top: 100px; left: 10px; max-width: 170px; padding: 8px; }
         }
+        #mainMap { 
+            height: 100vh;   /* 视口高度的100% */
+            width: 100%;     /* 视口宽度的100% */
+        }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- 浮层账号面板 -->
-        <div id="auth-modal" class="modal" style="display: flex;">
-            <div class="modal-card" id="login-panel">
-                <h2>世界地图 · 登录</h2>
-                <input type="text" id="login-username" placeholder="用户名">
-                <input type="password" id="login-pwd" placeholder="密码">
-                <button id="do-login">登录</button>
-                <button class="switch-btn" id="to-register">注册新账号</button>
-                <button class="switch-btn" id="to-forgot">找回密码</button>
-                <div id="login-msg" class="error-msg"></div>
-            </div>
+    <!-- 浮层账号面板 -->
+    <div id="auth-modal" class="modal" style="display: flex;">
+        <div class="modal-card" id="login-panel">
+            <h2>世界地图 · 登录</h2>
+            <input type="text" id="login-username" placeholder="用户名">                
+            <input type="password" id="login-pwd" placeholder="密码">
+            <button id="do-login">登录</button>
+            <button class="switch-btn" id="to-register">注册新账号</button>
+            <button class="switch-btn" id="to-forgot">找回密码</button>                
+            <div id="login-msg" class="error-msg"></div>
         </div>
-
-        <div id="user-status-bar" class="user-status" style="display: none;">
+    </div>
+    <div id="mainMap">
+        <!-- 您原来的所有内容：modal、user-status-bar、tool-bar 等等全部放在这里 -->
+            <div id="user-status-bar" class="user-status" style="display: none;">
             <span id="user-name-display">未登录</span>
             <button id="logout-btn" class="logout-btn">退出</button>
             <button id="change-pwd-btn" class="logout-btn" style="background:#2c5a6e;">改密</button>
@@ -242,7 +232,7 @@
                 <button id="btn-draw">手绘</button>
                 <button id="btn-fill">填色</button>
                 <button id="btn-eraser">橡皮</button>
-                
+                    
             </div>
             <div class="tool-section">
                 <label style="display:flex; align-items:center; gap:6px;">颜色: <input type="color" id="color-picker" value="#ff3366" style="width:30px; height:24px; border:none; border-radius:4px; cursor:pointer;"></label>
@@ -254,8 +244,7 @@
                 <button id="btn-reset">重置画布</button>
             </div>
             <div class="tool-section">
-                <div style="font-weight:bold; margin-bottom:6px;">画笔设置</div>
-                <div style="display:flex; align-items:center; gap:8px;">
+                <div style="font-weight:bold; margin-bottom:6px;">画笔设置</div>                <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-size:11px;">粗细:</span>
                     <input type="range" id="brush-size" min="2" max="30" step="1" value="8" style="flex:1;">
                     <span id="brush-size-value" style="width:30px; font-size:12px;">8px</span>
@@ -264,6 +253,7 @@
             <div class="status-msg" id="status-msg">第一次使用请先点击工具</div>
         </div>
     </div>
+
 
     <!-- Three.js 相关 (动态加载) -->
     <script type="importmap">
@@ -447,14 +437,14 @@
             camera.position.set(0, 0.2, 3.5);
             renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+            document.getElementById('mainMap').appendChild(renderer.domElement);
             labelRenderer = new CSS2DRenderer();
             labelRenderer.setSize(window.innerWidth, window.innerHeight);
             labelRenderer.domElement.style.position = 'absolute';
             labelRenderer.domElement.style.top = '0px';
             labelRenderer.domElement.style.left = '0px';
             labelRenderer.domElement.style.pointerEvents = 'none';
-            document.body.appendChild(labelRenderer.domElement);
+            document.getElementById('mainMap').appendChild(labelRenderer.domElement);
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.rotateSpeed = 0.8;
@@ -594,7 +584,7 @@
             ctx.fillRect(0, 0, texWidth, texHeight);
             // 更新纹理
             updateTexture();
-            document.getElementById('status-msg').innerText = '画布已重置为原始白色状态';
+            document.getElementById('status-msg').innerText = '♻️ 画布已重置为原始白色状态';
             // 自动保存当前会话
             if (currentUser) saveCurrentSession();
         }
@@ -675,9 +665,9 @@
                 // 标准化坐标（确保球体半径=1，不影响计算）
                 p.normalize();
 
-                // 正确纬度计算（修复上下颠倒）
+                // ✅ 正确纬度计算（修复上下颠倒）
                 const lat = Math.asin(p.y) * 180 / Math.PI; 
-                // 标准经度计算
+                // ✅ 标准经度计算
                 const lon = Math.atan2(p.z, p.x) * 180 / Math.PI;
 
                 return { lat, lon };
@@ -836,7 +826,7 @@
             if (!currentUser) return;
             
             // 二次确认
-            const confirm1 = confirm(`警告：您确定要永久删除账号 "${currentUser.username}" 吗？\n删除后将无法恢复，所有绘图和标注数据都会丢失！`);
+            const confirm1 = confirm(`⚠️ 警告：您确定要永久删除账号 "${currentUser.username}" 吗？\n删除后将无法恢复，所有绘图和标注数据都会丢失！`);
             if (!confirm1) return;
             
             const confirm2 = confirm(`请再次确认：输入您的密码以删除账号`);
@@ -978,7 +968,7 @@
                 brushSizeSlider.oninput = (e) => {
                     brushSize = parseInt(e.target.value);
                     brushSizeValue.innerText = brushSize + 'px';
-                    document.getElementById('status-msg').innerText = `画笔粗细已改为: ${brushSize}px`;
+                    document.getElementById('status-msg').innerText = `✏️ 画笔粗细已改为: ${brushSize}px`;
                 };
             }
             
@@ -1015,7 +1005,7 @@
                         finalName = customName;
                     }
                     addMarker(lat, lon, finalName);
-                    document.getElementById('status-msg').innerText = `已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
+                    document.getElementById('status-msg').innerText = `✅ 已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
                     // 不退出标注模式，可以继续添加
                 }
             });
