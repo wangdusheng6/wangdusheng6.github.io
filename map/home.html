@@ -362,7 +362,7 @@ document.getElementById('change-pwd-home').onclick = () => {
                 card.className = 'archive-card';
                 card.innerHTML = `
                     <div class="archive-icon">
-                        ${archive.iconDataUrl ? `<img src="${archive.iconDataUrl}" alt="图标">` : '🗺️'}
+                        ${archive.iconDataUrl ? `<img src="${archive.iconDataUrl}" alt="图标">` : `<img src="../images/Wanlon-logo.png" alt="图标" style="width:100%; height:100%; object-fit:cover;">`}
                     </div>
                     <div class="archive-info">
                         <div class="archive-name">${escapeHtml(archive.name)}</div>
