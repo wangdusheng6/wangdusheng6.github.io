@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D世界地图</title>
+    <!-- 引用公共样式 -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #mainMap {
+            height: 100vh;
+            /* 视口高度的100% */
+            width: 100%;
+            /* 视口宽度的100% */
+        }
+        #mainMap canvas {
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 浮层账号面板 -->
+    <div id="auth-modal" class="modal" style="display: flex;">
+        <div class="modal-card" id="login-panel">
+            <h2>世界地图 · 登录</h2>
+            <input type="text" id="login-username" placeholder="用户名">                
+            <input type="password" id="login-pwd" placeholder="密码">
+            <button id="do-login">登录</button>
+            <button class="switch-btn" id="to-register">注册新账号</button>
+            <button class="switch-btn" id="to-change-pwd">修改密码</button>
+            <button class="switch-btn" id="to-forgot">找回密码</button>            
+            <div id="login-msg" class="error-msg"></div>
+        </div>
+    </div>
+
+<script type="module">
+    import { 
+        openDB,
+        registerUser, 
+        loginByUsername, 
+        recoverPassword,
+        changePassword
+    } from './db.js';
+
+    async function startup() {
+        await openDB();
+        
+        // 登录
+        document.getElementById('do-login').onclick = async () => {
+            const username = document.getElementById('login-username').value.trim();
+            const pwd = document.getElementById('login-pwd').value;
+            const msgDiv = document.getElementById('login-msg');
+            
+            if (!username || !pwd) {
+                msgDiv.innerText = '请填写用户名和密码';
+                return;
+            }
+            
+            msgDiv.innerText = '登录中...';
+            
+            try {
+                const user = await loginByUsername(username, pwd);
+                window.location.href = `home.html?accountId=${user.accountId}&username=${encodeURIComponent(user.username)}`;
+            } catch(e) {
+                msgDiv.innerText = e.message;
+            }
+        };
+        
+        document.getElementById('to-register').onclick = () => showRegister();
+        document.getElementById('to-forgot').onclick = () => showForgot();
+        document.getElementById('to-change-pwd').onclick = () => showChangePwd();
+    }
+    
+    function showRegister() {
+        const panel = document.getElementById('login-panel');
+        panel.innerHTML = `<h2>注册新账号</h2>
+            <input id="reg-name" placeholder="昵称">
+            <input id="reg-pwd" type="password" placeholder="密码">
+            <input id="reg-wechat" placeholder="微信号">
+            <button id="do-reg">注册</button>
+            <button class="switch-btn" id="back-login">返回登录</button>
+            <div id="reg-msg" class="error-msg"></div>`;
+        
+        document.getElementById('do-reg').onclick = async () => {
+            const name = document.getElementById('reg-name').value;
+            const pwd = document.getElementById('reg-pwd').value;
+            const wechat = document.getElementById('reg-wechat').value;
+            try {
+                const res = await registerUser(name, pwd, wechat);
+                alert(`注册成功！账号ID: ${res.accountId}\n请牢记账号ID`);
+                window.location.href = 'index.html';
+            } catch(e) { 
+                document.getElementById('reg-msg').innerText = e.message; 
+            }
+        };
+        document.getElementById('back-login').onclick = () => window.location.href = 'index.html';
+    }
+    
+    function showForgot() {
+        const panel = document.getElementById('login-panel');
+        panel.innerHTML = `<h2>找回密码</h2>
+            <input id="forgot-wechat" placeholder="绑定微信号">
+            <button id="do-recover">获取密码</button>
+            <button class="switch-btn" id="back-login2">返回登录</button>
+            <div id="recover-msg" class="error-msg"></div>`;
+        
+        document.getElementById('do-recover').onclick = async () => {
+            const wechat = document.getElementById('forgot-wechat').value;
+            try {
+                const pwd = await recoverPassword(wechat);
+                document.getElementById('recover-msg').innerHTML = `<span class="success">您的密码: ${pwd}</span>`;
+            } catch(e) { 
+                document.getElementById('recover-msg').innerText = e.message; 
+            }
+        };
+        document.getElementById('back-login2').onclick = () => window.location.href = 'index.html';
+    }
+    
+    // 修改密码功能
+    function showChangePwd() {
+        const panel = document.getElementById('login-panel');
+        panel.innerHTML = `<h2>修改密码</h2>
+            <input id="change-account-id" placeholder="账号ID">
+            <input id="change-old-pwd" type="password" placeholder="原密码">
+            <input id="change-new-pwd" type="password" placeholder="新密码">
+            <button id="do-change">确认修改</button>
+            <button class="switch-btn" id="back-login3">返回登录</button>
+            <div id="change-msg" class="error-msg"></div>`;
+        
+        document.getElementById('do-change').onclick = async () => {
+            const accountId = document.getElementById('change-account-id').value.trim();
+            const oldPwd = document.getElementById('change-old-pwd').value;
+            const newPwd = document.getElementById('change-new-pwd').value;
+            
+            if (!accountId || !oldPwd || !newPwd) {
+                document.getElementById('change-msg').innerText = '请填写完整信息';
+                return;
+            }
+            
+            if (newPwd.length < 4) {
+                document.getElementById('change-msg').innerText = '新密码长度至少4位';
+                return;
+            }
+            
+            try {
+                await changePassword(accountId, oldPwd, newPwd);
+                document.getElementById('change-msg').innerHTML = '<span class="success">修改成功，请重新登录</span>';
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } catch(e) {
+                document.getElementById('change-msg').innerText = e.message;
+            }
+        };
+        document.getElementById('back-login3').onclick = () => window.location.href = 'index.html';
+    }
+    
+    startup();
+</script>
+
+</body>
+</html>
