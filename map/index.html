@@ -7,6 +7,33 @@
     <!-- 引用公共样式 -->
     <link rel="stylesheet" href="style.css">
     <style>
+        /* 强制覆盖 body 样式 */
+        body {
+            overflow: auto !important;
+            background: transparent !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: '华文楷体', 'STKaiti', 'KaiTi', cursive, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+.galaxy-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: url('https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=2013&auto=format') center/cover no-repeat;
+}
+.modal {
+    background: transparent !important;
+    backdrop-filter: blur(8px);
+}
+
+.modal-card {
+    background: #1e2a32e6;
+    backdrop-filter: blur(4px);
+}
+
         #mainMap {
             height: 100vh;
             /* 视口高度的100% */
@@ -19,10 +46,13 @@
     </style>
 </head>
 <body>
+    <!-- 银河背景容器 -->
+    <div class="galaxy-bg"></div>
     <!-- 浮层账号面板 -->
     <div id="auth-modal" class="modal" style="display: flex;">
         <div class="modal-card" id="login-panel">
-            <h2>世界地图 · 登录</h2>
+            <h2 style="font-weight: bold; font-family: '华文楷体', 'STKaiti', 'KaiTi', cursive; font-size: 36px;">世界地图</h2>
+            <h2 style="font-family: '方正舒体', 'FZShuTi', 'STFangsong', serif;">登录</h2>
             <input type="text" id="login-username" placeholder="用户名">                
             <input type="password" id="login-pwd" placeholder="密码">
             <button id="do-login">登录</button>
