@@ -8,7 +8,7 @@
 body {
                     margin: 0;
                     overflow: hidden;
-                    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+                    font-family: '华文楷体', 'STKaiti', 'KaiTi', cursive, 'Segoe UI', 'Microsoft YaHei', sans-serif;
 }
 
 /* 模态框通用样式 */
@@ -63,20 +63,22 @@ body {
                     color: white;
                     font-size: 14px;
                     outline: none;
+                    font-family: '华文隶书', '华文楷书', 'STLiti', 'Microsoft YaHei', cursive;
 }
 
 .modal-card button {
-                    background: #2c7da0;
-                    border: none;
-                    color: white;
-                    padding: 10px;
-                    border-radius: 40px;
-                    width: 100%;
-                    margin-top: 12px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    transition: 0.2s;
-                    font-size: 15px;
+    background: #2c7da0;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 40px;
+    width: 100%;
+    margin-top: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 20px;
+    font-family: '华文隶书', '华文楷书', 'STLiti', 'Microsoft YaHei', cursive;
 }
 
 .modal-card button:hover {
