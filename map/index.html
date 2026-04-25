@@ -202,6 +202,26 @@
             height: 100vh;   /* 视口高度的100% */
             width: 100%;     /* 视口宽度的100% */
         }
+        #mainMap canvas {
+            touch-action: none;
+        }
+        /* 悬停提示框样式 */
+        .hover-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            color: #ffdd99;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-family: monospace;
+            border-left: 3px solid #ffaa66;
+            pointer-events: none;
+            z-index: 1000;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: opacity 0.2s;
+        }
     </style>
 </head>
 <body>
@@ -233,7 +253,8 @@
                 <button id="btn-fill">填色</button>
                 <button id="btn-eraser">橡皮</button>
                 <button id="btn-undo">撤销</button>
-                <button id="btn-redo" style="display:none;">重做</button>
+                <button id="btn-redo">重做</button>
+                <button id="btn-add-text">文本</button>
             </div>
             <div class="tool-section">
                 <label style="display:flex; align-items:center; gap:6px;">颜色: <input type="color" id="color-picker" value="#ff3366" style="width:30px; height:24px; border:none; border-radius:4px; cursor:pointer;"></label>
@@ -301,6 +322,9 @@
         let undoStack = [];      // 存储历史状态
         let redoStack = [];      // 存储重做状态
         let isUndoRedoAction = false;  // 防止撤销/重做时重复记录
+        let textMarkers = [];  // 存储文本框标注 { label, lat, lon, text }
+        let isAddTextMode = false;  // 贴文本框模式
+        let selectedMarkerPoint = null;  // 存储当前选中的点 { lat, lon }
         
         // ----- 数据库操作封装 -----
         function openDB() {
@@ -319,6 +343,9 @@
                     }
                     if (!dbRef.objectStoreNames.contains(DRAFT_STORE)) {
                         const draftStore = dbRef.createObjectStore(DRAFT_STORE, { keyPath: 'accountId' });
+                    }
+                    if (!dbRef.objectStoreNames.contains('textmarkers')) {
+                        dbRef.createObjectStore('textmarkers', { keyPath: 'accountId' });
                     }
                 };
             });
@@ -421,6 +448,23 @@
                 req.onsuccess = () => res();
                 req.onerror = () => rej(req.error);
             });
+        }
+        async function saveTextMarkers(accountId, markers) {
+            if (!db.objectStoreNames.contains('textmarkers')) return;
+            const tx = db.transaction(['textmarkers'], 'readwrite');
+            const store = tx.objectStore('textmarkers');
+            await store.put({ accountId, markers });
+        }
+
+        async function loadTextMarkers(accountId) {
+            if (!db.objectStoreNames.contains('textmarkers')) return [];
+            const tx = db.transaction(['textmarkers'], 'readonly');
+            const store = tx.objectStore('textmarkers');
+            const res = await new Promise(res => {
+                const req = store.get(accountId);
+                req.onsuccess = () => res(req.result);
+            });
+            return res ? res.markers : [];
         }
         
         async function loadDraft(accountId) {
@@ -761,7 +805,60 @@
             return labelObj;
         }
         function clearMarkers() { markersList.forEach(m => scene.remove(m.label)); markersList = []; }
-        
+        // 添加文本框标注
+        function addTextMarker(lat, lon, text) {
+            // 创建 CSS2D 文本框
+            const div = document.createElement('div');
+            div.textContent = text;
+            div.style.cssText = `
+                background: rgba(0,0,0,0.75);
+                backdrop-filter: blur(8px);
+                color: #ffdd99;
+                padding: 6px 12px;
+                border-radius: 20px;
+                border: 1px solid #ffaa66;
+                font-size: 12px;
+                font-family: monospace;
+                white-space: nowrap;
+                cursor: pointer;
+                transition: 0.2s;
+                pointer-events: auto;
+                opacity: 0;
+            `;
+            
+            // 悬停效果
+            div.addEventListener('mouseenter', () => {
+                div.style.opacity = '1';
+                div.style.background = 'rgba(0,0,0,0.9)';
+                div.style.transform = 'scale(1.05)';
+                div.style.border = '1px solid #ffcc88';
+            });
+            div.addEventListener('mouseleave', () => {
+                div.style.opacity = '0';
+                div.style.background = 'rgba(0,0,0,0.75)';
+                div.style.transform = 'scale(1)';
+                div.style.border = '1px solid #ffaa66';
+            });
+            
+            const labelObj = new CSS2DObject(div);
+            const radius = 1.02;
+            const phi = (90 - lat) * Math.PI / 180;
+            const theta = lon * Math.PI / 180;
+            labelObj.position.set(
+                radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.sin(theta)
+            );
+            scene.add(labelObj);
+            textMarkers.push({ label: labelObj, lat, lon, text });
+            return labelObj;
+        }
+
+        // 清除所有文本框
+        function clearTextMarkers() {
+            textMarkers.forEach(m => scene.remove(m.label));
+            textMarkers = [];
+        }
         // 射线拾取经纬度（修复上下颠倒问题）
         function getLatLonFromMouse(event) {
             const mouse = new THREE.Vector2();
@@ -805,6 +902,9 @@
                 updateTexture();
             }
             // 加载标注 (自定义标注需单独存储，简易演示仅存储绘图，标注单独存储于另一个store 但为了完整演示单独加标注存储)
+            // 加载文本框（需要单独存储）
+            const textData = await loadTextMarkers(user.accountId);
+            if (textData) textData.forEach(m => addTextMarker(m.lat, m.lon, m.text));
             // 这里简化: 不清空额外标注，可下次再扩展。为了体验，会存储标注到drafts的扩展字段 (实际可新增store)
             // 为了满足要求，额外标注我们用 localStorage+账号? 更好: 存数据库的另一个store。快速实现标注存储
             const markersData = await loadMarkers(user.accountId);
@@ -842,6 +942,13 @@
                 const tx = db.transaction(['markers'], 'readwrite');
                 const store = tx.objectStore('markers');
                 await store.put({accountId: currentUser.accountId, markers: markersSimple});
+            }
+            // 储存文本框
+            const textSimple = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
+            if (db.objectStoreNames.contains('textmarkers')) {
+                const tx = db.transaction(['textmarkers'], 'readwrite');
+                const store = tx.objectStore('textmarkers');
+                await store.put({ accountId: currentUser.accountId, markers: textSimple });
             }
         }
         
@@ -997,12 +1104,17 @@
             }
         }
         function resetToolModes() {
-            drawingEnabled = false; fillEnabled = false; eraserEnabled = false; clickToAddMarkerMode = false;
+            drawingEnabled = false; 
+            fillEnabled = false; 
+            eraserEnabled = false; 
+            clickToAddMarkerMode = false; 
+            isAddTextMode = false;
             document.getElementById('btn-draw').classList.remove('active');
             document.getElementById('btn-fill').classList.remove('active');
             document.getElementById('btn-eraser').classList.remove('active');
             document.getElementById('btn-click-select').classList.remove('active');
             document.getElementById('btn-mouse').classList.remove('active');
+            document.getElementById('btn-add-text').classList.remove('active');
             document.body.style.cursor = 'default';
         }
         
@@ -1034,7 +1146,16 @@
             } else if (mode === 'marker') {
                 clickToAddMarkerMode = true;
                 document.getElementById('btn-click-select').classList.add('active');
-                document.getElementById('status-msg').innerText = '符标模式: 点击地图添加标注';
+                document.getElementById('status-msg').innerText = '鼠标选点模式: 点击地图位置添加标注（可在标注上添加文本框）';
+            } else if (mode === 'text') {
+                if (!selectedMarkerPoint) {
+                    document.getElementById('status-msg').innerText = '请先在"鼠标选点"模式中选择一个点';
+                    setMouseMode();
+                    return;
+                }
+                isAddTextMode = true;
+                document.getElementById('btn-add-text').classList.add('active');
+                document.getElementById('status-msg').innerText = `文本框模式: 在已选点位置 (${selectedMarkerPoint.lat.toFixed(2)}, ${selectedMarkerPoint.lon.toFixed(2)}) 上点击以添加文本框`;
             }
         }
         
@@ -1052,6 +1173,15 @@
             const btnUndo = document.getElementById('btn-undo');
             if (btnUndo) {
                 btnUndo.onclick = () => undo();
+            }
+            const btnRedo = document.getElementById('btn-redo');
+            if (btnRedo) {
+                btnRedo.onclick = () => redo();
+            }
+
+            const btnAddText = document.getElementById('btn-add-text');
+            if (btnAddText) {
+                btnAddText.onclick = () => setDrawingMode('text');
             }
 
             // 快捷键 Ctrl+Z
@@ -1098,11 +1228,19 @@
                 };
             }
             
-            // 地球鼠标事件
+            // 地球鼠标事件（支持鼠标+触摸）
             let isDrawing = false, lastPos = null;
-            renderer.domElement.addEventListener('mousedown', (e) => {
-                if (!currentUser || mouseMode) return;  // 鼠标模式下不处理绘图
-                const result = getLatLonFromMouse(e);
+
+            function getPointerPos(e) {
+                if (e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                return { x: e.clientX, y: e.clientY };
+            }
+
+            function onPointerStart(e) {
+                if (!currentUser || mouseMode) return;
+                e.preventDefault();
+                const { x, y } = getPointerPos(e);
+                const result = getLatLonFromMouse({ clientX: x, clientY: y });
                 if (!result) return;
                 const { lat, lon } = result;
                 
@@ -1125,7 +1263,6 @@
                     const customName = prompt('请输入标注名称:', defaultName);
                     let finalName;
                     if (customName === null) {
-                        // 用户点击取消
                         document.getElementById('status-msg').innerText = '已取消添加标注';
                         return;
                     } else if (customName.trim() === '') {
@@ -1133,16 +1270,32 @@
                     } else {
                         finalName = customName;
                     }
+                    selectedMarkerPoint = { lat, lon, name: finalName };
                     addMarker(lat, lon, finalName);
-                    document.getElementById('status-msg').innerText = `已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
-                    // 不退出标注模式，可以继续添加
+                    document.getElementById('status-msg').innerText = `已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)}) - 可点击"文本框"在此处添加文本`;
+                } else if (isAddTextMode) {
+                    if (selectedMarkerPoint && Math.abs(lat - selectedMarkerPoint.lat) < 0.5 && Math.abs(lon - selectedMarkerPoint.lon) < 0.5) {
+                        const customText = prompt('请输入文本框内容:');
+                        if (customText !== null && customText.trim() !== '') {
+                            addTextMarker(selectedMarkerPoint.lat, selectedMarkerPoint.lon, customText);
+                            document.getElementById('status-msg').innerText = `已添加文本框: ${customText}`;
+                        } else if (customText === '') {
+                            document.getElementById('status-msg').innerText = '已取消添加文本框（文本为空）';
+                        } else {
+                            document.getElementById('status-msg').innerText = '已取消添加文本框';
+                        }
+                    } else {
+                        document.getElementById('status-msg').innerText = `请点击已选点的位置 (${selectedMarkerPoint.lat.toFixed(2)}, ${selectedMarkerPoint.lon.toFixed(2)}) 添加文本框`;
+                    }
                 }
-            });
-            
-            renderer.domElement.addEventListener('mousemove', (e) => {
+            }
+
+            function onPointerMove(e) {
                 if (!isDrawing) return;
                 if (drawingEnabled || eraserEnabled) {
-                    const result = getLatLonFromMouse(e);
+                    e.preventDefault();
+                    const { x, y } = getPointerPos(e);
+                    const result = getLatLonFromMouse({ clientX: x, clientY: y });
                     if (result && lastPos) {
                         const { lat, lon } = result;
                         const steps = 5;
@@ -1155,9 +1308,22 @@
                         lastPos = { lat, lon };
                     }
                 }
-            });
-            
-            window.addEventListener('mouseup', () => { isDrawing = false; lastPos = null; });
+            }
+
+            function onPointerEnd() {
+                isDrawing = false;
+                lastPos = null;
+            }
+
+            // 鼠标事件
+            renderer.domElement.addEventListener('mousedown', onPointerStart);
+            window.addEventListener('mousemove', onPointerMove);
+            window.addEventListener('mouseup', onPointerEnd);
+
+            // 触摸事件（手机端）
+            renderer.domElement.addEventListener('touchstart', onPointerStart, { passive: false });
+            window.addEventListener('touchmove', onPointerMove, { passive: false });
+            window.addEventListener('touchend', onPointerEnd);
 
                         // ========== 太阳/晨昏线控制 ==========
             // 添加控制面板HTML（如果不存在则创建）
