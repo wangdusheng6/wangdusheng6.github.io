@@ -254,3 +254,27 @@ hr {
                     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
                     transition: opacity 0.2s;
 }
+.tool-bar {
+    max-height: 90vh;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* 美化滚动条 */
+.tool-bar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tool-bar::-webkit-scrollbar-track {
+    background: #1a252f;
+    border-radius: 3px;
+}
+
+.tool-bar::-webkit-scrollbar-thumb {
+    background: #5a7a8a;
+    border-radius: 3px;
+}
+
+.tool-bar::-webkit-scrollbar-thumb:hover {
+    background: #7a9aaa;
+}
