@@ -118,6 +118,7 @@
     </script>
 
     <script type="module">
+        // ---------- 模块导入 ----------
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
@@ -131,6 +132,10 @@
         } from './db.js';
 
 
+
+
+
+        // 全局状态变量
         let currentUser = null;        // 存储当前登录用户对象
         let accountOwner = null;  // 存档所属者
         let drawingCanvas = null;       // 绘图canvas上下文
@@ -153,7 +158,7 @@
 
         //两张离屏画布与辅助函数
         let paintLayer = null, paintCtx = null;
-
+        // 选区预览相关变量
         let selectionPreviewActive = false; // 是否正在预览当前拖拽形状
         let selectionShape = 'rectangle'; // 'rectangle', 'circle', 'polygon', 'lasso'
         let isLassoDrawing = false; // 是否正在套索
@@ -1635,6 +1640,79 @@
                 document.getElementById('status-msg').innerText = `选区形状已切换为: ${shapeNames[selectionShape]}`;
             }
 
+            // 1) 抽函数：放在 attachToolEvents 里，与 showShapeMenu 平级
+            function openSelectionMenuAt(x, y) {
+                // 与你现有 contextmenu 里一模一样的逻辑，只把 e.clientX/e.clientY 改成 x/y
+                const hasSelection =
+                    !!getMaskBounds() ||
+                    selectionPreviewActive ||
+                    (selectionShape === 'polygon' && polygonPoints.length > 0) ||
+                    (selectionShape === 'lasso' && isLassoDrawing && lassoPoints.length > 0);
+                const canPaste = !!window.clipboard;
+                if (!hasSelection && !canPaste) return;
+
+                const menu = document.createElement('div');
+                menu.style.cssText = `
+                    position: fixed;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: #1e2a32;
+                    border: 1px solid #ffaa66;
+                    border-radius: 8px;
+                    padding: 5px;
+                    z-index: 1000;
+                `;
+
+                const items = [];
+                if (hasSelection && selectMode) {
+                    items.push({ text: '复制', action: copySelection });
+                    items.push({ text: '剪切', action: cutSelection });
+                    items.push({ text: '清除', action: clearSelectionContent });
+                    items.push({ text: '填充', action: fillSelection });
+                    items.push({ text: '清除选区', action: clearSelection });
+                }
+                if (canPaste) {
+                    items.push({
+                        text: '粘贴',
+                        action: () => {
+                            const res = getLatLonFromMouse({ clientX: x, clientY: y });
+                            if (!res) return;
+                            const pos = latLonToCanvas(res.lat, -res.lon);
+                            const clip = window.clipboard;
+                            const w = clip.width, h = clip.height;
+                            let px = Math.round(pos.x - w / 2);
+                            let py = Math.round(pos.y - h / 2);
+                            px = Math.max(0, Math.min(texWidth - w, px));
+                            py = Math.max(0, Math.min(texHeight - h, py));
+                            saveToUndoStack();
+                            ctx.drawImage(clip, px, py);
+                            updateTexture();
+                            saveCurrentSession();
+                            document.getElementById('status-msg').innerText = '粘贴完成';
+                        }
+                    });
+                }
+
+                items.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.textContent = item.text;
+                    btn.style.cssText = 'display:block;width:100%;background:transparent;color:#ffdd99;border:none;padding:8px 20px;cursor:pointer;text-align:left;';
+                    btn.onmouseenter = () => btn.style.background = '#2d3e4b';
+                    btn.onmouseleave = () => btn.style.background = 'transparent';
+                    btn.onclick = () => { item.action(); menu.remove(); };
+                    menu.appendChild(btn);
+                });
+
+                document.body.appendChild(menu);
+                document.addEventListener('click', () => menu.remove(), { once: true });
+            }
+
+            // 2) 原来的 contextmenu 监听里，直接调用它
+            renderer.domElement.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                openSelectionMenuAt(e.clientX, e.clientY);
+            });
+
             // 显示形状选择菜单
             function showShapeMenu(x, y) {
                 // 移除旧菜单
@@ -2497,6 +2575,47 @@
                     localStorage.removeItem('currentUser');
                 }
             });
+            let longPressTimer = null;
+            let longPressStart = null;
+            const LONG_PRESS_MS = 550;
+            const MOVE_CANCEL_PX = 8;
+
+            // 触摸开始：启动长按计时器
+            renderer.domElement.addEventListener('touchstart', (e) => {
+                if (longPressTimer) clearTimeout(longPressTimer);
+                if (!selectMode && !window.clipboard) return; // 既没选区，也不能粘贴，就不弹
+
+                const t = e.touches && e.touches[0];
+                if (!t) return;
+                longPressStart = { x: t.clientX, y: t.clientY, time: Date.now() };
+
+                longPressTimer = setTimeout(() => {
+                    longPressTimer = null;
+                    // 弹出与右键相同的菜单
+                    openSelectionMenuAt(longPressStart.x, longPressStart.y);
+                }, LONG_PRESS_MS);
+            }, { passive: false });
+
+            // 触摸移动：移动过大取消长按
+            window.addEventListener('touchmove', (e) => {
+                if (!longPressTimer || !longPressStart) return;
+                const t = e.touches && e.touches[0];
+                if (!t) return;
+                const dx = t.clientX - longPressStart.x;
+                const dy = t.clientY - longPressStart.y;
+                if (Math.hypot(dx, dy) > MOVE_CANCEL_PX) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+            }, { passive: false });
+
+            // 触摸结束/取消：清理计时器
+            window.addEventListener('touchend', () => {
+                if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+            }, { passive: false });
         }
 
         startup();
