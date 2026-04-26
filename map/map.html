@@ -91,6 +91,7 @@
                 <div style="font-weight:bold; margin-bottom:6px;">标注工具</div>
                 <button id="btn-click-select">选点</button>
                 <button id="btn-clear-markers">清除</button>
+                <button id="btn-edit-marker">编辑</button>
                 <button id="btn-add-text">文本</button>
             </div>
             <div class="tool-section">
@@ -169,6 +170,10 @@
         let originalWorldImage = null;
         let texWidth = 2048, texHeight = 1024;
         let ctx = null;
+
+        let editMarkerMode = false; // 选点编辑模式
+        let selectedMarkerIndex = null; // 当前选中的标注索引
+
         // 撤销/重做栈
         let undoStack = [];      // 存储历史状态
         let redoStack = [];      // 存储重做状态
@@ -471,7 +476,121 @@
             if (earthMaterial) earthMaterial.needsUpdate = true;
 
         }
+        //查找最近标注（按经纬度近似距离）
+        function findNearestMarker(lat, lon, maxDeg = 3) {
+            if (!markersList.length) return null;
+            let bestIdx = -1;
+            let bestDist = Infinity;
+            const rad = Math.PI / 180;
+            const cosLat = Math.cos(lat * rad);
+            for (let i = 0; i < markersList.length; i++) {
+                const m = markersList[i];
+                const dLat = lat - m.lat;
+                const dLon = (lon - m.lon) * cosLat; // 经度按纬度缩放
+                const dist = Math.hypot(dLat, dLon);
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    bestIdx = i;
+                }
+            }
+            if (bestIdx === -1 || bestDist > maxDeg) return null;
+            return { index: bestIdx, dist: bestDist, marker: markersList[bestIdx] };
+        }
+        function setMarkerPosition(marker, lat, lon) {
+            marker.lat = lat;
+            marker.lon = lon;
+            const radius = 1.02;
+            const phi = (90 - lat) * Math.PI / 180;
+            const theta = lon * Math.PI / 180;
+            marker.label.position.set(
+                radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.sin(theta)
+            );
+            // 更新显示文本
+            const div = marker.label.element;
+            div.textContent = `${marker.name} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
+        }
+        function setEditMarkerMode() {
+            resetToolModes();
+            mouseMode = false; // 新增：关闭鼠标模式
+            editMarkerMode = true;
+            controls.enabled = false; // 不让地球被拖动
+            document.getElementById('btn-edit-marker')?.classList.add('active');
+            document.getElementById('status-msg').innerText = '编辑点模式：点击靠近要编辑的标注，弹出菜单修改/删除';
+        }
+        function showMarkerEditMenu(targetInfo, clientX, clientY) {
+            const { index, marker } = targetInfo;
+            // 先移除旧菜单
+            const old = document.getElementById('marker-edit-menu');
+            if (old) old.remove();
 
+            const menu = document.createElement('div');
+            menu.id = 'marker-edit-menu';
+            menu.style.cssText = `position: fixed; left: ${clientX}px; top: ${clientY}px; background: #1e2a32; border: 1px solid #ffaa66; border-radius: 8px; padding: 6px; z-index: 1002; min-width: 160px;`;
+
+            const mkBtn = (text, handler) => {
+                const b = document.createElement('button');
+                b.textContent = text;
+                b.style.cssText = 'display:block;width:100%;background:transparent;color:#ffdd99;border:none;padding:8px 14px;text-align:left;cursor:pointer;border-radius:4px;';
+                b.onmouseenter = () => b.style.background = '#2d3e4b';
+                b.onmouseleave = () => b.style.background = 'transparent';
+                b.onclick = () => { handler(); menu.remove(); };
+                return b;
+            };
+
+            // 编辑名称
+            menu.appendChild(mkBtn('修改名称', () => {
+                const input = prompt('新的标注名称：', marker.name);
+                if (input === null) return;
+                const name = input.trim() || marker.name;
+                marker.name = name;
+                const div = marker.label.element;
+                div.textContent = `${marker.name} (${marker.lat.toFixed(2)}, ${marker.lon.toFixed(2)})`;
+                document.getElementById('status-msg').innerText = `名称已更新为：${marker.name}`;
+                saveCurrentSession();
+            }));
+
+            // 改位置（用当前点击位置）
+            menu.appendChild(mkBtn('改到当前点击位置', () => {
+                const res = getLatLonFromMouse({ clientX, clientY });
+                if (!res) return;
+                setMarkerPosition(marker, res.lat, res.lon);
+                document.getElementById('status-msg').innerText = `位置已更新为：(${res.lat.toFixed(2)}, ${res.lon.toFixed(2)})`;
+                saveCurrentSession();
+            }));
+
+            // 改位置（手动输入）
+            menu.appendChild(mkBtn('改位置（手动输入经纬度）', () => {
+                const latStr = prompt('请输入纬度 (-90~90)：', marker.lat.toFixed(2));
+                if (latStr === null) return;
+                const lonStr = prompt('请输入经度 (-180~180)：', marker.lon.toFixed(2));
+                if (lonStr === null) return;
+                const lat = parseFloat(latStr), lon = parseFloat(lonStr);
+                if (!isFinite(lat) || !isFinite(lon)) { alert('请输入有效数字'); return; }
+                if (lat < -90 || lat > 90 || lon < -180 || lon > 180) { alert('范围不合法'); return; }
+                setMarkerPosition(marker, lat, lon);
+                document.getElementById('status-msg').innerText = `位置已更新为：(${lat.toFixed(2)}, ${lon.toFixed(2)})`;
+                saveCurrentSession();
+            }));
+
+            // 删除该点
+            menu.appendChild(mkBtn('删除该标注', () => {
+                scene.remove(marker.label);
+                markersList.splice(index, 1);
+                document.getElementById('status-msg').innerText = `已删除该标注`;
+                saveCurrentSession();
+            }));
+
+            document.body.appendChild(menu);
+            // 点击其他地方关闭
+            setTimeout(() => {
+                document.addEventListener('click', function removeMenu() {
+                    menu.remove();
+                    document.removeEventListener('click', removeMenu);
+                }, { once: true });
+            }, 100);
+        }
         // 保存当前状态到撤销栈
         function saveToUndoStack() {
             if (isUndoRedoAction) return;
@@ -1327,6 +1446,7 @@
             currentMouseCanvasPos = null;
             lassoPoints = [];
             selectionPreviewActive = false;
+            editMarkerMode = false;
             document.getElementById('btn-draw').classList.remove('active');
             document.getElementById('btn-fill').classList.remove('active');
             document.getElementById('btn-eraser').classList.remove('active');
@@ -1335,6 +1455,7 @@
             document.getElementById('btn-add-text').classList.remove('active');
             document.getElementById('btn-select').classList.remove('active');
             document.body.style.cursor = 'default';
+            document.getElementById('btn-edit-marker')?.classList.remove('active');
         }
 
         function setMouseMode() {
@@ -1435,6 +1556,8 @@
             if (btnAddText) {
                 btnAddText.onclick = () => setDrawingMode('text');
             }
+            const btnEditMarker = document.getElementById('btn-edit-marker');
+            if (btnEditMarker) btnEditMarker.onclick = () => setEditMarkerMode();
 
             // 快捷键 Ctrl+Z
             window.addEventListener('keydown', (e) => {
@@ -1756,6 +1879,20 @@
 
             function onPointerStart(e) {
                 if (!currentUser || mouseMode) return;
+                if (editMarkerMode) {
+                    e.preventDefault();
+                    const pos = getPointerPos(e);
+                    const res = getLatLonFromMouse({ clientX: pos.x, clientY: pos.y });
+                    if (!res) return;
+                    const near = findNearestMarker(res.lat, res.lon, 3); // 阈值 3°
+                    if (!near) {
+                        document.getElementById('status-msg').innerText = '附近没有标注，请靠近标注文字点击';
+                        return;
+                    }
+                    selectedMarkerIndex = near.index;
+                    showMarkerEditMenu(near, pos.x, pos.y);
+                    return;
+                }
                 if (selectMode) {
                     e.preventDefault();
                     const { x, y } = getPointerPos(e);
