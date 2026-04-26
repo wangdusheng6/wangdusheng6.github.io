@@ -2139,18 +2139,18 @@
                     <div style="font-weight:bold; margin-bottom:6px;">太阳/晨昏线</div>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <span style="font-size:11px;">纬度:</span>
-                        <input type="range" id="sun-lat" min="-23.26" max="23.26" step="1" value="23.5" style="flex:1;">
+                        <input type="range" id="sun-lat" min="-23.26" max="23.26" step="0.01" value="23.26" style="flex:1;">
                         <span id="sun-lat-val" style="width:35px;">23.26°</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px; margin-top:5px;">
                         <span style="font-size:11px;">经度:</span>
-                        <input type="range" id="sun-lon" min="-180" max="180" step="1" value="0" style="flex:1;">
-                        <span id="sun-lon-val" style="width:35px;">0°</span>
+                        <input type="range" id="sun-lon" min="-180" max="180" step="0.01" value="0" style="flex:1;">
+                        <span id="sun-lon-val" style="width:35px;">0.00°</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px; margin-top:5px;">
                         <span style="font-size:11px;">强度:</span>
                         <input type="range" id="sun-intensity" min="0" max="2" step="0.01" value="1.2" style="flex:1;">
-                        <span id="sun-intensity-val" style="width:35px;">1.2</span>
+                        <span id="sun-intensity-val" style="width:35px;">1.20</span>
                     </div>
                         <div style="display:flex; align-items:center; gap:8px; margin-top:5px;">
                         <button id="sun-toggle" style="margin-top:6px; background:#2d3e4b; border:1px solid #7f9cbb; color:#ffdd99; border-radius:8px; padding:6px 10px; width:100%;">隐藏太阳/晨昏线</button>
@@ -2206,15 +2206,72 @@
                 if (msg) msg.innerText = enabled ? '太阳/晨昏线已显示' : '已关闭太阳/晨昏线，地球亮度一致（强度滑块继续生效）';
 
             }
+            function bindNumberClickEditors() {
+                const pairs = [
+                    // 画笔粗细
+                    { labelId: 'brush-size-value', sliderId: 'brush-size', suffix: 'px' },
+                    // 太阳/晨昏线
+                    { labelId: 'sun-lat-val', sliderId: 'sun-lat', suffix: '°' },
+                    { labelId: 'sun-lon-val', sliderId: 'sun-lon', suffix: '°' },
+                    { labelId: 'sun-intensity-val', sliderId: 'sun-intensity', suffix: '' }
+                ];
+                pairs.forEach(p => {
+                    const label = document.getElementById(p.labelId);
+                    const slider = document.getElementById(p.sliderId);
+                    if (!label || !slider) return;
 
+                    label.style.cursor = 'pointer';
+                    label.title = '点击输入数值';
+
+                    label.onclick = () => {
+                        // 从标签取当前数值（去掉单位），如果失败就用滑块值
+                        const text = (label.textContent || '').trim();
+                        const cur = parseFloat(text.replace(/$^\d.\-$/g, ''));
+                        const defVal = Number.isFinite(cur) ? cur : parseFloat(slider.value);
+
+                        const unitTip = p.suffix ? `（单位${p.suffix}）` : '';
+                        const input = prompt('输入数值' + unitTip, defVal);
+                        if (input === null) return;
+
+                        let v = parseFloat(input);
+                        if (!Number.isFinite(v)) {
+                            alert('请输入有效数字');
+                            return;
+                        }
+
+                        // 约束到滑块范围
+                        const hasMin = slider.min !== '' && slider.min != null;
+                        const hasMax = slider.max !== '' && slider.max != null;
+                        const step = (slider.step && slider.step !== 'any') ? parseFloat(slider.step) : null;
+
+                        if (hasMin) v = Math.max(parseFloat(slider.min), v);
+                        if (hasMax) v = Math.min(parseFloat(slider.max), v);
+
+                        // 按 step 量化（如果有）
+                        if (step && Number.isFinite(step) && step > 0) {
+                            v = Math.round(v / step) * step;
+                            const digits = (String(step).split('.')[1] || '').length;
+                            if (digits) v = parseFloat(v.toFixed(digits));
+                        }
+
+                        // 回写滑块，触发 input，让现有逻辑更新一切
+                        slider.value = v;
+                        slider.dispatchEvent(new Event('input', { bubbles: true }));
+
+                        // 立即更新标签显示（防止等待其它逻辑更新）
+                        const digits = step ? (String(step).split('.')[1] || '').length : 0;
+                        label.textContent = (digits ? v.toFixed(digits) : String(v)) + p.suffix;
+                    };
+                });
+            }
             // 经纬度转三维坐标
             function updateSunPosition() {
                 const lat = parseFloat(document.getElementById('sun-lat').value);
                 const lon = parseFloat(document.getElementById('sun-lon').value);
                 const intensity = parseFloat(document.getElementById('sun-intensity').value);
                 // 更新显示值
-                document.getElementById('sun-lat-val').innerText = lat + '°';
-                document.getElementById('sun-lon-val').innerText = lon + '°';
+                document.getElementById('sun-lat-val').innerText = lat.toFixed(2) + '°';
+                document.getElementById('sun-lon-val').innerText = lon.toFixed(2) + '°';
                 document.getElementById('sun-intensity-val').innerText = intensity;
                 // 将经纬度转换为三维坐标（半径15，让太阳在地球外面）
                 const radius = 15;
@@ -2289,6 +2346,7 @@
             });
             // 初始化太阳位置
             updateSunPosition();
+            bindNumberClickEditors();
             // 离开页面时自动登出
             window.addEventListener('beforeunload', () => {
                 if (currentUser) {
