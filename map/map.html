@@ -212,6 +212,8 @@
             controls.rotateSpeed = 0.8;
             controls.zoomSpeed = 1.2;
             controls.maxDistance = 7;
+            controls.addEventListener('change', updateAllTextBoxPositions);
+            window.addEventListener('resize', updateAllTextBoxPositions);
 
             // ========== 可调节的太阳光源 ==========
             // 移除原有的固定光源，改用可调节的
@@ -333,12 +335,14 @@
                 renderer.render(scene, camera);
                 labelRenderer.render(scene, camera);
             }
+
             animate();
             window.addEventListener('resize', () => {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 labelRenderer.setSize(window.innerWidth, window.innerHeight);
+                updateAllTextBoxPositions(); // 新增
             });
             return canvas;
         }
@@ -479,8 +483,25 @@
             window.drawingTexture.image = toDisplay;
             window.drawingTexture.needsUpdate = true;
             if (earthMaterial) earthMaterial.needsUpdate = true;
-
         }
+
+        // 辅助函数: 经纬度转3D坐标
+        function getNearestMarkerByScreenDistance(clientX, clientY, maxPx = 100) {
+            if (!markersList.length || !renderer || !camera) return null;
+            let best = null;
+            let bestD = Infinity;
+            for (const m of markersList) {
+                const p = projectLatLonToClient(m.lat, m.lon);
+                // 只考虑在前方的点
+                if (!p.inFront) continue;
+                const dx = p.x - clientX, dy = p.y - clientY;
+                const d = Math.hypot(dx, dy);
+                if (d < bestD) { bestD = d; best = m; }
+            }
+            if (best && bestD <= maxPx) return { marker: best, distance: bestD };
+            return null;
+        }
+
         //查找最近标注（按经纬度近似距离）
         function findNearestMarker(lat, lon, maxDeg = 3) {
             if (!markersList.length) return null;
@@ -1025,6 +1046,7 @@
             const div = document.createElement('div');
             div.textContent = `${name} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
             div.style.cssText = 'background:#1e2a3aee; color:#ffdd99; padding:4px 12px; border-radius:30px; border:1px solid #ffaa66; font-size:13px; backdrop-filter:blur(4px); white-space:nowrap;';
+            div.className = 'marker-label';
             const labelObj = new CSS2DObject(div);
             const radius = 1.02;
             const phi = (90 - lat) * Math.PI / 180;
@@ -1035,62 +1057,95 @@
             saveCurrentSession();
             return labelObj;
         }
-        function clearMarkers() { markersList.forEach(m => scene.remove(m.label)); markersList = []; }
-        // 添加文本框标注
-        function addTextMarker(lat, lon, text) {
-            // 创建 CSS2D 文本框
-            const div = document.createElement('div');
-            div.textContent = text;
-            div.style.cssText = `
-                background: rgba(0,0,0,0.75);
-                backdrop-filter: blur(8px);
-                color: #ffdd99;
-                padding: 30px 30px;
-                border-radius: 20px;
-                border: 1px solid #ffaa66;
-                font-size: 12px;
-                font-family: monospace;
-                white-space: nowrap;
-                cursor: pointer;
-                transition: 0.2s;
-                pointer-events: auto;
-                opacity: 0;
-            `;
+        function addTextMarker(lat, lon, htmlOrText = '在这里输入…') {
+            const layer = ensureTextLayer();
+            const id = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now());
+            const el = document.createElement('div');
+            el.className = 'text-box';
+            el.setAttribute('contenteditable', 'true');
+            el.dataset.id = id;
+            // 兼容以前保存的纯文本
+            const initHTML = /</.test(htmlOrText) ? htmlOrText : (htmlOrText || '').replace(/\n/g, '<br>');
+            el.innerHTML = initHTML;
 
-            // 悬停效果
-            div.addEventListener('mouseenter', () => {
-                div.style.opacity = '1';
-                div.style.background = 'rgba(0,0,0,0.9)';
-                div.style.transform = 'scale(1.05)';
-                div.style.border = '1px solid #ffcc88';
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            el.appendChild(arrow);
+
+            const toolbar = createToolbar(el);
+            layer.appendChild(toolbar);
+
+            el.addEventListener('focus', () => showToolbar(toolbar, el));
+            el.addEventListener('blur', () => { toolbar.style.display = 'none'; persistTextbox(el); });
+            el.addEventListener('input', debounce(() => persistTextbox(el), 300));
+            el.addEventListener('keydown', e => {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); persistTextbox(el); }
             });
-            div.addEventListener('mouseleave', () => {
-                div.style.opacity = '0';
-                div.style.background = 'rgba(0,0,0,0.75)';
-                div.style.transform = 'scale(1)';
-                div.style.border = '1px solid #ffaa66';
+            el.addEventListener('paste', e => {
+                e.preventDefault();
+                const dt = e.clipboardData || window.clipboardData;
+                const html = dt.getData('text/html') || dt.getData('text');
+                document.execCommand('insertHTML', false, sanitizeHTML(html));
             });
 
-            const labelObj = new CSS2DObject(div);
-            const radius = 1.02;
-            const phi = (90 - lat) * Math.PI / 180;
-            const theta = lon * Math.PI / 180;
-            labelObj.position.set(
-                radius * Math.sin(phi) * Math.cos(theta),
-                radius * Math.cos(phi),
-                radius * Math.sin(phi) * Math.sin(theta)
-            );
-            scene.add(labelObj);
-            textMarkers.push({ label: labelObj, lat, lon, text });
+            // 观察尺寸变化，保存 width/height
+            const ro = new ResizeObserver(() => persistTextbox(el));
+            ro.observe(el);
 
-            return labelObj;
+            ensureTextLayer().appendChild(el);
+
+            // 写入数据
+            const rec = { id, lat, lon, contentHTML: initHTML, width: 200, height: 40 };
+            textMarkers.push(rec);
+            textboxMap.set(id, { el, toolbar, ro });
+
+            // 初次定位
+            updateAllTextBoxPositions();
+            saveCurrentSession && saveCurrentSession();
+            return el;
         }
 
-        // 清除所有文本框
+        function updateAllTextBoxPositions() {
+            if (!renderer || !camera) return;
+
+            // 预先投影当前激活锚点到屏幕
+            let anchorProj = null;
+            if (window.activeTextAnchor && typeof window.activeTextAnchor.lat === 'number') {
+                anchorProj = projectLatLonToClient(window.activeTextAnchor.lat, window.activeTextAnchor.lon);
+            }
+
+            textMarkers.forEach(m => {
+                const rec = textboxMap.get(m.id);
+                if (!rec) return;
+
+                // 文本框自己的锚点投影
+                const proj = projectLatLonToClient(m.lat, m.lon);
+
+                // 可见性逻辑：
+                // 1) 必须在前方
+                // 2) 必须有 activeTextAnchor 且与其像素距离很近（比如 30px 内）
+                let visible = proj.inFront && !!anchorProj;
+                if (visible) {
+                    const d = Math.hypot(proj.x - anchorProj.x, proj.y - anchorProj.y);
+                    visible = d <= 30;
+                }
+
+                rec.el.style.display = visible ? 'block' : 'none';
+                if (visible) {
+                    // 以“点”的屏幕位置为锚进行摆放，减少与点标注重叠
+                    placeBoxAvoiding(rec.el, { x: anchorProj.x, y: anchorProj.y }, 'top');
+                }
+            });
+        }
+
         function clearTextMarkers() {
-            textMarkers.forEach(m => scene.remove(m.label));
+            for (const { el, toolbar, ro } of textboxMap.values()) {
+                ro.disconnect(); el.remove(); toolbar.remove();
+            }
+            textboxMap.clear();
             textMarkers = [];
         }
+
         // 射线拾取经纬度（修复上下颠倒问题）
         function getLatLonFromMouse(event) {
             const mouse = new THREE.Vector2();
@@ -1115,7 +1170,27 @@
             }
             return null;
         }
+        function clearMarkers() {
+            if (!markersList) return;
+            // 从场景移除所有点标注的 CSS2D 标签
+            for (const m of markersList) {
+                if (m && m.label) {
+                    try {
+                        scene.remove(m.label);
+                    } catch (e) {
+                        console.warn('移除标注失败', e);
+                    }
+                }
+            }
+            // 清空数组和选择状态
+            markersList.length = 0;
+            selectedMarkerIndex = null;
 
+            // 可选：保存当前会话（如果你希望清除后自动保存）
+            if (typeof saveCurrentSession === 'function') {
+                saveCurrentSession();
+            }
+        }
         // 加载用户存档 (标注和图片)
         async function loadUserData(user) {
             clearMarkers();
@@ -1169,7 +1244,7 @@
             // 2. 如果有当前存档，更新存档到accountOwner名下
             if (currentArchiveId) {
                 const markersSimple = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-                const textSimple = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
+                const textSimple = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.contentHTML || '' }));
                 const iconDataUrl = document.getElementById('archive-icon')?.src || '';
                 const name = document.getElementById('save-name')?.value.trim() || '未命名存档';
 
@@ -1196,7 +1271,7 @@
             }
 
             // 储存文本框到当前用户
-            const textSimple = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
+            const textSimple = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.contentHTML || '' }));
             try {
                 await saveTextMarkers(currentUser.accountId, textSimple);
             } catch (e) {
@@ -1291,6 +1366,225 @@
             setInterval(() => { if (currentUser) saveCurrentSession(); }, 30000);
         }
 
+
+        const TEXT_LAYER_ID = 'text-layer';
+        const textboxMap = new Map(); // id -> { el, toolbar, ro }
+
+        function ensureTextLayer() {
+            let layer = document.getElementById(TEXT_LAYER_ID);
+            if (layer) return layer;
+            const host = renderer.domElement.parentElement || document.body;
+            if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+
+            layer = document.createElement('div');
+            layer.id = TEXT_LAYER_ID;
+            layer.style.position = 'absolute';
+            layer.style.inset = '0';
+            layer.style.pointerEvents = 'none';
+            layer.style.zIndex = 600; // 高于 tool-bar(200)，低于 modal(1000)
+            host.appendChild(layer);
+
+            const css = document.createElement('style');
+            css.textContent = `#${TEXT_LAYER_ID}{pointer-events:none} .text-box{ position:absolute; pointer-events:auto; background:#1e2a32f2; color:#e8edf2; border:1px solid #6c8fb0; border-radius:12px; padding:8px 10px; box-shadow:0 6px 20px rgba(0,0,0,0.4); max-width:360px; min-width:140px; min-height:32px; line-height:1.5; font-size:14px; font-family:'华文楷体','STKaiti','KaiTi',cursive,'Segoe UI','Microsoft YaHei',sans-serif; resize:both; overflow:auto; white-space:pre-wrap; word-break:break-word; outline:none; caret-color:#ffd966; } .text-box:focus{ box-shadow:0 0 0 2px rgba(255,217,102,0.35), 0 6px 20px rgba(0,0,0,0.45); border-color:#ffaa66; } .text-box .arrow{ position:absolute; width:0;height:0; border:8px solid transparent; } .text-box ::selection{ background:rgba(255,217,102,0.35); } .text-toolbar{ position:absolute; display:none; background:#1f2937; color:#eee; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:4px; gap:2px; z-index:900; box-shadow:0 6px 20px rgba(0,0,0,0.25); } .text-toolbar button,.text-toolbar select,.text-toolbar input[type="color"]{ background:transparent; color:#eee; border:none; padding:6px 8px; cursor:pointer; border-radius:6px; font-size:12px; } .text-toolbar button:hover{ background:rgba(255,255,255,0.08); } /* 允许选中文本（覆盖全局 user-select: none） */ [contenteditable="true"], .text-box, .text-box *{ user-select:text !important; -webkit-user-select:text !important; }, .text-toolbar{ pointer-events:auto; }`;
+            document.head.appendChild(css);
+            return layer;
+        }
+        function projectLatLonToClient(lat, lon) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            const radius = 1.02; // 和 setMarkerPosition 一致
+            const phi = (90 - lat) * Math.PI / 180;
+            const theta = lon * Math.PI / 180;
+            const world = new THREE.Vector3(
+                radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.sin(theta)
+            );
+            const ndc = world.clone().project(camera);
+            const x = rect.left + (ndc.x * 0.5 + 0.5) * rect.width;
+            const y = rect.top + (-ndc.y * 0.5 + 0.5) * rect.height;
+            return { x, y, inFront: ndc.z < 1 };
+        }
+
+        function createToolbar(targetEl) {
+            const tb = document.createElement('div');
+            tb.className = 'text-toolbar';
+            tb.innerHTML = `<button data-cmd="bold"><b>B</b></button> <button data-cmd="italic"><i>I</i></button> <button data-cmd="underline"><u>U</u></button> <button data-cmd="insertUnorderedList">•</button> <button data-cmd="insertOrderedList">1.</button> <button data-cmd="justifyLeft">L</button> <button data-cmd="justifyCenter">C</button> <button data-cmd="justifyRight">R</button> <select data-fontsize> <option value="">字号</option> <option value="2">小</option> <option value="3">常规</option> <option value="4">大</option> <option value="5">更大</option> </select> <input type="color" data-color /> `;
+            tb.addEventListener('mousedown', e => e.preventDefault());
+            tb.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+                document.execCommand(b.dataset.cmd, false, null);
+                targetEl.focus();
+            }));
+            tb.querySelector('[data-fontsize]').addEventListener('change', e => {
+                if (e.target.value) document.execCommand('fontSize', false, e.target.value);
+                targetEl.focus();
+            });
+            tb.querySelector('[data-color]').addEventListener('input', e => {
+                document.execCommand('foreColor', false, e.target.value);
+                targetEl.focus();
+            });
+            return tb;
+        }
+
+        function sanitizeHTML(html) {
+            const div = document.createElement('div'); div.innerHTML = html;
+            const ALLOWED = new Set(['B', 'I', 'U', 'BR', 'P', 'DIV', 'SPAN', 'UL', 'OL', 'LI', 'STRONG', 'EM']);
+            (function walk(n) {
+                Array.from(n.childNodes).forEach(c => {
+                    if (c.nodeType === 1) {
+                        const tag = c.tagName;
+                        if (!ALLOWED.has(tag)) {
+                            while (c.firstChild) c.parentNode.insertBefore(c.firstChild, c);
+                            c.remove();
+                        } else {
+                            if (tag !== 'SPAN') c.removeAttribute('style');
+                            else if (c.hasAttribute('style')) {
+                                const keep = {};
+                                c.getAttribute('style').split(';').forEach(s => {
+                                    const [k, v] = s.split(':').map(t => t && t.trim()); if (!k) return;
+                                    const low = k.toLowerCase(); if (low === 'color' || low === 'font-size') keep[low] = v;
+                                });
+                                c.setAttribute('style', Object.entries(keep).map(([k, v]) => `${k}:${v}`).join(';'));
+                            }
+                            Array.from(c.attributes).forEach(a => { if (a.name.toLowerCase().startsWith('on')) c.removeAttribute(a.name); });
+                            walk(c);
+                        }
+                    }
+                });
+            })(div);
+            return div.innerHTML;
+        }
+        function persistTextbox(el) {
+            const id = el.dataset.id;
+            const m = textMarkers.find(t => t.id === id);
+            if (!m) return;
+            m.contentHTML = sanitizeHTML(el.innerHTML);
+            const r = el.getBoundingClientRect();
+            m.width = r.width; m.height = r.height;
+            saveCurrentSession && saveCurrentSession();
+        }
+        function debounce(fn, ms) { let t = null; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+        function showToolbar(tb, el) {
+            const r = el.getBoundingClientRect();
+            tb.style.display = 'block';
+            const top = (r.top > 40) ? (r.top - 36) : (r.bottom + 6);
+            tb.style.left = Math.round(r.left) + 'px';
+            tb.style.top = Math.round(top) + 'px';
+        }
+
+        function projectCanvasPxToClient(px, py) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            const cx = rect.left + viewOffsetX + px * viewScale;
+            const cy = rect.top + viewOffsetY + py * viewScale;
+            return { x: cx, y: cy, inFront: true };
+        }
+
+        function getCoordInfoRects(anchor) {
+            // 返回需要避让的矩形列表（DOMRect[]）
+            // 1) 距离锚点较近的点标注标签（.marker-label）
+            // 2) 你自己页面上用于显示坐标信息的固定元素（按需填写 ID）
+            const rects = [];
+            // 收集靠近当前锚点的点标签，避免无关元素造成过度避让
+            document.querySelectorAll('.marker-label').forEach(el => {
+                const r = el.getBoundingClientRect();
+                if (anchor && typeof anchor.x === 'number' && typeof anchor.y === 'number') {
+                    const cx = (r.left + r.right) / 2;
+                    const cy = (r.top + r.bottom) / 2;
+                    if (Math.hypot(cx - anchor.x, cy - anchor.y) < 120) {
+                        rects.push(r);
+                    }
+                } else {
+                    // 没有传 anchor 时，保守起见全部加入
+                    rects.push(r);
+                }
+            });
+
+            // 如有其它坐标信息元素，按实际情况把 ID 补进来
+            const ids = ['coord-badge', 'coord-tooltip', 'coord-info'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) rects.push(el.getBoundingClientRect());
+            });
+
+            return rects;
+        }
+
+
+        function placeBoxAvoiding(boxEl, anchor, prefer = 'top') {
+            // anchor: {x, y} in client space
+            const GAP = 10; // 点与文本框的垂直间距
+            const ARROW = 8; // 三角箭头尺寸
+            const MARGIN = 8; // 视口边距
+            const rect = boxEl.getBoundingClientRect();
+            const vw = window.innerWidth, vh = window.innerHeight;
+            const avoidRects = getCoordInfoRects();
+
+            // 计算各候选位置
+            const candidates = [];
+            const half = rect.width / 2;
+            const above = () => ({ x: anchor.x - half, y: anchor.y - GAP - rect.height });
+            const below = () => ({ x: anchor.x - half, y: anchor.y + GAP });
+            const right = () => ({ x: anchor.x + GAP, y: anchor.y - rect.height / 2 });
+            const left = () => ({ x: anchor.x - GAP - rect.width, y: anchor.y - rect.height / 2 });
+
+            const order = prefer === 'top'
+                ? [above, below, right, left]
+                : [below, above, right, left];
+
+            // 尝试四个方向，并做边界收敛与避让判断
+            let chosen = null;
+            for (const fn of order) {
+                let pos = fn();
+                // 边界收敛（尽量放进视口）
+                pos.x = Math.min(Math.max(MARGIN, pos.x), vw - rect.width - MARGIN);
+                pos.y = Math.min(Math.max(MARGIN, pos.y), vh - rect.height - MARGIN);
+                // 与“坐标信息”是否相交
+                const test = { left: pos.x, top: pos.y, right: pos.x + rect.width, bottom: pos.y + rect.height };
+                const hit = avoidRects.some(r =>
+                    !(test.right < r.left || test.left > r.right || test.bottom < r.top || test.top > r.bottom)
+                );
+                if (!hit) { chosen = pos; break; }
+            }
+            if (!chosen) {
+                // 如果四个方向都不行，就选第一个并尽量往上抬
+                let pos = order[0]();
+                pos.x = Math.min(Math.max(MARGIN, pos.x), vw - rect.width - MARGIN);
+                pos.y = Math.min(Math.max(MARGIN, pos.y), vh - rect.height - MARGIN);
+                chosen = pos;
+            }
+
+            boxEl.style.left = `${Math.round(chosen.x)}px`;
+            boxEl.style.top = `${Math.round(chosen.y)}px`;
+
+            // 箭头方位
+            const arrow = boxEl.querySelector('.arrow');
+            if (arrow) {
+                arrow.style.display = 'block';
+                const dir = (chosen.y + rect.height) < anchor.y ? 'top' : ((chosen.y) > anchor.y ? 'bottom' : (chosen.x > anchor.x ? 'left' : 'right'));
+                arrow.style.left = '';
+                arrow.style.right = '';
+                arrow.style.top = '';
+                arrow.style.bottom = '';
+                arrow.style.borderColor = 'transparent';
+                if (dir === 'top') {
+                    arrow.style.bottom = `-${ARROW}px`;
+                    arrow.style.left = `${rect.width / 2 - ARROW}px`;
+                    arrow.style.borderTopColor = '#fff';
+                } else if (dir === 'bottom') {
+                    arrow.style.top = `-${ARROW}px`;
+                    arrow.style.left = `${rect.width / 2 - ARROW}px`;
+                    arrow.style.borderBottomColor = '#fff';
+                } else if (dir === 'left') {
+                    arrow.style.right = `-${ARROW}px`;
+                    arrow.style.top = `${rect.height / 2 - ARROW}px`;
+                    arrow.style.borderLeftColor = '#fff';
+                } else {
+                    arrow.style.left = `-${ARROW}px`;
+                    arrow.style.top = `${rect.height / 2 - ARROW}px`;
+                    arrow.style.borderRightColor = '#fff';
+                }
+            }
+        }
         // 加载指定存档
         async function loadSpecificArchive(archiveId) {
             const archive = await getArchive(archiveId);
@@ -1337,7 +1631,7 @@
             const name = document.getElementById('save-name').value.trim() || '未命名存档';
             const mapDataUrl = window.drawingCanvas.toDataURL();
             const markersData = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-            const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
+            const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.contentHTML || '' }));
             const iconDataUrl = document.getElementById('archive-icon').src;
 
             const archive = await saveArchive(currentUser.accountId, name, iconDataUrl, mapDataUrl, markersData, textMarkersData);
@@ -1361,7 +1655,7 @@
             const name = document.getElementById('save-name').value.trim() || '未命名存档';
             const mapDataUrl = window.drawingCanvas.toDataURL();
             const markersData = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-            const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
+            const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.contentHTML || '' }));
             const iconDataUrl = document.getElementById('archive-icon').src;
 
             await updateArchive(currentArchiveId, { name, mapDataUrl, markersData, textMarkersData, iconDataUrl });
@@ -1415,7 +1709,7 @@
                         const name = document.getElementById('save-name').value.trim() || '未命名存档';
                         const mapDataUrl = window.drawingCanvas.toDataURL();
                         const markersData = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-                        const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
+                        const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: (m.contentHTML || '') }));
 
                         await updateArchive(currentArchiveId, {
                             name,
@@ -1493,19 +1787,20 @@
                 document.getElementById('btn-click-select').classList.add('active');
                 document.getElementById('status-msg').innerText = '鼠标选点模式: 点击地图位置添加标注（可在标注上添加文本框）';
             } else if (mode === 'text') {
-                if (!selectedMarkerPoint) {
-                    document.getElementById('status-msg').innerText = '请先在"鼠标选点"模式中选择一个点';
-                    setMouseMode();
-                    return;
-                }
                 isAddTextMode = true;
                 document.getElementById('btn-add-text').classList.add('active');
-                document.getElementById('status-msg').innerText = `文本框模式: 在已选点位置 (${selectedMarkerPoint.lat.toFixed(2)}, ${selectedMarkerPoint.lon.toFixed(2)}) 上点击以添加文本框`;
+                document.getElementById('status-msg').innerText =
+                    '文本框模式: 在距离某个标注点100px内点击以创建文本框';
             } else if (mode === 'select') {
                 selectMode = true;
                 document.getElementById('btn-select').classList.add('active');
                 document.getElementById('status-msg').innerText = '选区模式: 按住鼠标拖动选择区域，右键操作选区';
             }
+        }
+
+        function getPointerPos(e) {
+            if (e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            return { x: e.clientX, y: e.clientY };
         }
 
         function attachToolEvents() {
@@ -1545,7 +1840,7 @@
                             const name = document.getElementById('save-name').value.trim() || '未命名存档';
                             const mapDataUrl = window.drawingCanvas.toDataURL();
                             const markersData = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-                            const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.text }));
+                            const textMarkersData = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: (m.contentHTML || '') }));
                             await updateArchive(currentArchiveId, { name, mapDataUrl, markersData, textMarkersData, iconDataUrl: iconUrl });
                             document.getElementById('status-msg').innerText = '图标已更换并保存';
                         } else {
@@ -1947,13 +2242,7 @@
                 };
             }
 
-            // 地球鼠标事件（支持鼠标+触摸）
-            let isDrawing = false, lastPos = null;
 
-            function getPointerPos(e) {
-                if (e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                return { x: e.clientX, y: e.clientY };
-            }
 
             function onPointerStart(e) {
                 if (!currentUser || mouseMode) return;
@@ -2062,22 +2351,30 @@
                     addMarker(lat, lon, finalName);
                     document.getElementById('status-msg').innerText = `已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)}) - 可点击"文本框"在此处添加文本`;
                 } else if (isAddTextMode) {
-                    if (selectedMarkerPoint && Math.abs(lat - selectedMarkerPoint.lat) < 0.5 && Math.abs(lon - selectedMarkerPoint.lon) < 0.5) {
-                        const customText = prompt('请输入文本框内容:');
-                        if (customText !== null && customText.trim() !== '') {
-                            addTextMarker(selectedMarkerPoint.lat, selectedMarkerPoint.lon, customText);
-                            document.getElementById('status-msg').innerText = `已添加文本框: ${customText}`;
-                        } else if (customText === '') {
-                            document.getElementById('status-msg').innerText = '已取消添加文本框（文本为空）';
-                        } else {
-                            document.getElementById('status-msg').innerText = '已取消添加文本框';
-                        }
+                    const pos = getPointerPos(e);
+                    const near = getNearestMarkerByScreenDistance(pos.x, pos.y, 100);
+                    if (!near) {
+                        document.getElementById('status-msg').innerText = '请在距离标注点100px内点击以创建文本框';
+                        return;
+                    }
+                    const anchorLat = near.marker.lat;
+                    const anchorLon = near.marker.lon;
+                    const customText = prompt('请输入文本框内容:', '在这里输入…');
+                    if (customText !== null && customText.trim() !== '') {
+                        addTextMarker(anchorLat, anchorLon, customText.trim());
+                        document.getElementById('status-msg').innerText = `已添加文本框（绑定到标注 "${near.marker.name}"）`;
+                        // 设置当前激活锚点，立刻显示
+                        window.activeTextAnchor = { lat: anchorLat, lon: anchorLon };
+                        updateAllTextBoxPositions();
+                    } else if (customText === '') {
+                        document.getElementById('status-msg').innerText = '已取消添加文本框（文本为空）';
                     } else {
-                        document.getElementById('status-msg').innerText = `请点击已选点的位置 (${selectedMarkerPoint.lat.toFixed(2)}, ${selectedMarkerPoint.lon.toFixed(2)}) 添加文本框`;
+                        document.getElementById('status-msg').innerText = '已取消添加文本框';
                     }
                 }
             }
 
+            // 鼠标移动事件：绘制时继续画；选区时更新预览；套索时添加点；编辑标注时显示文本框预览
             function onPointerMove(e) {
                 if (selectMode) {
                     e.preventDefault();
@@ -2192,6 +2489,26 @@
             renderer.domElement.addEventListener('touchstart', onPointerStart, { passive: false });
             window.addEventListener('touchmove', onPointerMove, { passive: false });
             window.addEventListener('touchend', onPointerEnd);
+
+            // 鼠标悬停：如果靠近某个标注点，就显示该点的文本框（如果有的话）
+            const SHOW_PX = 20;
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                const near = getNearestMarkerByScreenDistance(e.clientX, e.clientY, SHOW_PX);
+                if (near) {
+                    window.activeTextAnchor = { lat: near.marker.lat, lon: near.marker.lon };
+                } else {
+                    window.activeTextAnchor = null;
+                }
+                updateAllTextBoxPositions();
+            });
+
+            // 点击：也激活/取消该点的文本框显示
+            renderer.domElement.addEventListener('click', (e) => {
+                // 如果点击靠近某点，锁定该点；否则清空
+                const near = getNearestMarkerByScreenDistance(e.clientX, e.clientY, SHOW_PX);
+                window.activeTextAnchor = near ? { lat: near.marker.lat, lon: near.marker.lon } : null;
+                updateAllTextBoxPositions();
+            });
 
             //在事件绑定区域新增双击闭合（PC端）
             renderer.domElement.addEventListener('dblclick', (e) => {
