@@ -51,8 +51,7 @@
             <div class="tool-section">
                 <!-- 存档图标 -->
                 <img id="archive-icon" src="../images/Wanlon-logo.png" width="32" height="32"
-                    style="border-radius: 8px; cursor: pointer; background: #2d3e4b; padding: 4px;" title="点击更换存档图标"
-                    id="change-archive-icon">
+                    style="border-radius: 8px; cursor: pointer; background: #2d3e4b; padding: 4px;" title="点击更换存档图标">
                 <div style="font-weight:bold; margin-bottom:6px;">当前存档</div>
                 <input type="text" id="save-name" value="新的世界存档"
                     style="width:100%; background:#2d3e4b; border:1px solid #7f9cbb; color:white; border-radius:12px; padding:6px 8px; font-size:12px; box-sizing:border-box;">
@@ -567,6 +566,7 @@
 
             // 编辑名称
             menu.appendChild(mkBtn('修改名称', () => {
+                saveToUndoStack(); // 新增：修改前入栈
                 const input = prompt('新的标注名称：', marker.name);
                 if (input === null) return;
                 const name = input.trim() || marker.name;
@@ -579,6 +579,7 @@
 
             // 改位置（用当前点击位置）
             menu.appendChild(mkBtn('改到当前点击位置', () => {
+                saveToUndoStack(); // 新增：修改前入栈
                 const res = getLatLonFromMouse({ clientX, clientY });
                 if (!res) return;
                 setMarkerPosition(marker, res.lat, res.lon);
@@ -588,6 +589,7 @@
 
             // 改位置（手动输入）
             menu.appendChild(mkBtn('改位置（手动输入经纬度）', () => {
+                saveToUndoStack(); // 新增：修改前入栈
                 const latStr = prompt('请输入纬度 (-90~90)：', marker.lat.toFixed(2));
                 if (latStr === null) return;
                 const lonStr = prompt('请输入经度 (-180~180)：', marker.lon.toFixed(2));
@@ -602,6 +604,7 @@
 
             // 删除该点
             menu.appendChild(mkBtn('删除该标注', () => {
+                saveToUndoStack(); // 新增：删除前入栈
                 scene.remove(marker.label);
                 markersList.splice(index, 1);
                 document.getElementById('status-msg').innerText = `已删除该标注`;
@@ -617,68 +620,57 @@
                 }, { once: true });
             }, 100);
         }
-        // 保存当前状态到撤销栈
+
+        function takeSnapshot() {
+            const image = ctx.getImageData(0, 0, texWidth, texHeight);
+            const markers = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
+            const texts = textMarkers.map(t => ({
+                id: t.id, lat: t.lat, lon: t.lon,
+                contentHTML: t.contentHTML || '', width: t.width || 200, height: t.height || 40
+            }));
+            return { image, markers, texts };
+        }
         function saveToUndoStack() {
-            if (isUndoRedoAction) return;
-            if (!ctx) return;
-
-            // 获取当前画布状态
-            const imageData = ctx.getImageData(0, 0, texWidth, texHeight);
-            undoStack.push(imageData);
-
-            // 限制栈大小（最多50步）
-            if (undoStack.length > 50) {
-                undoStack.shift();
-            }
-
-            // 新操作时清空重做栈
+            if (isUndoRedoAction || !ctx) return;
+            undoStack.push(takeSnapshot());
+            if (undoStack.length > 50) undoStack.shift();
             redoStack = [];
         }
-        function undo() {
-            if (undoStack.length === 0) {
-                document.getElementById('status-msg').innerText = '没有可撤销的操作';
-                return;
-            }
-            isUndoRedoAction = true;
 
-            // 保存当前状态到重做栈
-            const currentImageData = ctx.getImageData(0, 0, texWidth, texHeight);
-            redoStack.push(currentImageData);
-
-            // 恢复到上一个状态
-            const lastImageData = undoStack.pop();
-            ctx.putImageData(lastImageData, 0, 0);
-
-            // 强制刷新纹理
-            if (window.drawingTexture) {
-                window.drawingTexture.needsUpdate = true;
-                earthMaterial.needsUpdate = true;
-            }
-
-            isUndoRedoAction = false;
-            document.getElementById('status-msg').innerText = '已撤销上一步操作';
+        function restoreSnapshot(snap) {
+            // 画布
+            ctx.putImageData(snap.image, 0, 0);
+            // 标注
+            clearMarkers(); // 你的 clearMarkers 已从场景移除
+            snap.markers.forEach(m => addMarker(m.lat, m.lon, m.name));
+            // 框
+            clearTextMarkers();
+            snap.texts.forEach(t => {
+                const el = addTextMarker(t.lat, t.lon, t.contentHTML || '');
+                // 如果你要恢复尺寸：
+                if (el) { el.style.width = (t.width || 200) + 'px'; el.style.height = (t.height || 40) + 'px'; }
+            });
+            updateTexture();
         }
 
-        function redo() {
-            if (redoStack.length === 0) {
-                document.getElementById('status-msg').innerText = '没有可重做的操作';
-                return;
-            }
+
+        function undo() {
+            if (undoStack.length === 0) { status('没有可撤销的操作'); return; }
             isUndoRedoAction = true;
-
-            const currentImageData = ctx.getImageData(0, 0, texWidth, texHeight);
-            undoStack.push(currentImageData);
-
-            const redoImageData = redoStack.pop();
-            ctx.putImageData(redoImageData, 0, 0);
-
-            if (window.drawingTexture) {
-                window.drawingTexture.needsUpdate = true;
-                earthMaterial.needsUpdate = true;
-            }
-
+            redoStack.push(takeSnapshot());
+            const prev = undoStack.pop();
+            restoreSnapshot(prev);
             isUndoRedoAction = false;
-            document.getElementById('status-msg').innerText = '已重做操作';
+            const msg = document.getElementById('status-msg'); if (msg) msg.innerText = '已撤销上一步操作';
+        }
+        function redo() {
+            if (redoStack.length === 0) { status('没有可重做的操作'); return; }
+            isUndoRedoAction = true;
+            undoStack.push(takeSnapshot());
+            const next = redoStack.pop();
+            restoreSnapshot(next);
+            isUndoRedoAction = false;
+            const msg = document.getElementById('status-msg'); if (msg) msg.innerText = '已重做操作';
         }
         // 一键还原原始空白内层地图
         async function resetDrawingCanvas() {
@@ -686,6 +678,7 @@
                 console.warn('重置失败：画布或原始图像不存在');
                 return;
             }
+            saveToUndoStack(); // 新增：把“重置前”的状态入栈，方便撤销回去
             // 清空当前画布
             ctx.clearRect(0, 0, texWidth, texHeight);
             // 重新绘制原始白色底图
@@ -1041,7 +1034,7 @@
 
         }
 
-        // 标注相关
+        // 点标注相关
         function addMarker(lat, lon, name) {
             const div = document.createElement('div');
             div.textContent = `${name} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
@@ -1054,9 +1047,13 @@
             labelObj.position.set(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
             scene.add(labelObj);
             markersList.push({ label: labelObj, lat, lon, name });
-            saveCurrentSession();
+            if (typeof saveCurrentSession === 'function') {
+                saveCurrentSession().catch(err => console.warn('保存会话失败:', err));
+            }
             return labelObj;
         }
+
+        // 文本标注相关
         function addTextMarker(lat, lon, htmlOrText = '在这里输入…') {
             const layer = ensureTextLayer();
             const id = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now());
@@ -1075,7 +1072,15 @@
             const toolbar = createToolbar(el);
             layer.appendChild(toolbar);
 
-            el.addEventListener('focus', () => showToolbar(toolbar, el));
+            el.addEventListener('focus', () => {
+                if (!el._undoPushed) { saveToUndoStack(); el._undoPushed = true; }
+                showToolbar(toolbar, el);
+            });
+            el.addEventListener('blur', () => {
+                el._undoPushed = false;
+                toolbar.style.display = 'none';
+                persistTextbox(el);
+            });
             el.addEventListener('blur', () => { toolbar.style.display = 'none'; persistTextbox(el); });
             el.addEventListener('input', debounce(() => persistTextbox(el), 300));
             el.addEventListener('keydown', e => {
@@ -1139,11 +1144,17 @@
         }
 
         function clearTextMarkers() {
+            if (!isUndoRedoAction) saveToUndoStack(); // 新增：正常操作才入栈；撤销/重做恢复时不入
             for (const { el, toolbar, ro } of textboxMap.values()) {
-                ro.disconnect(); el.remove(); toolbar.remove();
+                ro.disconnect();
+                el.remove();
+                toolbar.remove();
             }
             textboxMap.clear();
             textMarkers = [];
+            if (typeof saveCurrentSession === 'function') {
+                saveCurrentSession().catch(err => console.warn('保存会话失败:', err));
+            }
         }
 
         // 射线拾取经纬度（修复上下颠倒问题）
@@ -1170,27 +1181,23 @@
             }
             return null;
         }
+
         function clearMarkers() {
             if (!markersList) return;
-            // 从场景移除所有点标注的 CSS2D 标签
+            if (!isUndoRedoAction) saveToUndoStack(); // 新增：正常操作才入栈；撤销/重做恢复时不入
             for (const m of markersList) {
                 if (m && m.label) {
-                    try {
-                        scene.remove(m.label);
-                    } catch (e) {
-                        console.warn('移除标注失败', e);
-                    }
+                    try { scene.remove(m.label); } catch (e) { console.warn('移除标注失败', e); }
                 }
             }
-            // 清空数组和选择状态
             markersList.length = 0;
             selectedMarkerIndex = null;
-
-            // 可选：保存当前会话（如果你希望清除后自动保存）
+            // 立刻保存
             if (typeof saveCurrentSession === 'function') {
-                saveCurrentSession();
+                saveCurrentSession().catch(err => console.warn('保存会话失败:', err));
             }
         }
+
         // 加载用户存档 (标注和图片)
         async function loadUserData(user) {
             clearMarkers();
@@ -1385,7 +1392,8 @@
             host.appendChild(layer);
 
             const css = document.createElement('style');
-            css.textContent = `#${TEXT_LAYER_ID}{pointer-events:none} .text-box{ position:absolute; pointer-events:auto; background:#1e2a32f2; color:#e8edf2; border:1px solid #6c8fb0; border-radius:12px; padding:8px 10px; box-shadow:0 6px 20px rgba(0,0,0,0.4); max-width:360px; min-width:140px; min-height:32px; line-height:1.5; font-size:14px; font-family:'华文楷体','STKaiti','KaiTi',cursive,'Segoe UI','Microsoft YaHei',sans-serif; resize:both; overflow:auto; white-space:pre-wrap; word-break:break-word; outline:none; caret-color:#ffd966; } .text-box:focus{ box-shadow:0 0 0 2px rgba(255,217,102,0.35), 0 6px 20px rgba(0,0,0,0.45); border-color:#ffaa66; } .text-box .arrow{ position:absolute; width:0;height:0; border:8px solid transparent; } .text-box ::selection{ background:rgba(255,217,102,0.35); } .text-toolbar{ position:absolute; display:none; background:#1f2937; color:#eee; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:4px; gap:2px; z-index:900; box-shadow:0 6px 20px rgba(0,0,0,0.25); } .text-toolbar button,.text-toolbar select,.text-toolbar input[type="color"]{ background:transparent; color:#eee; border:none; padding:6px 8px; cursor:pointer; border-radius:6px; font-size:12px; } .text-toolbar button:hover{ background:rgba(255,255,255,0.08); } /* 允许选中文本（覆盖全局 user-select: none） */ [contenteditable="true"], .text-box, .text-box *{ user-select:text !important; -webkit-user-select:text !important; }, .text-toolbar{ pointer-events:auto; }`;
+            css.textContent = `#${TEXT_LAYER_ID}{pointer-events:none} .text-box{ position:absolute; pointer-events:auto; background:#1e2a32f2; color:#e8edf2; border:1px solid #6c8fb0; border-radius:12px; padding:8px 10px; box-shadow:0 6px 20px rgba(0,0,0,0.4); max-width:360px; min-width:140px; min-height:32px; line-height:1.5; font-size:14px; font-family:'华文楷体','STKaiti','KaiTi',cursive,'Segoe UI','Microsoft YaHei',sans-serif; resize:both; overflow:auto; white-space:pre-wrap; word-break:break-word; outline:none; caret-color:#ffd966; } .text-box:focus{ box-shadow:0 0 0 2px rgba(255,217,102,0.35), 0 6px 20px rgba(0,0,0,0.45); border-color:#ffaa66; } .text-box .arrow{ position:absolute; width:0;height:0; border:8px solid transparent; } .text-box ::selection{ background:rgba(255,217,102,0.35); } .text-toolbar{ position:fixed; display:none; background:#1f2937; color:#eee; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:4px; gap:2px; z-index:1200; box-shadow:0 6px 20px rgba(0,0,0,0.25); } .text-toolbar button,.text-toolbar select,.text-toolbar input[type="color"]{ background:transparent; color:#eee; border:none; padding:6px 8px; cursor:pointer; border-radius:6px; font-size:12px; } .text-toolbar button:hover{ background:rgba(255,255,255,0.08); } /* 允许选中文本（覆盖全局 user-select: none） */ [contenteditable="true"], .text-box, .text-box *{ user-select:text !important; -webkit-user-select:text !important; }
+                .text-toolbar{ pointer-events:auto; }`;
             document.head.appendChild(css);
             return layer;
         }
@@ -1409,19 +1417,24 @@
             const tb = document.createElement('div');
             tb.className = 'text-toolbar';
             tb.innerHTML = `<button data-cmd="bold"><b>B</b></button> <button data-cmd="italic"><i>I</i></button> <button data-cmd="underline"><u>U</u></button> <button data-cmd="insertUnorderedList">•</button> <button data-cmd="insertOrderedList">1.</button> <button data-cmd="justifyLeft">L</button> <button data-cmd="justifyCenter">C</button> <button data-cmd="justifyRight">R</button> <select data-fontsize> <option value="">字号</option> <option value="2">小</option> <option value="3">常规</option> <option value="4">大</option> <option value="5">更大</option> </select> <input type="color" data-color /> `;
+            tb.addEventListener('pointerdown', e => e.preventDefault());
+            tb.addEventListener('touchstart', e => { e.preventDefault(); }, { passive: false });
             tb.addEventListener('mousedown', e => e.preventDefault());
-            tb.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+            tb.querySelectorAll('button').forEach(b => b.addEventListener('click', (e) => {
+                e.preventDefault();
+                targetEl.focus({ preventScroll: true });
                 document.execCommand(b.dataset.cmd, false, null);
-                targetEl.focus();
             }));
             tb.querySelector('[data-fontsize]').addEventListener('change', e => {
-                if (e.target.value) document.execCommand('fontSize', false, e.target.value);
-                targetEl.focus();
+                if (!e.target.value) return;
+                targetEl.focus({ preventScroll: true });
+                document.execCommand('fontSize', false, e.target.value);
             });
             tb.querySelector('[data-color]').addEventListener('input', e => {
+                targetEl.focus({ preventScroll: true });
                 document.execCommand('foreColor', false, e.target.value);
-                targetEl.focus();
             });
+            tb.style.position = 'fixed'; tb.style.zIndex = '1200';
             return tb;
         }
 
@@ -2348,6 +2361,7 @@
                         finalName = customName;
                     }
                     selectedMarkerPoint = { lat, lon, name: finalName };
+                    saveToUndoStack(); // 新增：先拍快照（包含刚画好的线）
                     addMarker(lat, lon, finalName);
                     document.getElementById('status-msg').innerText = `已添加标注: ${finalName} (${lat.toFixed(2)}, ${lon.toFixed(2)}) - 可点击"文本框"在此处添加文本`;
                 } else if (isAddTextMode) {
@@ -2361,6 +2375,7 @@
                     const anchorLon = near.marker.lon;
                     const customText = prompt('请输入文本框内容:', '在这里输入…');
                     if (customText !== null && customText.trim() !== '') {
+                        saveToUndoStack(); // 新增：先拍快照（包含刚画好的线）
                         addTextMarker(anchorLat, anchorLon, customText.trim());
                         document.getElementById('status-msg').innerText = `已添加文本框（绑定到标注 "${near.marker.name}"）`;
                         // 设置当前激活锚点，立刻显示
@@ -2625,7 +2640,6 @@
                     window.location.href = `home.html?accountId=${currentUser.accountId}`;
                 }
             });
-            document.getElementById('change-archive-icon')?.addEventListener('click', changeArchiveIcon);
             document.getElementById('back-to-home')?.addEventListener('click', () => {
                 window.location.href = `home.html?accountId=${currentUser.accountId}&username=${encodeURIComponent(accountOwner.username)}`;
             });
