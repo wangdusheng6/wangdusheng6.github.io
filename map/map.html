@@ -1251,7 +1251,13 @@
             // 2. 如果有当前存档，更新存档到accountOwner名下
             if (currentArchiveId) {
                 const markersSimple = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
-                const textSimple = textMarkers.map(m => ({ lat: m.lat, lon: m.lon, text: m.contentHTML || '' }));
+                const textSimple = textMarkers.map(m => ({
+                    id: m.id,
+                    lat: m.lat, lon: m.lon,
+                    contentHTML: m.contentHTML || '',
+                    width: m.width || 200,
+                    height: m.height || 40
+                }));
                 const iconDataUrl = document.getElementById('archive-icon')?.src || '';
                 const name = document.getElementById('save-name')?.value.trim() || '未命名存档';
 
@@ -1620,12 +1626,16 @@
                 archive.markersData.forEach(m => addMarker(m.lat, m.lon, m.name));
             }
 
-            // 加载文本框
+            // 加载文本框（带内容与尺寸）
             clearTextMarkers();
-            if (archive.textMarkersData) {
-                archive.textMarkersData.forEach(m => addTextMarker(m.lat, m.lon, m.text));
-            }
-
+            (archive.textMarkersData || []).forEach(m => {
+                const el = addTextMarker(m.lat, m.lon, m.contentHTML || m.text || '');
+                if (el) {
+                    if (m.width) el.style.width = m.width + 'px';
+                    if (m.height) el.style.height = m.height + 'px';
+                }
+            });
+            updateAllTextBoxPositions();
             // 更新存档名称显示
             const saveNameInput = document.getElementById('save-name');
             if (saveNameInput) saveNameInput.value = archive.name;
