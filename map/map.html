@@ -611,6 +611,26 @@
                 saveCurrentSession();
             }));
 
+            // 设置类别
+            menu.appendChild(mkBtn('设置类别', () => {
+                const sub = document.createElement('div');
+                sub.style.cssText = 'margin-top:6px;';
+                Object.keys(CATEGORY_STYLES).forEach(cat => {
+                    const b = document.createElement('button');
+                    b.textContent = cat;
+                    b.style.cssText = 'margin:2px; padding:6px 8px; background:#2d3e4b; color:#ffdd99; border:1px solid #7f9cbb; border-radius:6px; cursor:pointer;';
+                    b.onclick = () => {
+                        saveToUndoStack();
+                        marker.category = cat;
+                        applyMarkerStyle(marker);
+                        const msg = document.getElementById('status-msg'); if (msg) msg.innerText = `类别已设为：${cat}`;
+                        saveCurrentSession();
+                    };
+                    sub.appendChild(b);
+                });
+                menu.appendChild(sub);
+            }));
+
             document.body.appendChild(menu);
             // 点击其他地方关闭
             setTimeout(() => {
@@ -623,7 +643,7 @@
 
         function takeSnapshot() {
             const image = ctx.getImageData(0, 0, texWidth, texHeight);
-            const markers = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
+            const markers = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name, category: m.category || 'default' }));
             const texts = textMarkers.map(t => ({
                 id: t.id, lat: t.lat, lon: t.lon,
                 contentHTML: t.contentHTML || '', width: t.width || 200, height: t.height || 40
@@ -642,7 +662,7 @@
             ctx.putImageData(snap.image, 0, 0);
             // 标注
             clearMarkers(); // 你的 clearMarkers 已从场景移除
-            snap.markers.forEach(m => addMarker(m.lat, m.lon, m.name));
+            snap.markers.forEach(m => addMarker(m.lat, m.lon, m.name, m.category || 'default'));
             // 框
             clearTextMarkers();
             snap.texts.forEach(t => {
@@ -1029,13 +1049,27 @@
             updateTexture();
             saveCurrentSession();
             document.getElementById('status-msg').innerText = '选区内容已清除';
-
             exitSelectionModeAndClear();
-
         }
 
-        // 点标注相关
-        function addMarker(lat, lon, name) {
+        const CATEGORY_STYLES = {
+            default: { bg: '#1e2a3aee', border: '#ffaa66', color: '#ffdd99', fontSize: '13px', padding: '4px 12px' },
+            major: { bg: '#22354fee', border: '#66ccff', color: '#e8f6ff', fontSize: '15px', padding: '6px 14px' },
+            minor: { bg: '#2a2a2aee', border: '#888', color: '#eee', fontSize: '12px', padding: '3px 10px' },
+            danger: { bg: '#3a1e1eee', border: '#ff6666', color: '#ffe3e3', fontSize: '13px', padding: '4px 12px' }
+        };
+
+        function applyMarkerStyle(m) {
+            const style = CATEGORY_STYLES[m.category || 'default'] || CATEGORY_STYLES.default;
+            const div = m.label.element;
+            div.style.background = style.bg;
+            div.style.border = `1px solid ${style.border}`;
+            div.style.color = style.color;
+            div.style.fontSize = style.fontSize;
+            div.style.padding = style.padding;
+        }
+
+        function addMarker(lat, lon, name, category = 'default') {
             const div = document.createElement('div');
             div.textContent = `${name} (${lat.toFixed(2)}, ${lon.toFixed(2)})`;
             div.style.cssText = 'background:#1e2a3aee; color:#ffdd99; padding:4px 12px; border-radius:30px; border:1px solid #ffaa66; font-size:13px; backdrop-filter:blur(4px); white-space:nowrap;';
@@ -1046,10 +1080,10 @@
             const theta = lon * Math.PI / 180;
             labelObj.position.set(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
             scene.add(labelObj);
-            markersList.push({ label: labelObj, lat, lon, name });
-            if (typeof saveCurrentSession === 'function') {
-                saveCurrentSession().catch(err => console.warn('保存会话失败:', err));
-            }
+            const marker = { label: labelObj, lat, lon, name, category };
+            markersList.push(marker);
+            applyMarkerStyle(marker);
+            saveCurrentSession && saveCurrentSession().catch(() => { });
             return labelObj;
         }
 
@@ -1073,6 +1107,7 @@
             layer.appendChild(toolbar);
 
             el.addEventListener('focus', () => {
+                window.lastFocusedTextboxId = el.dataset.id; // 记录当前焦点
                 if (!el._undoPushed) { saveToUndoStack(); el._undoPushed = true; }
                 showToolbar(toolbar, el);
             });
@@ -1086,11 +1121,57 @@
             el.addEventListener('keydown', e => {
                 if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); persistTextbox(el); }
             });
-            el.addEventListener('paste', e => {
+            // 粘贴：支持图片与富文本/纯文本
+            el.addEventListener('paste', async e => {
                 e.preventDefault();
                 const dt = e.clipboardData || window.clipboardData;
-                const html = dt.getData('text/html') || dt.getData('text');
-                document.execCommand('insertHTML', false, sanitizeHTML(html));
+                if (!dt) return;
+                // 1) 图片
+                const items = dt.items ? Array.from(dt.items) : [];
+                const imgItem = items.find(it => it.type && it.type.startsWith('image/'));
+                if (imgItem) {
+                    saveToUndoStack();
+                    const file = imgItem.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const url = reader.result;
+                        document.execCommand('insertHTML', false, `<img src="${url}">`);
+                        persistTextbox(el);
+                    };
+                    reader.readAsDataURL(file);
+                    return;
+                }
+                // 2) HTML 或 纯文本
+                const html = dt.getData('text/html');
+                const text = dt.getData('text');
+                const insert = html ? sanitizeHTML(html) : (text || '').replace(/\n/g, '<br>');
+                if (insert) {
+                    saveToUndoStack();
+                    document.execCommand('insertHTML', false, insert);
+                    persistTextbox(el);
+                }
+            });
+
+            // 拖拽图片
+            el.addEventListener('dragover', e => { e.preventDefault(); });
+            el.addEventListener('drop', e => {
+                e.preventDefault();
+                const files = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+                const imgs = files.filter(f => /^image\//.test(f.type));
+                if (!imgs.length) return;
+                saveToUndoStack();
+                const reader = new FileReader();
+                const insertNext = (i) => {
+                    if (i >= imgs.length) { persistTextbox(el); return; }
+                    const f = imgs[i];
+                    const r = new FileReader();
+                    r.onload = () => {
+                        document.execCommand('insertHTML', false, `<img src="${r.result}">`);
+                        insertNext(i + 1);
+                    };
+                    r.readAsDataURL(f);
+                };
+                insertNext(0);
             });
 
             // 观察尺寸变化，保存 width/height
@@ -1112,33 +1193,45 @@
 
         function updateAllTextBoxPositions() {
             if (!renderer || !camera) return;
+            // 当前激活锚点（由鼠标悬停或点击设置）
+            let anchor = window.activeTextAnchor;
+            // 如果没有激活锚点，也允许全部文本框在前方时显示并各自就位（不会堆叠）
+            const allVisible = !anchor;
 
-            // 预先投影当前激活锚点到屏幕
-            let anchorProj = null;
-            if (window.activeTextAnchor && typeof window.activeTextAnchor.lat === 'number') {
-                anchorProj = projectLatLonToClient(window.activeTextAnchor.lat, window.activeTextAnchor.lon);
-            }
-
+            // 先按前后可见性设置 display
+            const groups = new Map(); // key: "lat,lon" -> [{rec, m}]
             textMarkers.forEach(m => {
                 const rec = textboxMap.get(m.id);
                 if (!rec) return;
-
-                // 文本框自己的锚点投影
                 const proj = projectLatLonToClient(m.lat, m.lon);
-
-                // 可见性逻辑：
-                // 1) 必须在前方
-                // 2) 必须有 activeTextAnchor 且与其像素距离很近（比如 30px 内）
-                let visible = proj.inFront && !!anchorProj;
-                if (visible) {
-                    const d = Math.hypot(proj.x - anchorProj.x, proj.y - anchorProj.y);
-                    visible = d <= 30;
+                let visible;
+                if (allVisible) {
+                    visible = proj.inFront;
+                } else {
+                    const a = projectLatLonToClient(anchor.lat, anchor.lon);
+                    visible = proj.inFront && Math.hypot(proj.x - a.x, proj.y - a.y) <= 30;
                 }
-
                 rec.el.style.display = visible ? 'block' : 'none';
-                if (visible) {
-                    // 以“点”的屏幕位置为锚进行摆放，减少与点标注重叠
-                    placeBoxAvoiding(rec.el, { x: anchorProj.x, y: anchorProj.y }, 'top');
+                if (!visible) return;
+                const key = `${m.lat.toFixed(6)},${m.lon.toFixed(6)}`;
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push({ rec, m });
+            });
+
+            // 堆叠摆放：同一组里按创建顺序从上到下堆叠
+            groups.forEach(list => {
+                // 基准位置取第一个框的“避让”结果
+                // 先用第一个框算锚点屏幕坐标
+                const baseAnchorProj = projectLatLonToClient(list[0].m.lat, list[0].m.lon);
+                // 以第一个框为基准位置
+                placeBoxAvoiding(list[0].rec.el, { x: baseAnchorProj.x, y: baseAnchorProj.y }, 'top');
+                // 后面的框在前一个框的下面依次堆叠
+                for (let i = 1; i < list.length; i++) {
+                    const prevRect = list[i - 1].rec.el.getBoundingClientRect();
+                    const thisEl = list[i].rec.el;
+                    thisEl.style.left = Math.round(prevRect.left) + 'px';
+                    thisEl.style.top = Math.round(prevRect.bottom + 8) + 'px'; // 8px 间距
+                    thisEl.style.display = 'block';
                 }
             });
         }
@@ -1250,7 +1343,7 @@
 
             // 2. 如果有当前存档，更新存档到accountOwner名下
             if (currentArchiveId) {
-                const markersSimple = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
+                const markersSimple = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name, category: m.category || 'default' }));
                 const textSimple = textMarkers.map(m => ({
                     id: m.id,
                     lat: m.lat, lon: m.lon,
@@ -1276,7 +1369,7 @@
             }
 
             // 储存标注到当前用户
-            const markersSimple = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name }));
+            const markersSimple = markersList.map(m => ({ lat: m.lat, lon: m.lon, name: m.name, category: m.category || 'default' }));
             try {
                 await saveMarkers(currentUser.accountId, markersSimple);
             } catch (e) {
@@ -1399,7 +1492,8 @@
 
             const css = document.createElement('style');
             css.textContent = `#${TEXT_LAYER_ID}{pointer-events:none} .text-box{ position:absolute; pointer-events:auto; background:#1e2a32f2; color:#e8edf2; border:1px solid #6c8fb0; border-radius:12px; padding:8px 10px; box-shadow:0 6px 20px rgba(0,0,0,0.4); max-width:360px; min-width:140px; min-height:32px; line-height:1.5; font-size:14px; font-family:'华文楷体','STKaiti','KaiTi',cursive,'Segoe UI','Microsoft YaHei',sans-serif; resize:both; overflow:auto; white-space:pre-wrap; word-break:break-word; outline:none; caret-color:#ffd966; } .text-box:focus{ box-shadow:0 0 0 2px rgba(255,217,102,0.35), 0 6px 20px rgba(0,0,0,0.45); border-color:#ffaa66; } .text-box .arrow{ position:absolute; width:0;height:0; border:8px solid transparent; } .text-box ::selection{ background:rgba(255,217,102,0.35); } .text-toolbar{ position:fixed; display:none; background:#1f2937; color:#eee; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:4px; gap:2px; z-index:1200; box-shadow:0 6px 20px rgba(0,0,0,0.25); } .text-toolbar button,.text-toolbar select,.text-toolbar input[type="color"]{ background:transparent; color:#eee; border:none; padding:6px 8px; cursor:pointer; border-radius:6px; font-size:12px; } .text-toolbar button:hover{ background:rgba(255,255,255,0.08); } /* 允许选中文本（覆盖全局 user-select: none） */ [contenteditable="true"], .text-box, .text-box *{ user-select:text !important; -webkit-user-select:text !important; }
-                .text-toolbar{ pointer-events:auto; }`;
+                .text-toolbar{ pointer-events:auto; 
+                .text-box img{max-width:100%;height:auto;display:block;margin:6px 0;border-radius:6px;}`;
             document.head.appendChild(css);
             return layer;
         }
@@ -1444,9 +1538,10 @@
             return tb;
         }
 
+        // 简单的HTML过滤器，允许基本文本格式和安全的图片标签，去除事件属性和不安全的样式
         function sanitizeHTML(html) {
             const div = document.createElement('div'); div.innerHTML = html;
-            const ALLOWED = new Set(['B', 'I', 'U', 'BR', 'P', 'DIV', 'SPAN', 'UL', 'OL', 'LI', 'STRONG', 'EM']);
+            const ALLOWED = new Set(['B', 'I', 'U', 'BR', 'P', 'DIV', 'SPAN', 'UL', 'OL', 'LI', 'STRONG', 'EM', 'IMG']);
             (function walk(n) {
                 Array.from(n.childNodes).forEach(c => {
                     if (c.nodeType === 1) {
@@ -1455,14 +1550,22 @@
                             while (c.firstChild) c.parentNode.insertBefore(c.firstChild, c);
                             c.remove();
                         } else {
-                            if (tag !== 'SPAN') c.removeAttribute('style');
-                            else if (c.hasAttribute('style')) {
+                            if (tag !== 'SPAN' && tag !== 'IMG') c.removeAttribute('style');
+                            if (tag === 'IMG') {
+                                // 仅保留安全的 src
+                                const src = c.getAttribute('src') || '';
+                                const ok = src.startsWith('data:image/') || src.startsWith('http://') || src.startsWith('https://');
+                                if (!ok) { c.remove(); return; }
+                                c.removeAttribute('width'); c.removeAttribute('height');
+                                c.style.maxWidth = '100%'; c.style.height = 'auto'; c.style.display = 'block';
+                                c.style.margin = '6px 0';
+                            } else if (tag === 'SPAN' && c.hasAttribute('style')) {
                                 const keep = {};
                                 c.getAttribute('style').split(';').forEach(s => {
                                     const [k, v] = s.split(':').map(t => t && t.trim()); if (!k) return;
                                     const low = k.toLowerCase(); if (low === 'color' || low === 'font-size') keep[low] = v;
                                 });
-                                c.setAttribute('style', Object.entries(keep).map(([k, v]) => `${k}:${v}`).join(';'));
+                                c.setAttribute('style', Object.entries(keep).map(([k, v]) => `${k}: ${v}`).join(';'));
                             }
                             Array.from(c.attributes).forEach(a => { if (a.name.toLowerCase().startsWith('on')) c.removeAttribute(a.name); });
                             walk(c);
@@ -1472,6 +1575,7 @@
             })(div);
             return div.innerHTML;
         }
+
         function persistTextbox(el) {
             const id = el.dataset.id;
             const m = textMarkers.find(t => t.id === id);
@@ -1622,9 +1726,7 @@
 
             // 加载点标注
             clearMarkers();
-            if (archive.markersData) {
-                archive.markersData.forEach(m => addMarker(m.lat, m.lon, m.name));
-            }
+            (archive.markersData || []).forEach(m => addMarker(m.lat, m.lon, m.name, m.category || 'default'));
 
             // 加载文本框（带内容与尺寸）
             clearTextMarkers();
@@ -1879,6 +1981,19 @@
             if (btnAddText) {
                 btnAddText.onclick = () => setDrawingMode('text');
             }
+            // 右键菜单
+            btnAddText.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showTextBtnMenu(e.clientX, e.clientY);
+            });
+            // 移动端长按
+            let textBtnPressTimer = null;
+            btnAddText.addEventListener('touchstart', (e) => {
+                textBtnPressTimer = setTimeout(() => showTextBtnMenu(window.innerWidth / 2, 80), 600);
+            }, { passive: true });
+            ['touchend', 'touchcancel'].forEach(ev => btnAddText.addEventListener(ev, () => {
+                if (textBtnPressTimer) { clearTimeout(textBtnPressTimer); textBtnPressTimer = null; }
+            }));
             const btnEditMarker = document.getElementById('btn-edit-marker');
             if (btnEditMarker) btnEditMarker.onclick = () => setEditMarkerMode();
 
@@ -2957,6 +3072,120 @@
                     longPressTimer = null;
                 }
             }, { passive: false });
+
+            function getTargetTextbox() {
+                // 1) 最近聚焦
+                if (window.lastFocusedTextboxId && textboxMap.has(window.lastFocusedTextboxId)) {
+                    const rec = textboxMap.get(window.lastFocusedTextboxId);
+                    const meta = textMarkers.find(t => t.id === window.lastFocusedTextboxId);
+                    return { el: rec.el, meta };
+                }
+                // 2) 当前锚点的第一条
+                const a = window.activeTextAnchor;
+                if (a) {
+                    const key = (lat, lon) => `${lat.toFixed(6)},${lon.toFixed(6)}`;
+                    const target = textMarkers.find(t => key(t.lat, t.lon) === key(a.lat, a.lon));
+                    if (target && textboxMap.has(target.id)) {
+                        return { el: textboxMap.get(target.id).el, meta: target };
+                    }
+                }
+                return null;
+            }
+
+            function showTextBtnMenu(x, y) {
+                const old = document.getElementById('textbtn-menu'); if (old) old.remove();
+                const menu = document.createElement('div');
+                menu.id = 'textbtn-menu';
+                menu.style.cssText = `position:fixed;left:${x}px;top:${y}px;background:#1e2a32;border:1px solid #ffaa66;border-radius:8px;padding:6px;z-index:1200;min-width:180px;`;
+                const addItem = (label, handler) => {
+                    const b = document.createElement('button');
+                    b.textContent = label;
+                    b.style.cssText = 'display:block;width:100%;background:transparent;color:#ffdd99;border:none;padding:8px 14px;text-align:left;cursor:pointer;border-radius:6px;';
+                    b.onmouseenter = () => b.style.background = '#2d3e4b';
+                    b.onmouseleave = () => b.style.background = 'transparent';
+                    b.onclick = () => { handler(); menu.remove(); };
+                    menu.appendChild(b);
+                };
+
+                addItem('保存为 PDF', async () => {
+                    const t = getTargetTextbox();
+                    if (!t) { alert('请先聚焦一个文本框或将鼠标靠近绑定的标注'); return; }
+                    await exportTextBoxToPDF(t.el, t.meta);
+                });
+
+                addItem('上载 docx/doc/txt', async () => {
+                    const t = getTargetTextbox();
+                    if (!t) { alert('请先聚焦一个文本框或将鼠标靠近绑定的标注'); return; }
+                    await uploadDocToTextBox(t.el, t.meta);
+                });
+
+                addItem('查看明细', () => {
+                    const t = getTargetTextbox();
+                    if (!t) { alert('请先聚焦一个文本框或将鼠标靠近绑定的标注'); return; }
+                    // 用 localStorage 临时传值到新窗口
+                    localStorage.setItem('textDetailHTML', t.el.innerHTML || '');
+                    localStorage.setItem('textDetailTitle', (t.meta && t.meta.title) || '文本明细');
+                    window.open('text.html', '_blank');
+                });
+
+                document.body.appendChild(menu);
+                setTimeout(() => document.addEventListener('click', () => menu.remove(), { once: true }), 0);
+            }
+
+            // 保存为 PDF：用 html2canvas + jsPDF
+            async function exportTextBoxToPDF(el, meta) {
+                const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+                    import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'),
+                    import('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js')
+                ]);
+                const canvas = await html2canvas(el, { backgroundColor: '#ffffff' });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+                const pageW = pdf.internal.pageSize.getWidth();
+                const pageH = pdf.internal.pageSize.getHeight();
+                const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
+                const w = canvas.width * ratio, h = canvas.height * ratio;
+                pdf.addImage(imgData, 'PNG', (pageW - w) / 2, 40, w, h);
+                const name = (meta && meta.id) ? meta.id.slice(-8) : 'textbox';
+                pdf.save(`textbox_${name}.pdf`);
+            }
+
+            // 上载 docx/doc/txt 并插入到目标文本框
+            async function uploadDocToTextBox(el, meta) {
+                return new Promise(resolve => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.docx,.doc,.txt';
+                    input.onchange = async () => {
+                        const file = input.files && input.files[0];
+                        if (!file) return resolve();
+                        const ext = (file.name.split('.').pop() || '').toLowerCase();
+                        try {
+                            saveToUndoStack();
+                            if (ext === 'docx') {
+                                const mammoth = await import('https://unpkg.com/mammoth/mammoth.browser.min.js');
+                                const arrayBuffer = await file.arrayBuffer();
+                                const res = await mammoth.convertToHtml({ arrayBuffer });
+                                const html = sanitizeHTML(res.value || '');
+                                el.innerHTML = html || el.innerHTML;
+                                persistTextbox(el);
+                            } else {
+                                // .doc 或 .txt：按文本读（.doc 可能乱码）
+                                const text = await file.text();
+                                const html = sanitizeHTML(text.replace(/\n/g, '<br>'));
+                                el.innerHTML = html || el.innerHTML;
+                                persistTextbox(el);
+                            }
+                            const msg = document.getElementById('status-msg'); if (msg) msg.innerText = '已导入文档到文本框';
+                        } catch (e) {
+                            console.warn('导入失败', e);
+                            alert('导入失败：' + e.message);
+                        }
+                        resolve();
+                    };
+                    input.click();
+                });
+            }
         }
 
         startup();
