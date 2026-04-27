@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>文本明细</title>
+  <!-- 引用现成的 style.css -->
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* 仅保留 text.html 特有的布局样式 */
+    .text-detail-wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--bg, #0b121a);
+    }
+
+    .text-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .text-detail-header h1 {
+      font-size: 20px;
+      margin: 0;
+      color: var(--text, #e8edf2);
+    }
+
+    .text-detail-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .text-detail-btns button,
+    .text-detail-btns .btn {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .sep {
+      width: 1px;
+      height: 28px;
+      background: var(--border, #2a3a4a);
+      margin: 0 2px;
+    }
+
+    .text-detail-card {
+      background: var(--card, #111a24);
+      border: 1px solid var(--border, #2a3a4a);
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 200px;
+    }
+
+    .text-detail-hint {
+      color: var(--muted, #9fb3c8);
+      font-size: 12px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border, #2a3a4a);
+    }
+
+    #detailBox {
+      word-break: break-word;
+      outline: none;
+      min-height: 160px;
+      line-height: 1.65;
+    }
+
+    #detailBox[contenteditable="true"] {
+      caret-color: #ffd598;
+    }
+
+    #detailBox img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 6px 0;
+      border-radius: 6px;
+    }
+
+    #detailBox p {
+      margin: .6em 0;
+    }
+
+    #detailBox ul,
+    #detailBox ol {
+      padding-left: 1.4em;
+    }
+
+    .text-detail-info {
+      color: var(--muted, #9fb3c8);
+      font-size: 12px;
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-top: 1px solid var(--border, #2a3a4a);
+      padding-top: 12px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid var(--border, #2a3a4a);
+      border-radius: 999px;
+      color: var(--muted, #9fb3c8);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .detail-toolbar {
+      display: none;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 8px 0 12px;
+      align-items: center;
+    }
+
+    .detail-toolbar button,
+    .detail-toolbar select,
+    .detail-toolbar input {
+      background: var(--btn-bg, #1e2a32);
+      border: 1px solid var(--border, #2a3a4a);
+      color: var(--text, #e8edf2);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .detail-toolbar button:hover {
+      background: var(--btn-hover, #2d3e4b);
+    }
+
+    .danger-btn {
+      border-color: #ff6b6b;
+      color: #ffdfe0;
+    }
+
+    .toast-msg {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e2a32e6;
+      backdrop-filter: blur(8px);
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-size: 13px;
+      color: #ffeaac;
+      border: 1px solid #ffaa66;
+      z-index: 1000;
+      pointer-events: none;
+      animation: toastFadeOut 2s forwards;
+    }
+
+    @keyframes toastFadeOut {
+      0% {
+        opacity: 1;
+      }
+
+      70% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        background: #fff;
+        overflow: auto;
+      }
+
+      .text-detail-wrap {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .text-detail-header,
+      .text-detail-hint,
+      .text-detail-info,
+      .detail-toolbar {
+        display: none !important;
+      }
+
+      .text-detail-card {
+        border: none;
+        border-radius: 0;
+        background: #fff;
+      }
+
+      #detailBox {
+        color: #000;
+      }
+    }
+
+    .user-banner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0 14px;
+    }
+
+    .user-banner img {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border, #2a3a4a);
+    }
+
+    .user-banner .name {
+      font-size: 18px;
+      color: var(--text, #e8edf2);
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="text-detail-wrap">
+    <div class="text-detail-header">
+      <h1 id="detailTitle">文本明细</h1>
+      <div class="text-detail-btns">
+        <button id="btnEdit">编辑</button>
+        <button id="btnUndo">撤销</button>
+        <button id="btnRedo">重做</button>
+        <button id="btnInsertImg">插入图片</button>
+        <span class="sep"></span>
+        <button id="btnSave">保存</button>
+        <button id="btnSaveBack">保存并返回地图</button>
+        <a id="btnBack" class="btn" href="javascript:void(0)">返回地图</a>
+        <span class="sep"></span>
+        <button id="btnPdf">导出PDF</button>
+        <button id="btnPrint">打印</button>
+        <button id="btnCopy">复制全部</button>
+        <button id="btnHtml">下载HTML</button>
+        <button id="btnTxt">下载TXT</button>
+        <a class="btn danger-btn" href="javascript:void(0)" id="btnClose">关闭</a>
+      </div>
+    </div>
+
+    <div class="detail-toolbar" id="detailToolbar">
+      <button data-cmd="bold"><b>B</b></button>
+      <button data-cmd="italic"><i>I</i></button>
+      <button data-cmd="underline"><u>U</u></button>
+      <button data-cmd="insertUnorderedList">• 列表</button>
+      <button data-cmd="insertOrderedList">1. 列表</button>
+      <select id="fontSizeSelect">
+        <option value="">字号</option>
+        <option value="2">小</option>
+        <option value="3">正常</option>
+        <option value="4">稍大</option>
+        <option value="5">大</option>
+      </select>
+      <input type="color" id="colorPicker" title="文字颜色" value="#ffaa66">
+    </div>
+
+    <div class="text-detail-card">
+      <div class="user-banner" id="userBanner" style="display:none">
+        <img id="userAvatar" alt="avatar">
+        <div class="name" id="userName"></div>
+      </div>
+      <div id="detailBox" tabindex="0"><em style="color:#9fb3c8">✨ 正在载入内容…</em></div>
+      <div class="text-detail-info">
+        <span class="chip" id="fromChip"></span>
+        <span class="chip" id="timeChip"></span>
+        <span class="chip" id="authChip"></span>
+      </div>
+    </div>
+
+    <div class="text-detail-hint">
+      支持富文本编辑、图片粘贴/拖拽。编辑完成后点击「保存」会同步至主页面（map.html）和 IndexedDB。<br>
+      参数格式：?id=文本框ID&title=标题 或 ?html=编码后内容 / ?h=base64内容。<br>
+      与地图页面postMessage双向同步，数据存储于 IndexedDB。
+    </div>
+  </div>
+
+  <input type="file" id="imageUploader" accept="image/*" style="display:none">
+
+  <script>
+    // =========== 配置 ===========
+    const MAP_PAGE = 'map.html';
+    const AUTOSAVEDELAY = 2000;
+
+    // =========== 状态 ===========
+    let currentId = null;
+    let currentAccountId = null;
+    let currentArchiveId = null; // 存档 id
+    let isEditing = false;
+    let autoSaveTimer = null;
+    let lastSavedHtml = '';
+    let dbReady = false;
+
+    // db.js 动态导入（失败则仅用 localStorage）
+    let dbApi = { openDB: async () => { }, loadTextMarkers: async () => [], saveTextMarkers: async () => { } };
+    async function ensureDB() {
+      try { dbApi = await import('./db.js'); }
+      catch (e) { console.warn('db.js 加载失败，降级为仅 localStorage 模式', e); }
+    }
+
+    // =========== DOM ===========
+    const detailBox = document.getElementById('detailBox');
+    const detailTitle = document.getElementById('detailTitle');
+    const fromChip = document.getElementById('fromChip');
+    const timeChip = document.getElementById('timeChip');
+    const authChip = document.getElementById('authChip');
+    const editToolbar = document.getElementById('detailToolbar');
+
+    const btnEdit = document.getElementById('btnEdit');
+    const btnUndo = document.getElementById('btnUndo');
+    const btnRedo = document.getElementById('btnRedo');
+    const btnInsertImg = document.getElementById('btnInsertImg');
+    const btnSave = document.getElementById('btnSave');
+    const btnSaveBack = document.getElementById('btnSaveBack');
+    const btnBack = document.getElementById('btnBack');
+    const btnPdf = document.getElementById('btnPdf');
+    const btnPrint = document.getElementById('btnPrint');
+    const btnCopy = document.getElementById('btnCopy');
+    const btnHtml = document.getElementById('btnHtml');
+    const btnTxt = document.getElementById('btnTxt');
+    const btnClose = document.getElementById('btnClose');
+    const imageUploader = document.getElementById('imageUploader');
+    const fontSizeSelect = document.getElementById('fontSizeSelect');
+    const colorPicker = document.getElementById('colorPicker');
+
+    const userBanner = document.getElementById('userBanner');
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+
+    // =========== 工具 ===========
+    function showToast(msg) {
+      let t = document.querySelector('.toast-msg'); if (t) t.remove();
+      t = document.createElement('div'); t.className = 'toast-msg'; t.textContent = msg;
+      document.body.appendChild(t); setTimeout(() => t.remove(), 2000);
+    }
+    function getQueryParam(name) { const u = new URL(location.href); return u.searchParams.get(name); }
+    function decodeBase64Maybe(str) {
+      if (!str) return '';
+      try { const d = decodeURIComponent(str); try { return atob(d); } catch { } try { return atob(str); } catch { } return d; }
+      catch { return str; }
+    }
+    function downloadFile(filename, blob) {
+      const a = document.createElement('a'); const url = URL.createObjectURL(blob);
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+    }
+    function updateTimeDisplay() { timeChip.textContent = new Date().toLocaleString(); }
+
+    // 登录和存档 id
+    function getCurrentAccountId() {
+      return getQueryParam('accountId') ||
+        localStorage.getItem('currentAccountId') ||
+        sessionStorage.getItem('currentAccountId') || null;
+    }
+    function getCurrentArchiveId() {
+      return getQueryParam('archiveId') || getQueryParam('saveId') ||
+        localStorage.getItem('archiveId') || sessionStorage.getItem('archiveId') || null;
+    }
+    function buildMapUrl() {
+      const sp = new URLSearchParams();
+      if (currentAccountId) sp.set('accountId', currentAccountId);
+      if (currentArchiveId) sp.set('archiveId', currentArchiveId);
+      if (currentId) sp.set('focusId', currentId);
+      const q = sp.toString();
+      return MAP_PAGE + (q ? ('?' + q) : '');
+    }
+
+    // =========== 清洗 ===========
+    function sanitizeHtml(html) {
+      if (!html) return '';
+      const div = document.createElement('div'); div.innerHTML = html;
+      const allowed = new Set(['B', 'I', 'U', 'BR', 'P', 'DIV', 'SPAN', 'UL', 'OL', 'LI', 'STRONG', 'EM', 'IMG', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE', 'CODE']);
+      (function walk(n) {
+        [...n.childNodes].forEach(c => {
+          if (c.nodeType === 8) { c.remove(); return; }
+          if (c.nodeType === 1) {
+            const tag = c.tagName;
+            if (!allowed.has(tag)) {
+              while (c.firstChild) c.parentNode.insertBefore(c.firstChild, c);
+              c.remove(); return;
+            }
+            if (tag !== 'SPAN' && tag !== 'IMG') c.removeAttribute('style');
+            if (tag === 'SPAN' && c.hasAttribute('style')) {
+              const keep = {}; (c.getAttribute('style') || '').split(';').forEach(r => {
+                const [p, v] = (r || '').split(':').map(s => s && s.trim()); if (!p) return;
+                const k = p.toLowerCase(); if (k === 'color' || k === 'font-size') keep[k] = v;
+              });
+              if (Object.keys(keep).length) c.setAttribute('style', Object.entries(keep).map(([k, v]) => k + ':' + v).join(';')); else c.removeAttribute('style');
+            }
+            if (tag === 'IMG') {
+              const src = c.getAttribute('src') || ''; const ok = src.startsWith('data:image/') || src.startsWith('http://') || src.startsWith('https://');
+              if (!ok) { c.remove(); return; }
+              c.removeAttribute('width'); c.removeAttribute('height');
+              c.style.maxWidth = '100%'; c.style.height = 'auto'; c.style.display = 'block'; c.style.margin = '6px 0';
+            }
+            [...c.attributes].forEach(a => { if (a.name.toLowerCase().startsWith('on')) c.removeAttribute(a.name); });
+            walk(c);
+          }
+        });
+      })(div);
+      return div.innerHTML;
+    }
+
+    // =========== IndexedDB 读写 ===========
+    async function loadFromIndexedDB(textboxId) {
+      if (!dbReady || !currentAccountId) return null;
+      try {
+        const list = await dbApi.loadTextMarkers(currentAccountId);
+        const it = Array.isArray(list) ? list.find(m => m.id === textboxId) : null;
+        if (it) return { html: it.html || it.content || '', title: it.title || '文本明细' };
+      } catch (e) { console.warn('IndexedDB 读取失败', e); }
+      return null;
+    }
+    async function saveToIndexedDB(textboxId, html, title) {
+      if (!dbReady || !currentAccountId) return false;
+      try {
+        const list = await dbApi.loadTextMarkers(currentAccountId);
+        const markers = Array.isArray(list) ? list.slice() : [];
+        const idx = markers.findIndex(m => m.id === textboxId);
+        const rec = { id: textboxId, html, title: title || '文本明细', updatedAt: Date.now() };
+        if (idx >= 0) markers[idx] = rec; else markers.push(rec);
+        await dbApi.saveTextMarkers(currentAccountId, markers);
+        return true;
+      } catch (e) { console.error('IndexedDB 保存失败', e); return false; }
+    }
+
+    // =========== 保存 ===========
+    function storageKey() { return currentId ? ('textDetailHTML:' + currentId) : 'textDetailHTML'; }
+    async function saveContent(options = { notify: true }) {
+      const safe = sanitizeHtml(detailBox.innerHTML);
+      detailBox.innerHTML = safe; lastSavedHtml = safe;
+      const title = detailTitle.textContent || '文本明细';
+      try {
+        localStorage.setItem(storageKey(), safe);
+        localStorage.setItem('textDetailHTML', safe);
+        if (currentId) localStorage.setItem('textDetailTitle:' + currentId, title);
+        localStorage.setItem('textDetailTitle', title);
+      } catch (e) { console.warn('localStorage 写入失败', e); }
+      if (currentId) await saveToIndexedDB(currentId, safe, title);
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'textboxUpdate', id: currentId || null, html: safe, title }, '*');
+        }
+      } catch (e) { }
+      if (options.notify) showToast('已保存并同步');
+      updateTimeDisplay();
+    }
+    function triggerAutoSave(delay = AUTOSAVEDELAY) { if (!isEditing) return; clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(() => saveContent({ notify: false }), delay); }
+
+    // =========== 编辑 ===========
+    function placeCaretAtEnd(el) { const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+    function setEditing(enable) {
+      isEditing = !!enable;
+      detailBox.setAttribute('contenteditable', isEditing ? 'true' : 'false');
+      editToolbar.style.display = isEditing ? 'flex' : 'none';
+      btnEdit.textContent = isEditing ? '完成' : '编辑';
+      if (!isEditing) { const safe = sanitizeHtml(detailBox.innerHTML); detailBox.innerHTML = safe; triggerAutoSave(0); }
+      else { detailBox.focus({ preventScroll: true }); placeCaretAtEnd(detailBox); }
+    }
+
+    // 双击文本框即可进入编辑
+    detailBox.addEventListener('dblclick', () => { if (!isEditing) setEditing(true); });
+
+    // =========== 内容加载 ===========
+    async function loadContent() {
+      currentId = getQueryParam('id');
+      let title = getQueryParam('title') || '文本明细';
+      let rawHtml = null; let sourceText = '无';
+
+      // 1 IndexedDB
+      if (currentId && dbReady && currentAccountId) {
+        const dbData = await loadFromIndexedDB(currentId);
+        if (dbData) { rawHtml = dbData.html; title = dbData.title || title; sourceText = 'IndexedDB'; }
+      }
+      // 2 localStorage: id
+      if (!rawHtml && currentId) { rawHtml = localStorage.getItem('textDetailHTML:' + currentId); if (rawHtml) sourceText = 'localStorage(ID)'; }
+      // 3 localStorage: 全局
+      if (!rawHtml) { rawHtml = localStorage.getItem('textDetailHTML'); if (rawHtml) sourceText = 'localStorage(全局)'; }
+      // 4 URL
+      if (!rawHtml) {
+        const htmlParam = getQueryParam('html'); const b64 = getQueryParam('h');
+        if (htmlParam) { rawHtml = decodeURIComponent(htmlParam); sourceText = 'URL参数'; }
+        else if (b64) { rawHtml = decodeBase64Maybe(b64); sourceText = 'URL参数(base64)'; }
+      }
+      // 标题
+      if (currentId) {
+        const idTitle = localStorage.getItem('textDetailTitle:' + currentId);
+        if (idTitle) title = idTitle;
+      }
+      detailTitle.textContent = title;
+      fromChip.textContent = '来源：' + sourceText;
+      updateTimeDisplay();
+
+      detailBox.innerHTML = rawHtml ? sanitizeHtml(rawHtml) : '<p style="color:#9fb3c8">没有内容，点击编辑开始撰写</p>';
+      lastSavedHtml = detailBox.innerHTML;
+
+      // 返回链接带上 accountId / archiveId / focusId
+      btnBack.href = buildMapUrl();
+    }
+
+    // =========== 粘贴/拖拽 ===========
+    function bindDragAndDrop() {
+      detailBox.addEventListener('paste', (e) => {
+        if (!isEditing) return; e.preventDefault();
+        const dt = e.clipboardData; if (!dt) return;
+        const items = [...dt.items]; const imgItem = items.find(it => it.type && it.type.startsWith('image/'));
+        if (imgItem) {
+          const file = imgItem.getAsFile(); const fr = new FileReader();
+          fr.onload = ev => { document.execCommand('insertHTML', false, '<img src="' + ev.target.result + '" alt="pasted">'); triggerAutoSave(); };
+          fr.readAsDataURL(file); return;
+        }
+        const html = dt.getData('text/html'); const text = dt.getData('text/plain');
+        const insert = html ? sanitizeHtml(html) : (text || '').replace(/\n/g, '<br>');
+        if (insert) { document.execCommand('insertHTML', false, insert); triggerAutoSave(); }
+      });
+      detailBox.addEventListener('dragover', e => { if (isEditing) e.preventDefault(); });
+      detailBox.addEventListener('drop', e => {
+        if (!isEditing) return; e.preventDefault();
+        const files = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/'));
+        if (!files.length) return;
+        let i = 0; const next = () => {
+          if (i >= files.length) { triggerAutoSave(); return; }
+          const fr = new FileReader(); fr.onload = ev => { document.execCommand('insertHTML', false, '<img src="' + ev.target.result + '" alt="dropped">'); i++; next(); };
+          fr.readAsDataURL(files[i]);
+        }; next();
+      });
+      detailBox.addEventListener('input', () => { if (isEditing) triggerAutoSave(); });
+    }
+
+    // =========== 工具栏 ===========
+    function bindToolbarActions() {
+      editToolbar.querySelectorAll('button[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', () => { detailBox.focus({ preventScroll: true }); document.execCommand(btn.dataset.cmd, false, null); triggerAutoSave(); });
+      });
+      fontSizeSelect.addEventListener('change', e => { if (!e.target.value) return; detailBox.focus({ preventScroll: true }); document.execCommand('fontSize', false, e.target.value); e.target.value = ''; triggerAutoSave(); });
+      colorPicker.addEventListener('input', e => { detailBox.focus({ preventScroll: true }); document.execCommand('foreColor', false, e.target.value); triggerAutoSave(); });
+    }
+
+    // =========== 登录信息 / 用户横幅 ===========
+    function getUserProfile() {
+      // 优先 localStorage 的 userProfile 或 authUser；其次 URL（userName/avatar）
+      try {
+        const raw = localStorage.getItem('userProfile') || localStorage.getItem('authUser');
+        if (raw) return JSON.parse(raw);
+      } catch (e) { }
+      return {
+        name: getQueryParam('userName') || '',
+        avatar: getQueryParam('avatar') || ''
+      };
+    }
+    function renderUserBanner() {
+      const p = getUserProfile() || {};
+      const name = p.name || p.nickname || p.username || '';
+      const avatar = p.avatar || p.photoURL || '';
+      if (name || avatar || currentAccountId) {
+        userName.textContent = name || (currentAccountId || '').slice(0, 8);
+        userAvatar.src = avatar || 'default-avatar.png';
+        userBanner.style.display = 'flex';
+      } else {
+        userBanner.style.display = 'none';
+      }
+      authChip.textContent = currentAccountId ? ('已登录: ' + currentAccountId) : '未登录';
+    }
+
+    // =========== 导出/下载/复制 ===========
+    async function exportPDF() {
+      try {
+        const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js')).default;
+        const { jsPDF } = await import('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+        const card = document.querySelector('.text-detail-card');
+        const canvas = await html2canvas(card, { backgroundColor: '#ffffff', scale: 2 });
+        const img = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+        const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+        const r = Math.min(pw / canvas.width, ph / canvas.height);
+        const w = canvas.width * r, h = canvas.height * r;
+        pdf.addImage(img, 'PNG', (pw - w) / 2, 40, w, h);
+        const name = (detailTitle.textContent || 'textbox').replace(/[\\/:*?"<>|]/g, '_');
+        pdf.save(name + '.pdf'); showToast('PDF 已导出');
+      } catch (e) { console.error(e); showToast('PDF 生成失败'); }
+    }
+    function downloadHTML() {
+      const title = detailTitle.textContent || '文本明细';
+      const inner = detailBox.innerHTML;
+      const doc = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>' +
+        title.replace(/</g, '&lt;') +
+        '</title><meta name="viewport" content="width=device-width,initial-scale=1">' +
+        '<link rel="stylesheet" href="style.css">' +
+        '<style>body{padding:24px;max-width:900px;margin:0 auto;}</style>' +
+        '</head><body>' + inner + '</body></html>';
+      downloadFile(title.replace(/[\\/:*?"<>|]/g, '_') + '.html', new Blob([doc], { type: 'text/html;charset=utf-8' }));
+      showToast('HTML 已下载');
+    }
+    function downloadTXT() {
+      const title = detailTitle.textContent || '文本明细';
+      const div = document.createElement('div'); div.innerHTML = detailBox.innerHTML;
+      const text = (div.innerText || '').replace(/\r?\n/g, '\n');
+      downloadFile(title.replace(/[\\/:*?"<>|]/g, '_') + '.txt', new Blob([text], { type: 'text/plain;charset=utf-8' }));
+    }
+    async function copyRichText() {
+      const html = detailBox.innerHTML, text = detailBox.innerText;
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([text], { type: 'text/plain' }) })]);
+        showToast('已复制富文本内容');
+      } catch (e) {
+        try { await navigator.clipboard.writeText(text); showToast('已复制纯文本'); }
+        catch { alert('复制失败'); }
+      }
+    }
+
+    // =========== 按钮 ===========
+    function bindButtons() {
+      btnEdit.addEventListener('click', () => setEditing(!isEditing));
+      btnUndo.addEventListener('click', () => { if (isEditing) { document.execCommand('undo'); triggerAutoSave(); } });
+      btnRedo.addEventListener('click', () => { if (isEditing) { document.execCommand('redo'); triggerAutoSave(); } });
+      btnInsertImg.addEventListener('click', () => imageUploader.click());
+      imageUploader.addEventListener('change', e => {
+        const f = e.target.files && e.target.files[0]; if (!f || !f.type.startsWith('image/')) return;
+        const fr = new FileReader(); fr.onload = ev => { if (!isEditing) setEditing(true); detailBox.focus(); document.execCommand('insertHTML', false, '<img src="' + ev.target.result + '" alt="upload" style="max-width:100%">'); triggerAutoSave(100); };
+        fr.readAsDataURL(f); e.target.value = '';
+      });
+      btnSave.addEventListener('click', () => saveContent({ notify: true }));
+      btnSaveBack.addEventListener('click', async () => { await saveContent({ notify: false }); location.href = buildMapUrl(); });
+      btnBack.addEventListener('click', () => { location.href = buildMapUrl(); });
+      btnClose.addEventListener('click', () => {
+        const url = buildMapUrl();
+        try { window.close(); } catch (e) { }
+        setTimeout(() => { location.href = url; }, 100);
+      });
+      btnPdf.addEventListener('click', exportPDF);
+      btnPrint.addEventListener('click', () => window.print());
+      btnHtml.addEventListener('click', downloadHTML);
+      btnTxt.addEventListener('click', downloadTXT);
+      btnCopy.addEventListener('click', copyRichText);
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey && !e.shiftKey) {
+          const k = e.key.toLowerCase();
+          if (k === 's') { e.preventDefault(); saveContent({ notify: true }); }
+          if (k === 'e') { e.preventDefault(); setEditing(!isEditing); }
+          if (k === 'p') { e.preventDefault(); exportPDF(); }
+        }
+      });
+    }
+
+    // =========== 主页面消息 ===========
+    function listenWindowMessages() {
+      window.addEventListener('message', async (e) => {
+        const msg = e.data || {};
+        if (msg.type === 'updateFromMap' && msg.id && (!currentId || msg.id === currentId)) {
+          const newHtml = sanitizeHtml(msg.html || '');
+          detailBox.innerHTML = newHtml; lastSavedHtml = newHtml; updateTimeDisplay();
+          if (!isEditing) await saveContent({ notify: false });
+          showToast('内容已从地图页同步');
+        }
+      });
+    }
+
+    // =========== 初始化 ===========
+    async function init() {
+      await ensureDB();
+      try { await dbApi.openDB(); dbReady = true; } catch (e) { dbReady = false; console.warn('数据库初始化失败，仅使用 localStorage', e); }
+      currentAccountId = getCurrentAccountId();
+      currentArchiveId = getCurrentArchiveId();
+
+      // 未登录则跳转登录页（带回跳）
+      if (!currentAccountId) {
+        const ret = encodeURIComponent(location.href);
+        location.href = 'index.html?redirect=' + ret;
+        return;
+      }
+
+      renderUserBanner();
+      await loadContent();
+      bindDragAndDrop();
+      bindToolbarActions();
+      bindButtons();
+      listenWindowMessages();
+
+      window.addEventListener('beforeunload', (e) => {
+        const cur = detailBox.innerHTML;
+        if (isEditing && cur !== lastSavedHtml) { e.preventDefault(); e.returnValue = '内容尚未保存，确定离开吗？'; }
+      });
+    }
+    init();
+  </script>
+
+</body>
+
+</html>
