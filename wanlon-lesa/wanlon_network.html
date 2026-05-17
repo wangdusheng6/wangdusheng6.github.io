@@ -281,7 +281,7 @@
                 const data = await response.json();
                 return data;
             } catch (error) {
-                document.getElementById('stats').innerHTML = '<span style="color:red;">❌ Cannot load the wanlon_data.json，Please make sure that the file is saved in </span>';
+                document.getElementById('stats').innerHTML = '<span style="color:red;">❌ Cannot load the wanlon_data.json, Please make sure that the file is saved in </span>';
                 return null;
             }
         }
@@ -316,7 +316,7 @@
                     shape: 'box',
                     size: 25,
                     font: { size: 14, color: '#000' },
-                    title: `${cat.category_name}\n包含 ${cat.word_count} 个单词\n点击展开`
+                    title: `${cat.category_name}\ncontains ${cat.word_count} words\nClick to expand`
                 });
                 nodeInfoMap[cat.id] = {
                     type: 'category',
