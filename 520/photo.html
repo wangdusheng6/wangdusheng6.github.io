@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>猫豆520快乐</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- 液态玻璃导航栏 -->
+    <nav class="glass-nav">
+        <div class="nav-logo">
+            <img src="猫豆.png" alt="猫豆" class="logo-img" onerror="this.src='https://picsum.photos/40/40?random=100'">
+            <span>猫豆小喵</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">喵呜哒</a></li>
+            <li><a href="sutra.html">on浓咒</a></li>
+            <li><a href="photo.html">猫豆光影</a></li>
+            <li><a href="travel.html">猫小野望</a></li>
+            <li><a href="https:\\wanlonduducat.site\qingrenjie">喵豆情人节</a></li>
+        </ul>
+    </nav>
+
+    <main class="glass-container photo-container">
+        <h1 class="page-title gallery-title">芝士过去一年哒猫豆</h1>
+        <p class="gallery-sub">每一噶都是想念哒小猫形状</p>
+
+        <!-- 动态照片墙容器 -->
+        <div id="dynamic-gallery" class="photo-gallery"></div>
+
+        <div class="memory-message glass-card">
+            <p>猫豆过去一年就是炸毛幸福哒，猫豆以后永远幸福哒</p>
+            <p class="signature-small">嘻嘟嘟喵嘟嘟猫豆其Π啦嚎多照片鸭</p>
+        </div>
+    </main>
+    <script>
+        // 自动读取 image 文件夹中所有连续命名的照片
+        // 命名规则：基础名 + 数字 + 扩展名，例如 photo1.jpg, photo2.jpg, ... 支持最多 999 张
+        // 可修改以下配置
+        const CONFIG = {
+            folder: 'image/',          // 图片文件夹路径
+            baseName: 'photo',         // 文件名基础部分（不含数字）
+            extension: 'jpg',          // 扩展名（支持 png、jpeg 等）
+            startIndex: 1,             // 起始编号
+            maxAttempts: 200,          // 最大尝试次数（防止无限循环，根据实际照片数量调整）
+            consecutiveFailLimit: 3    // 连续失败多少次后停止检测（避免因个别缺失中断）
+        };
+
+        // 全局数组存储成功加载的图片信息
+        let loadedPhotos = [];
+        let consecutiveFails = 0;
+        let currentIndex = CONFIG.startIndex;
+
+        // 获取照片标题和描述（可从文件名智能生成，或使用默认）
+        function generateTitle(index) {
+            return `时光印记 ${index}`;
+        }
+
+        function generateDescription(index) {
+            return `与你有关的美好瞬间，第 ${index} 帧。`;
+        }
+
+        // 异步检测图片是否存在并加载
+        function checkImageExists(src) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = src;
+            });
+        }
+
+        // 递归 / 循环尝试加载图片
+        async function discoverPhotos() {
+            const galleryContainer = document.getElementById('dynamic-gallery');
+            if (!galleryContainer) return;
+
+            // 显示加载中提示
+            galleryContainer.innerHTML = '<div class="loading-message glass-card"><p>正在收集光影片段...</p></div>';
+
+            for (let idx = currentIndex; idx <= CONFIG.maxAttempts; idx++) {
+                const imgSrc = `${CONFIG.folder}${CONFIG.baseName}${idx}.${CONFIG.extension}`;
+                const exists = await checkImageExists(imgSrc);
+
+                if (exists) {
+                    // 成功加载，重置连续失败计数
+                    consecutiveFails = 0;
+                    loadedPhotos.push({
+                        src: imgSrc,
+                        title: generateTitle(idx),
+                        description: generateDescription(idx)
+                    });
+                } else {
+                    consecutiveFails++;
+                    // 如果连续失败次数达到阈值，停止搜索（认为后续图片不存在）
+                    if (consecutiveFails >= CONFIG.consecutiveFailLimit) {
+                        console.log(`已连续 ${CONSECUTIVE_FAIL_LIMIT} 次未找到图片，停止扫描。`);
+                        break;
+                    }
+                }
+            }
+
+            // 渲染照片墙
+            renderGallery(galleryContainer);
+        }
+
+        // 渲染照片墙
+        function renderGallery(container) {
+            container.innerHTML = '';
+
+            if (loadedPhotos.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'empty-gallery-message glass-card';
+                emptyMsg.innerHTML = '<p>光影集期待你的照片。请将照片按规则命名放入 image 文件夹：photo1.jpg, photo2.jpg ...</p>';
+                container.appendChild(emptyMsg);
+                return;
+            }
+
+            // 使用 for 循环创建每一张照片卡片
+            for (let i = 0; i < loadedPhotos.length; i++) {
+                const photo = loadedPhotos[i];
+                const card = document.createElement('div');
+                card.className = 'photo-card glass-card';
+
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'photo-img-wrapper';
+
+                const img = document.createElement('img');
+                img.src = photo.src;
+                img.alt = photo.title;
+                // 兜底：若某张图片意外加载失败（例如网络问题），显示默认猫豆图片
+                img.onerror = function () {
+                    this.src = '猫豆.png';
+                    this.onerror = null;
+                };
+
+                imgWrapper.appendChild(img);
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'photo-info';
+
+                const titleH3 = document.createElement('h3');
+                titleH3.textContent = photo.title;
+
+                const descP = document.createElement('p');
+                descP.textContent = photo.description;
+
+                infoDiv.appendChild(titleH3);
+                infoDiv.appendChild(descP);
+
+                card.appendChild(imgWrapper);
+                card.appendChild(infoDiv);
+
+                container.appendChild(card);
+            }
+        }
+
+        // 启动自动发现
+        discoverPhotos();
+    </script>
+</body>
+
+</html>

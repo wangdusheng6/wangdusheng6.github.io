@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>猫豆520快乐</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 三语切换按钮容器 */
+        .lang-switch {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0 1.5rem;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 240, 0.6);
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-color: #c38e7a;
+        }
+
+        .lang-content {
+            display: none;
+        }
+
+        .lang-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 液态玻璃导航栏 -->
+    <nav class="glass-nav">
+        <div class="nav-logo">
+            <img src="猫豆.png" alt="猫豆" class="logo-img" onerror="this.src='https://picsum.photos/40/40?random=100'">
+            <span>猫豆小喵</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">喵呜哒</a></li>
+            <li><a href="sutra.html">on浓咒</a></li>
+            <li><a href="photo.html">猫豆光影</a></li>
+            <li><a href="travel.html">猫小野望</a></li>
+            <li><a href="https://wanlonduducat.site/qingrenjie">喵豆情人节</a></li>
+        </ul>
+    </nav>
+    <div class="lang-switch">
+        <button class="lang-btn active" data-lang="zh">中文</button>
+        <button class="lang-btn" data-lang="en">English</button>
+        <button class="lang-btn" data-lang="sa">Sanskrit</button>
+    </div>
+    <main class="glass-container sutra-container">
+        <div class="sutra-card glass-card">
+            <div class="sutra-decoration">
+                <span class="dharma-wheel"></span>
+            </div>
+            <h1 class="sutra-title">佛说除风热阿嚏康复经</h1>
+            <div class="lang-content active" id="lang-zh">
+                <div class="sutra-sub">一时，心念所感，为豆豆说此经</div>
+                <!-- 中文所有内容（原来在第一个 .lang-card 的 .lang-body 内部） -->
+                <div class="lang-body">
+                    <p>如是我闻。<br>一时，猫豆于和域台精舍，然豆豆微染风寒，鼻塞声重，头目昏沉。猫即从座起，偏袒右肩，合掌恭敬，而白佛言：世尊，咪哒女朋友豆，宿植善根，性本纯孝，今为风热所侵，咳嗽涕零，食不甘味。此疾虽小，然众生皆苦，愿佛垂慈，说缘起法，令其速离病苦，身安道隆。
+                    </p>
+                    <p>佛告猫豆：善男子。汝知病从何来？凡有身者，必生老病死，此为业报之身，四大假合。风热之症，乃地水火风失调，外感内因而起。然豆其心地柔软，孝养父母，此善业力如灯照暗，病障自消。汝可诵此般若卫气偈，以空性慧转色身苦：
+                    </p>
+                    <div class="sutra-verse">
+                        阿是多罗，三藐三菩。<br>
+                        风性本空，热亦是幻。<br>
+                        咳非我有，痰无自性。<br>
+                        鼻通诸佛，息遍十方。<br>
+                        眠即三昧，饭食禅悦。<br>
+                        细胞毗卢，免疫金刚。<br>
+                        父母欢喜，即如来笑。<br>
+                        萨婆诃。
+                    </div>
+                    <p>佛告猫豆：复次，感冒之起，如云聚散，因缘和合。豆其居家，宜饮洛神花茶，食猫饭，此为助缘。然根本痊愈，在于心念。若能观感冒之痛，念念生灭，不住不执，则痛非痛。早卧晚起，待日光而作，此顺阴阳之理。其豆妈豆姥姥若煮红糖姜汤，当感恩受之，以暖脾胃。如此，三日鼻通，七日精力复常，且更增智慧。
+                    </p>
+                    <p>尔时，佛又言猫曰：此经功德，不可思议。汝可每日为豆作慈心观：愿其呼吸顺畅通达，愿其毛孔清凉无滞，愿其与父母笑语如春风，愿其猫饭皆成药食。并观想豆其身如琉璃，内外明澈，感冒之黑气化为白莲，消散虚空。何以故？心净则国土净，身净则疾不生。此是诸佛密意，汝当善持。
+                    </p>
+                    <p>佛说是经已，诸天护法皆大欢喜，散花供养。猫豆作礼而去，持诵不辍。是日，晴空无云，遥寄金刚语：愿豆感冒速愈，百节调柔，与父母及小猫共享无常世间之安隐常乐。</p>
+                    <div class="lang-colophon">猫豆敬录~~~阿嚏康复经<br>时维on浓年喵月咕嘟日</div>
+                    <div class="sutra-image">
+                        <img src="image/recovery.jpg" alt="身体健康"
+                            onerror="this.src='https://picsum.photos/600/300?random=20'">
+                        <p class="img-caption">愿此经力，护佑豆豆身体健康，早日康复</p>
+                    </div>
+                </div>
+            </div>
+            <div class="lang-content" id="lang-en">
+                <div class="sutra-sub">The Sūtra of Cessation of Wind-Heat and Ah-Choo</div>
+                <!-- 英文所有内容（原来在第二个 .lang-card 的 .lang-body 内部） -->
+                <div class="lang-body">
+                    <p>Thus have I heard. Once, the Cat-Soy was at the Wo Tai Terrace Hermitage, when Soy-Soy
+                        caught a slight cold, stuffy nose, heavy head, and blurred vision. The Cat arose from his
+                        seat, bared his right shoulder, joined his palms respectfully, and said to the Buddha:
+                        “World Honored One, my girlfriend Soy-Soy has planted good roots in the past, her nature
+                        is pure and filial. Now she is attacked by wind-heat, coughing and sneezing, without
+                        appetite. Though this illness is minor, all living beings suffer. May the Buddha, in
+                        compassion, teach the Dharma of Dependent Origination, so that she may quickly be freed from
+                        sickness, and her body be at peace and her practice flourish.”</p>
+                    <p>The Buddha told Cat-Soy: “Good men. Do you know where sickness comes from? Wherever there is
+                        a body, there is birth, aging, sickness, and death. This is the body of karmic retribution,
+                        a temporary combination of the four great elements. The ailment of wind-heat arises from the
+                        imbalance of earth, water, fire, and wind, triggered by external and internal causes. Yet
+                        Soy-Soy’s mind is soft, she honors and cares for her parents. This wholesome karmic power
+                        is like a lamp lighting up darkness, and the obstacle of sickness will dissolve by itself.
+                        You may recite this Prajna Health Protection Gatha, using the wisdom of emptiness to
+                        transform the suffering of the physical body.”</p>
+                    <div class="sutra-verse">
+                        Gate gate pāragate pārasaṃgate bodhi svāhā.<br>
+                        The nature of wind is empty, heat too is illusory.<br>
+                        Cough is not mine, phlegm has no self-nature.<br>
+                        Nose connects to all Buddhas, breath pervades the ten directions.<br>
+                        Sleep is samadhi, meals are dhyana bliss.<br>
+                        Cells are Vairocana, immunity is vajra indestructible.<br>
+                        The joy of parents is the smile of the Tathagata.<br>
+                        Svaha.
+                    </div>
+                    <p>The Buddha told Cat-Soy: “Moreover, the arising of a cold is like clouds gathering and
+                        dispersing, due to the convergence of causes and conditions. While staying at home,
+                        Soy-Soy should drink hibiscus tea and eat ‘cat food’ – these are supporting conditions.
+                        But the fundamental cure lies in the mind. If she can contemplate the pain of the cold as
+                        thoughts arising and ceasing moment by moment, without abiding or grasping, then pain is not
+                        pain. Retire early and rise late, waiting for the sun before moving – this accords with the
+                        principle of yin and yang. If her mother and grandmother prepare brown sugar ginger tea, she
+                        should receive it with gratitude to warm her spleen and stomach. Thus, in three days her
+                        nose will clear, in seven days her energy will return to normal, and she will even increase
+                        her wisdom.”</p>
+                    <p>Then the Buddha further told Cat-Soy: “The merit and virtue of this sutra is inconceivable.
+                        Every day you may practice the Contemplation of Loving-Kindness for Soy-Soy: May her
+                        breath flow smoothly and freely, may her pores be clear and unstagnant, may her laughter
+                        with her parents be like a spring breeze, may her ‘cat food’ all become medicinal nectar.
+                        And visualize Soy-Soy’s body as like crystal, luminous and transparent within and without,
+                        and the black energy of the cold transforming into a white lotus that dissolves into empty
+                        space. Why? When the mind is pure, the land is pure; when the body is pure, sickness does
+                        not arise. This is the hidden intention of all Buddhas; you should uphold it well.”</p>
+                    <p>When the Buddha had spoken this sutra, all the devas and dharma protectors were greatly
+                        delighted, scattering flowers as offerings. Cat-Soy paid homage and departed, reciting
+                        without pause. On that day, the sky was cloudless, and from afar he sent these vajra words:
+                        “May Soy-Soy’s cold quickly heal, may all her joints become soft and harmonious, and may
+                        she, together with her parents and the little cat, share in the peaceful, stable, and
+                        everlasting joy within this impermanent world.”</p>
+                    <div class="lang-colophon">Respectfully recorded by Cat-Soy – The Ah-Choo Recovery Sutra<br>On
+                        the meow month and gududu day of the Honon year</div>
+                    <div class="sutra-image">
+                        <img src="image/recovery.jpg" alt="身体健康"
+                            onerror="this.src='https://picsum.photos/600/300?random=20'">
+                        <p class="img-caption">May this sūtra power protect Soy-Soy's health</p>
+                    </div>
+                </div>
+            </div>
+            <div class="lang-content" id="lang-sa">
+                <div class="sutra-sub">Vāyu-Tāp-Āchī-Prasāmanasūtram</div>
+                <!-- 梵语所有内容（原来在第三个 .lang-card 的 .lang-body 内部） -->
+                <div class="lang-body">
+                    <p>evaṃ mayā śrutam | ekasmin kāle been yuyu-cabutare āśrame āsīt | tambulaṃ kiñcic chītaṃ
+                        gṛhītvā āsīt; nāsikā saṅkucitā, karkaśā, śiraḥ netre ca nihārayuktā āsan | buddhaḥ sadya
+                        āsanāt utthāya dakṣiṇaskandhaṃ vimocya ādarpūrvakaṃ tālukau saṃyojayitvā buddham avadat -
+                        "viśvāsamanitaḥ mama mitraṃ been, pūrvajīvane sadmūlāni saṃvardhitavatī, svabhāvataḥ
+                        putravatyā asti | adhunā, sā vāyutāpena, kāsena, śvasena ca pīḍitā, bhuktaṃ ca naṣṭā asti |
+                        yadyapi eṣa rogo alpaḥ asti tathāpi sarve bhūtāḥ duḥkhaṃ prāpnuvanti | ahaṃ buddhasya
+                        kāruṇyaṃ prārthayāmi yat sā āśritotpattidharmaṃ vadatu, yena sā śīghraṃ duḥkhāt muktā bhūtvā
+                        śāntiṃ ādhyātmikapragatiṃ ca prāpnuyāt |"</p>
+                    <p>buddhaḥ been ityasmai avadat - "sadpuruṣa, kiṃ tvam jānāsi kiṃ vyādhiḥ kutaḥ āgacchati?
+                        śarīrayuktāḥ sarve jīvā janmajarāvyādhimaraṇayoḥ adhīnāḥ santi | etat
+                        karmapratiśodhaśarīraṃ, caturdhātūnāṃ kṣaṇikaṃ saṃyogam | vāyu-tāpaḥ pṛthivyā, jalasya,
+                        agneś, vāyoś ca asāntulyasya kāraṇena bhavati, yad bāhya-āntarika-kāraṇāt utpadyate |
+                        tathāpi, doukee-hṛdayaṃ saumyam asti, saḥ ca mātāpitroḥ kṛte putravat asti | eṣaḥ guṇātmakaḥ
+                        karma andhakāra-prakāśaka-dīpa iva asti, rogaṃ nivārayati | bhautikaśarīrasya duḥkhasya
+                        parivartanārthaṃ śūnyatāyāḥ prajñāyā upāyogena prāṇaśaktirakṣaṇaviṣaye etat prajñāpāramitā
+                        ślokaṃ paṭhituṃ śaknuvanti -"</p>
+                    <div class="sutra-verse">
+                        aṣītar, samyak sambodhi |<br>
+                        vāyuḥ svabhāvataḥ śūnyaḥ, tāpaḥ api bhramaḥ |<br>
+                        kāsaḥ na mām, kaphasya svabhāvaḥ nāsti |<br>
+                        nāsikā sarvabuddhaiḥ saha saṃyojayati, niḥśvāsaḥ daśa dikṣu vyāptaḥ |<br>
+                        nidrā samādhiḥ, bhojanaṃ dhyānānandaḥ |<br>
+                        kośikīya vairocan, prātirakṣā vajra |<br>
+                        mātāpitroḥ ānandaḥ tathāgatasya smitaḥ |<br>
+                        svāhā |
+                    </div>
+                    <p>buddhaḥ doukee ityasmai avadat - api ca śītasya ārambhaḥ meghānāṃ saṅgrahaṇaṃ vikirṇaṃ ca iva
+                        bhavati, yat kāraṇānāṃ, sthitīnāṃ ca ekatra āgamanasya pariṇāmaḥ bhavati | doukee gṛhe rocel
+                        chāyāṃ pibantu, biḍālabhojanaṃ ca khāditavyam; etāni sāhāyakāni paristhitayaḥ santi |
+                        tathāpi maulikaḥ punaḥprāptiḥ manasi eva nihitā asti | yadi tvam pratyekaṃ vicāre
+                        utpadyamānaṃ nivartamānaṃ ca śītasya duḥkham, āsaktiṃ vā lazanaṃ vā vinā avalokayituṃ
+                        śaknoṣi, tarhi vedanā na vedanā | prātaḥ śayanaṃ kṛtvā vilambena uttiṣṭhantu,
+                        sūryaprakāśasya udayaṃ pratikṣante; etat yin-yang-siddhāntānusāram asti | yadi bīnasya mātā
+                        pitāmahī ca brownśarkarā ādrakasya sūpaṃ pacanti tarhi been kṛtajñatāpūrvakaṃ tat
+                        svīkartavyam yat teṣāṃ plīhāṃ udaraṃ ca tāpayituṃ śaknoti | evaṃ bīnasya nāsikāmārgaḥ
+                        tridineṣu svacchaḥ bhaviṣyanti, teṣāṃ ūrjā ca saptadineṣu sāmānyā bhaviṣyati, vardhitāyāḥ
+                        prajñāyāḥ saha |</p>
+                    <p>tasmin samaye buddhaḥ biḍālam āha - asya sūtrasya puṇyam acintyam | bhavantaḥ nityaṃ bīnasya
+                        kṛte premṇaḥ dhyānasya abhyāsaṃ kurvantu : bīnasya śvasanaṃ snigdhaṃ nirbādhaṃ ca bhavatu,
+                        teṣāṃ chidraṃ śītalaṃ spaṣṭaṃ ca bhavatu, te vasantavāyuvat mātāpitṛbhiḥ saha hasanti,
+                        vārtālāpaṃ kurvantu, teṣāṃ biḍālabhojanam auṣadhaṃ bhavatu | api ca bīnasya śarīraṃ
+                        sphatikavat spaṣṭam, antaḥ bahiś ca kalpayantu, yatra śītasya kṛṣṇā ābhā śvetapadmarūpeṇa
+                        pariṇamati śūnye ca visarjitaḥ bhavati | kimartham? yataḥ śuddhaṃ manaḥ śuddhabhūmiṃ sṛjati,
+                        śuddhaṃ śarīraṃ ca vyādhinivāraṇaṃ karoti | eṣaḥ sarveṣāṃ buddhānāṃ guptaḥ abhiprāyaḥ;
+                        bhavatā tat samyak dhārayitavyam" iti |</p>
+                    <p>buddhena sūtram idaṃ bhāṣya samāptam kṛtvā sarve svargarakṣakāḥ atīva prasannāḥ bhūtvā
+                        puṣpāṇi naivedyarūpeṇa vikirṇaṃ kṛtvāntaḥ | tambulaṃ praṇamya jagāma sūtraṃ paṭhan avirāmam
+                        | asmin dine ākāśaḥ nirmalaḥ, nirmeghe ca āsīt | ahaṃ dūrataḥ mama hṛdayaspṛśī icchāṃ
+                        preṣayāmi yat bīnaḥ śīghram eva tasyāḥ śītāt svasthe bhavatu, tasyāḥ sarve sandhiḥ
+                        susvasthāḥ bhavantu, yena sā svamātāpitṛbhiḥ, billīputreṇa ca saha asya anityasya jagataḥ
+                        śāntim ānandaṃ ca bhāgaṃ gṛhṇāti |</p>
+                    <div class="lang-colophon">billī bīna~~~ achu punaḥprāpti sūtreṇa sammānapūrvakaṃ abhilekhitam |
+                        2026.5.20</div>
+                    <div class="sutra-image">
+                        <img src="image/recovery.jpg" alt="身体健康"
+                            onerror="this.src='https://picsum.photos/600/300?random=20'">
+                        <p class="img-caption">sūtraśaktiḥ Soy svāsthyaṃ rakṣatu</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <script>
+        const btns = document.querySelectorAll('.lang-btn');
+        const contents = document.querySelectorAll('.lang-content');
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lang = btn.dataset.lang;
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                contents.forEach(c => c.classList.remove('active'));
+                document.getElementById(`lang-${lang}`).classList.add('active');
+            });
+        });
+    </script>
+</body>
+
+</html>

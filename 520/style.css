@@ -1,0 +1,593 @@
+/* ========== 全局重置与字体 ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: radial-gradient(circle at 20% 30%, #c0d9e8, #a0b8cf);
+    min-height: 100vh;
+    color: #1e2a3a;
+    line-height: 1.5;
+    backdrop-filter: blur(0px);
+    padding: 0 1rem;
+}
+
+/* ========== 液态玻璃导航栏 ========== */
+.glass-nav {
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(16px);
+    border-radius: 2rem;
+    margin: 1.5rem auto 2rem auto;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    max-width: 1200px;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #1e3a4d;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.logo-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f0e6d0;
+    padding: 3px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    flex-wrap: wrap;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: #1e3a4d;
+    font-weight: 500;
+    padding: 0.5rem 1.2rem;
+    border-radius: 2rem;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    font-size: 0.95rem;
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+}
+
+.nav-links li a:hover,
+.nav-links li a.active {
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    color: #0f2b38;
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* ========== 主容器通用 ========== */
+.glass-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 0 2rem;
+}
+
+/* 玻璃卡片基类 */
+.glass-card {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(12px);
+    border-radius: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.glass-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* ========== index.html 页面样式 ========== */
+.hero-card {
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.floral-border {
+    height: 4px;
+    width: 80px;
+    background: linear-gradient(90deg, #e9b5a6, #c38e7a);
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+}
+
+.page-title {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #2d4a5c;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.3px;
+    border-left: 5px solid #c38e7a;
+    padding-left: 1rem;
+}
+
+.photo-frame {
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.photo-frame img {
+    max-width: 100%;
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    max-height: 400px;
+    object-fit: cover;
+    width: auto;
+}
+
+.caption {
+    margin-top: 0.8rem;
+    font-style: italic;
+    color: #2c4b5e;
+    background: rgba(255, 255, 240, 0.5);
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-size: 0.9rem;
+}
+
+.blessing-text {
+    margin-top: 1.8rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #1f3e4c;
+}
+
+.blessing-text p {
+    margin-bottom: 1rem;
+}
+
+.signature {
+    text-align: right;
+    font-style: italic;
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+    padding-top: 1rem;
+}
+
+.image-gallery-mini {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.small-card {
+    width: 200px;
+    padding: 0.8rem;
+    text-align: center;
+}
+
+.small-card img {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.small-card span {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* ========== sutra.html 佛经样式 ========== */
+.sutra-container {
+    max-width: 900px;
+}
+
+.sutra-card {
+    padding: 2rem 2rem 2.5rem;
+}
+
+.sutra-decoration {
+    text-align: center;
+    margin-bottom: 0.8rem;
+}
+
+.dharma-wheel {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #e2c29b, #b78f5a);
+    box-shadow: 0 0 0 4px rgba(255, 245, 200, 0.6);
+}
+
+.sutra-title {
+    font-size: 1.8rem;
+    text-align: center;
+    color: #4a3320;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.sutra-sub {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #5e4a36;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 1rem;
+    margin-bottom: 1.8rem;
+}
+
+.sutra-body {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #2c3e2f;
+    background: rgba(253, 245, 230, 0.4);
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+}
+
+.sutra-body p {
+    margin-bottom: 1rem;
+}
+
+.sutra-verse {
+    text-align: center;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: rgba(200, 180, 140, 0.2);
+    padding: 1rem;
+    border-radius: 2rem;
+    margin: 1.2rem 0;
+    line-height: 2;
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
+
+.sutra-colophon {
+    text-align: right;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    font-style: italic;
+    border-top: 1px dotted #bba88a;
+    padding-top: 1rem;
+}
+
+.sutra-image {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.sutra-image img {
+    max-width: 100%;
+    border-radius: 1.5rem;
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.img-caption {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    color: #5a4a32;
+}
+
+/* ========== photo.html 照片墙样式 ========== */
+.photo-container {
+    padding-bottom: 2rem;
+}
+
+.gallery-title {
+    margin-bottom: 0.2rem;
+}
+
+.gallery-sub {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.photo-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.8rem;
+    margin: 2rem 0;
+}
+
+.photo-card {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(12px);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    transition: all 0.25s;
+    border: 1px solid rgba(255, 255, 240, 0.6);
+}
+
+.photo-card:hover {
+    transform: scale(1.02);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.photo-img-wrapper {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+}
+
+.photo-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.photo-card:hover .photo-img-wrapper img {
+    transform: scale(1.05);
+}
+
+.photo-info {
+    padding: 1rem 1rem 1.2rem;
+}
+
+.photo-info h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.3rem;
+    color: #2c4f3b;
+}
+
+.photo-info p {
+    font-size: 0.85rem;
+    color: #2c3e2f;
+    opacity: 0.85;
+}
+
+.memory-message {
+    padding: 1.5rem;
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.signature-small {
+    margin-top: 0.8rem;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.empty-gallery-message,
+.loading-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+}
+
+/* ========== travel.html 行程规划样式 ========== */
+.travel-container {
+    max-width: 1100px;
+}
+
+.travel-title {
+    margin-bottom: 0.2rem;
+}
+
+.travel-sub {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.route-map {
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.map-placeholder img {
+    max-width: 100%;
+    border-radius: 1.2rem;
+    height: auto;
+    max-height: 180px;
+    object-fit: cover;
+}
+
+.map-caption {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    color: #2c4b5e;
+}
+
+.city-card {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+}
+
+.city-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    border-bottom: 2px solid rgba(100, 80, 60, 0.3);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.city-header h2 {
+    font-size: 1.6rem;
+    color: #2d4a2d;
+}
+
+.days {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
+    padding: 0.2rem 0.8rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.city-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.city-text {
+    flex: 2;
+    min-width: 200px;
+}
+
+.city-text h3 {
+    font-size: 1.1rem;
+    margin: 0.8rem 0 0.3rem;
+    color: #3f6142;
+}
+
+.city-text ul,
+.city-text p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0.8rem;
+    padding-left: 1rem;
+}
+
+.city-text li {
+    margin-left: 1rem;
+    margin-bottom: 0.3rem;
+}
+
+.city-image {
+    flex: 1;
+    min-width: 150px;
+}
+
+.city-image img {
+    width: 100%;
+    border-radius: 1.2rem;
+    object-fit: cover;
+    height: 180px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+}
+
+.tips-card {
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.tips-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.2rem;
+}
+
+.tip-item h4 {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #2a5f5f;
+}
+
+.tip-item p {
+    font-size: 0.85rem;
+    opacity: 0.85;
+}
+
+.countdown-message {
+    padding: 1.8rem;
+    text-align: center;
+    background: rgba(240, 225, 200, 0.5);
+    border-left: 8px solid #c29e6b;
+}
+
+.signature-strong {
+    margin-top: 1rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* ========== 页脚 ========== */
+.glass-footer {
+    text-align: center;
+    padding: 1.2rem;
+    margin-top: 2rem;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border-radius: 2rem 2rem 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    color: #2c4e62;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ========== 响应式适配 ========== */
+@media (max-width: 768px) {
+    body {
+        padding: 0 0.8rem;
+    }
+
+    .glass-nav {
+        flex-direction: column;
+        text-align: center;
+        padding: 0.8rem 1rem;
+    }
+
+    .page-title {
+        font-size: 1.6rem;
+    }
+
+    .photo-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    .city-content {
+        flex-direction: column;
+    }
+
+    .city-image img {
+        height: 160px;
+    }
+
+    .sutra-title {
+        font-size: 1.4rem;
+    }
+}
+
+/* ========== 图片默认兜底（猫豆.png 背景柔和） ========== */
+img {
+    background-color: #efebdd;
+}
+
+.animal-talk {
+    font-size: 0.85em;
+    /* 比正常文字小一点，也可用 0.8rem */
+    font-style: italic;
+    display: inline-block;
+    /* 可选，保持换行正常 */
+}
