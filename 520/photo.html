@@ -45,7 +45,7 @@
             baseName: 'photo',         // 文件名基础部分（不含数字）
             extension: 'jpg',          // 扩展名（支持 png、jpeg 等）
             startIndex: 1,             // 起始编号
-            maxAttempts: 200,          // 最大尝试次数（防止无限循环，根据实际照片数量调整）
+            maxAttempts: 97,          // 最大尝试次数（防止无限循环，根据实际照片数量调整）
             consecutiveFailLimit: 3    // 连续失败多少次后停止检测（避免因个别缺失中断）
         };
 
@@ -56,11 +56,11 @@
 
         // 获取照片标题和描述（可从文件名智能生成，或使用默认）
         function generateTitle(index) {
-            return `时光印记 ${index}`;
+            return `猫豆小脚印 ${index}`;
         }
 
         function generateDescription(index) {
-            return `与你有关的美好瞬间，第 ${index} 帧。`;
+            return `猫豆哒美好瞬间：第 ${index} 张`;
         }
 
         // 异步检测图片是否存在并加载
@@ -97,8 +97,7 @@
                     consecutiveFails++;
                     // 如果连续失败次数达到阈值，停止搜索（认为后续图片不存在）
                     if (consecutiveFails >= CONFIG.consecutiveFailLimit) {
-                        console.log(`已连续 ${CONSECUTIVE_FAIL_LIMIT} 次未找到图片，停止扫描。`);
-                        break;
+                        console.log(`已连续 ${CONFIG.consecutiveFailLimit} 次未找到图片，停止扫描。`);
                     }
                 }
             }
@@ -114,7 +113,7 @@
             if (loadedPhotos.length === 0) {
                 const emptyMsg = document.createElement('div');
                 emptyMsg.className = 'empty-gallery-message glass-card';
-                emptyMsg.innerHTML = '<p>光影集期待你的照片。请将照片按规则命名放入 image 文件夹：photo1.jpg, photo2.jpg ...</p>';
+                emptyMsg.innerHTML = '<p>光影集期待泥哒照片。其将照片按规则命名放道 image 文件夹：photo1.jpg, photo2.jpg ...</p>';
                 container.appendChild(emptyMsg);
                 return;
             }
