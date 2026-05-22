@@ -594,14 +594,12 @@
         }
       }
 
-      // 发送消息到Ollama本地DeepSeek
       async function sendToAI(userMessage) {
-        // Ollama本地API地址
-        const API_ENDPOINT = 'http://localhost:11434/api/chat';
+        const API_ENDPOINT = 'http://localhost:3000/chat';
 
         const requestBody = {
-          model: 'deepseek-r1:7b',
-          messages: [{ role: 'user', content: userMessage }]
+          query: userMessage,
+          conversation_id: 'web-chat'  // 可以固定或随机生成
         };
 
         try {
@@ -609,7 +607,9 @@
 
           const response = await fetch(API_ENDPOINT, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify(requestBody)
           });
 
@@ -619,34 +619,19 @@
             throw new Error(`请求失败: ${response.status}`);
           }
 
-          // 处理流式响应
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let aiReply = '';
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n').filter(line => line.trim());
-
-            for (const line of lines) {
-              try {
-                const json = JSON.parse(line);
-                if (json.message?.content) {
-                  aiReply += json.message.content;
-                }
-              } catch (e) { }
-            }
+          const data = await response.json();
+          if (data.success) {
+            // 显示回复
+            addMessage(data.answer, false);
+          } else {
+            addMessage(aiReply || "模型没有返回有效内容。", false);
+            // 处理错误
           }
-
-          addMessage(aiReply || "模型没有返回有效内容。", false);
 
         } catch (error) {
           removeTypingIndicator();
           console.error('连接失败:', error);
-          addMessage(`❌ 连接Ollama失败：${error.message}。请确保已启动Ollama并下载了deepseek-r1:7b模型。`, false);
+          addMessage(`❌ 请求失败：${error.message}。请确认后端服务已启动（node server.js）`, false);
         }
       }
 
