@@ -1,5 +1,28 @@
 // knowledge.js - 加载术语表并构建向量索引
 const fs = require('fs');
+
+// 合并分片的函数
+function mergeCacheParts(outputPath = './vectors.cache.json') {
+    const partFiles = fs.readdirSync('.')
+        .filter(f => f.match(/^part_\d{3}$/))
+        .sort();
+
+    if (partFiles.length === 0) return null;
+
+    console.log(`发现 ${partFiles.length} 个分片，开始合并...`);
+
+    const writeStream = fs.createWriteStream(outputPath);
+    for (const partFile of partFiles) {
+        const data = fs.readFileSync(partFile);
+        writeStream.write(data);
+        console.log(`  合并: ${partFile} (${(data.length / 1024 / 1024).toFixed(2)} MB)`);
+    }
+
+    writeStream.end();
+    console.log(`合并完成！保存到 ${outputPath}`);
+    return outputPath;
+}
+
 const readline = require('readline');
 const { getEmbedding } = require('./embedding');
 
@@ -22,6 +45,13 @@ class TermKnowledgeBase {
 
     //在这里添加 loadCache 方法
     loadCache(cachePath = './vectors.cache.json') {
+        // 如果存在分片文件，先合并
+        const partFiles = fs.readdirSync('.').filter(f => f.match(/^part_\d{3}$/));
+        if (partFiles.length > 0) {
+            console.log(`检测到 ${partFiles.length} 个分片，正在合并...`);
+            mergeCacheParts(cachePath);
+        }
+
         if (fs.existsSync(cachePath)) {
             const cache = JSON.parse(fs.readFileSync(cachePath));
             this.terms = cache.terms;
