@@ -631,7 +631,7 @@
         } catch (error) {
           removeTypingIndicator();
           console.error('连接失败:', error);
-          addMessage(`❌ 请求失败：${error.message}。请确认后端服务已启动（node server.js）`, false);
+          addMessage(`请求失败：${error.message}。请确认后端服务已启动（node server.js）`, false);
         }
       }
 
