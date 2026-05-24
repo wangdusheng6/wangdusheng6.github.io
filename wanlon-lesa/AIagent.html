@@ -450,6 +450,23 @@
             font-size: 13px;
         }
 
+        .save-chat-btn {
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            color: #000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            margin-left: 8px;
+        }
+
+        .save-chat-btn:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
         /* 响应式调整 */
         @media (max-width: 768px) {
             .ai-chat-container {
@@ -491,6 +508,9 @@
             <h2><i class="fas fa-robot"></i> Wanlon-Ciraduro</h2>
             <button class="minimize-btn" title="Minimize">
                 <i class="fas fa-window-minimize"></i>
+            </button>
+            <button class="save-chat-btn" title="Save Chat">
+                <i class="fas fa-save"></i>
             </button>
         </div>
 
@@ -536,7 +556,10 @@
             const chatMessages = document.querySelector('.chat-messages');
             const userInput = document.getElementById('user-input');
             const sendBtn = document.getElementById('send-btn');
-
+            const saveBtn = document.querySelector('.save-chat-btn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', saveChatHistory);
+            }
             // 最小化/最大化功能
             minimizeBtn.addEventListener('click', function () {
                 chatContainer.classList.toggle('minimized');
@@ -639,6 +662,30 @@
                     console.error('连接失败:', error);
                     addMessage(`请求失败：${error.message}。请确认后端服务已启动（node server.js）`, false);
                 }
+            }
+
+            function saveChatHistory() {
+                const messages = document.querySelectorAll('.chat-messages .message');
+                if (messages.length === 0) {
+                    alert('暂无聊天记录可保存');
+                    return;
+                }
+                let text = 'Wanlon Empire AI Chat Log\n' + new Date().toLocaleString() + '\n\n';
+                messages.forEach(msg => {
+                    const isUser = msg.classList.contains('user');
+                    const role = isUser ? 'User' : 'Wanlon-Ciraduro';
+                    const content = msg.querySelector('.content').innerText;
+                    text += `[${role}]\n${content}\n\n`;
+                });
+                const blob = new Blob([text], { type: 'text/plain' });
+                const a = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                a.href = url;
+                a.download = `wanlon_chat_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
             }
 
             // 发送消息
