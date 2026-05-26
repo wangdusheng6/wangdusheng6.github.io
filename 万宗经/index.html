@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>万宗经</title>
-    <script src="https://unpkg.com/opencc-js@1.0.5/dist/umd.js"></script>
     <style>
         /* ===== 全局重置 & 基础 ===== */
         * {
@@ -613,7 +612,7 @@
             secOpen: {}, // 节的展开状态，key为节ID，value为true/false
             allChExpanded: true,
             allSecExpanded: true,
-            simplified: true // true = 简体，false = 繁体
+            dataSource: 'simplified' // 'simplified' 或 'traditional'
         };
         // ================================================================
         //  渲染引擎
@@ -650,22 +649,20 @@
 
                 html += `<div class="chapter" data-ch="${chKey}">`;
                 html += `
-                    <div class="chapter-header" data-action="toggleCh" data-target="${chKey}">
-                        <span class="toggle-icon ${isChOpen ? '' : 'collapsed'}">▼</span>
-                        <span class="ch-num">${ch.num}</span>
-                        <span class="ch-title">${ch.title}</span>
-                        <span class="ch-badge">${ch.sections.length}节</span>
-                    </div>
-                `;
+            <div class="chapter-header" data-action="toggleCh" data-target="${chKey}">
+                <span class="toggle-icon ${isChOpen ? '' : 'collapsed'}">▼</span>
+                <span class="ch-num">${ch.num}</span>
+                <span class="ch-title">${ch.title}</span>
+                <span class="ch-badge">${ch.sections.length}节</span>
+            </div>
+        `;
                 html += `<div class="chapter-body ${isChOpen ? '' : 'hidden'}" id="body-${chKey}">`;
 
                 // 引言
                 if (ch.intro) {
-                    const introText = state.simplified ? ch.intro : OpenCC.SimpleConverter('s2t').convert(ch.intro);;
-                    html += `<div class="intro">${introText}</div>`;
+                    html += `<div class="intro">${ch.intro}</div>`;
                     if (state.vernacularVisible && ch.introVernacular) {
-                        const introVernText = state.simplified ? ch.introVernacular : OpenCC.SimpleConverter('s2t').convert(ch.introVernacular);
-                        html += `<div class="vernacular-text show">${introVernText}</div>`;
+                        html += `<div class="vernacular-text show">${ch.introVernacular}</div>`;
                     }
                 }
 
@@ -676,25 +673,23 @@
 
                     html += `<div class="section" data-sec="${secKey}">`;
                     html += `
-                        <div class="section-header" data-action="toggleSec" data-target="${secKey}">
-                            <span class="toggle-icon ${isSecOpen ? '' : 'collapsed'}">▶</span>
-                            <span class="sec-title">${sec.title}</span>
-                            <span class="sec-badge">${secIdx + 1}</span>
-                        </div>
-                    `;
+                <div class="section-header" data-action="toggleSec" data-target="${secKey}">
+                    <span class="toggle-icon ${isSecOpen ? '' : 'collapsed'}">▶</span>
+                    <span class="sec-title">${sec.title}</span>
+                    <span class="sec-badge">${secIdx + 1}</span>
+                </div>
+            `;
                     html += `<div class="section-body ${isSecOpen ? '' : 'hidden'}" id="body-${secKey}">`;
 
-                    // 文言文
-                    const classicalText = state.simplified ? sec.classical : OpenCC.SimpleConverter('s2t').convert(sec.classical);
+                    // 文言文（修正了缺少空格的语法错误）
+                    const classicalText = sec.classical;
                     html += `<div class="classical-text">${classicalText}</div>`;
 
                     // 白话文（按状态显示）
                     if (state.vernacularVisible && sec.vernacular) {
-                        const vernacularText = state.simplified ? sec.vernacular : OpenCC.SimpleConverter('s2t').convert(sec.vernacular);
-                        html += `<div class="vernacular-text show">${vernacularText}</div>`;
+                        html += `<div class="vernacular-text show">${sec.vernacular}</div>`;
                     } else {
-                        const vernacularText = state.simplified ? (sec.vernacular || '') : OpenCC.SimpleConverter('s2t').convert(sec.vernacular || '');
-                        html += `<div class="vernacular-text">${vernacularText}</div>`;
+                        html += `<div class="vernacular-text">${sec.vernacular || ''}</div>`;
                     }
 
                     html += `</div>`; // section-body
@@ -708,7 +703,6 @@
             renderTarget.innerHTML = html;
             updateToggleVernacularBtn();
         }
-
         // 更新“显示白话”按钮文字
         function updateToggleVernacularBtn() {
             toggleVernacularBtn.textContent = state.vernacularVisible ? '隐藏白话' : '显示白话';
@@ -759,9 +753,11 @@
 
         // 切换繁简
         toggleSimplifiedBtn.addEventListener('click', function () {
-            state.simplified = !state.simplified;
-            this.textContent = state.simplified ? '繁' : '简';
-            render();
+            const newSource = state.dataSource === 'simplified' ? 'traditional' : 'simplified';
+            loadData(newSource).catch(err => {
+                console.error(`加载 ${newSource === 'simplified' ? 'data.json' : 'data_fanti.json'} 失败:`, err);
+                alert(`切换失败，请确认 ${newSource === 'simplified' ? 'data.json' : 'data_fanti.json'} 文件存在。`);
+            });
         });
 
         // 切换白话
@@ -794,17 +790,47 @@
         });
 
         // ================================================================
+        //  数据加载函数
+        // ================================================================
+
+        function loadData(source) {
+            const file = source === 'simplified' ? 'data.json' : 'data_fanti.json';
+            return fetch(file)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`无法加载 ${file} (HTTP ${response.status})`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    DATA = data;
+                    state.dataSource = source;
+                    // 重新初始化状态（保持折叠状态不变）
+                    // 注意：如果 DATA 数据结构变化，需要重新 initState，但这里只是文字切换，结构相同，可以保留现有 chOpen/secOpen
+                    // 但如果第一次加载时还没有状态，需要 initState
+                    if (Object.keys(state.chOpen).length === 0) {
+                        initState();
+                    }
+                    render();
+                    // 更新按钮文字和样式
+                    updateSimplifiedBtn();
+                });
+        }
+
+        // 更新繁简按钮
+        function updateSimplifiedBtn() {
+            const isSimplified = state.dataSource === 'simplified';
+            toggleSimplifiedBtn.textContent = isSimplified ? '繁' : '简';
+            toggleSimplifiedBtn.classList.toggle('active', !isSimplified);
+        }
+
+        // ================================================================
         //  启动
         // ================================================================
-        fetch('data.json')
-            .then(response => response.json())
-            .then(data => {
-                DATA = data;
-                initState();
-                // 添加繁简按钮初始状态
-                toggleSimplifiedBtn.textContent = state.simplified ? '繁' : '简';
-                render();
-            });
+        loadData('simplified').catch(err => {
+            console.error('加载 data.json 失败:', err);
+            document.getElementById('renderTarget').innerHTML = '<p style="color:#b04030;padding:40px;text-align:center;">经文数据加载失败，请确认 data.json 文件是否在同级目录下。</p>';
+        });
     </script>
 </body>
 
