@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>明朝历史</title>
+    <!-- 字体 -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700;900&display=swap"
+        rel="stylesheet" />
+    <!-- 外部样式 -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="scroll-container">
+
+        <!-- ========== 页眉 ========== -->
+        <header class="header">
+            <div class="nav-buttons">
+                <a href="index.html" class="nav-btn">首页</a>
+                <a href="javascript:history.back()" class="nav-btn">返回</a>
+            </div>
+            <h1>明朝</h1>
+            <div class="subtitle">日月</div>
+        </header>
+
+        <!-- ===== 君王时间轴（快速跳转） ===== -->
+        <nav class="timeline-overview" id="timelineTags">
+            <a href="#gaowu" class="dynasty-tag">
+                <span class="year">前863-前861</span>
+                <span class="dot"></span>
+                <span class="name">高戊</span>
+            </a>
+            <a href="#taijia" class="dynasty-tag">
+                <span class="year">前861-前830</span>
+                <span class="dot"></span>
+                <span class="name">太甲</span>
+            </a>
+            <a href="#zhaoyi" class="dynasty-tag">
+                <span class="year">前830-前808</span>
+                <span class="dot"></span>
+                <span class="name">昭乙</span>
+            </a>
+            <a href="#wending" class="dynasty-tag">
+                <span class="year">前808-前791</span>
+                <span class="dot"></span>
+                <span class="name">文丁</span>
+            </a>
+            <a href="#wugeng" class="dynasty-tag">
+                <span class="year">前791-前763</span>
+                <span class="dot"></span>
+                <span class="name">武庚</span>
+            </a>
+            <a href="#muxin" class="dynasty-tag">
+                <span class="year">前763-前744</span>
+                <span class="dot"></span>
+                <span class="name">穆辛</span>
+            </a>
+            <a href="#daren" class="dynasty-tag">
+                <span class="year">前744-前740</span>
+                <span class="dot"></span>
+                <span class="name">大壬</span>
+            </a>
+            <a href="#zhonggui" class="dynasty-tag">
+                <span class="year">前740-前715</span>
+                <span class="dot"></span>
+                <span class="name">中癸</span>
+            </a>
+            <a href="#huanchengjia" class="dynasty-tag">
+                <span class="year">前715-前699</span>
+                <span class="dot"></span>
+                <span class="name">桓成甲</span>
+            </a>
+            <a href="#zuwenwu" class="dynasty-tag">
+                <span class="year">前699-前688</span>
+                <span class="dot"></span>
+                <span class="name">祖文戊</span>
+            </a>
+            <a href="#wenzhaoyi" class="dynasty-tag">
+                <span class="year">前688-前681</span>
+                <span class="dot"></span>
+                <span class="name">文昭乙</span>
+            </a>
+            <a href="#wukangding" class="dynasty-tag">
+                <span class="year">前681-前662</span>
+                <span class="dot"></span>
+                <span class="name">武康丁</span>
+            </a>
+            <a href="#daxuanji" class="dynasty-tag">
+                <span class="year">前662-前649</span>
+                <span class="dot"></span>
+                <span class="name">大宣己</span>
+            </a>
+            <a href="#mujinggeng" class="dynasty-tag">
+                <span class="year">前649-前641</span>
+                <span class="dot"></span>
+                <span class="name">穆景庚</span>
+            </a>
+            <a href="#dimingxin" class="dynasty-tag">
+                <span class="year">前641-前639</span>
+                <span class="dot"></span>
+                <span class="name">帝明辛</span>
+            </a>
+        </nav>
+
+        <!-- ========== 明朝君主详情（全部15位） ========== -->
+        <main id="dynastyDetails">
+
+            <!-- 1. 高戊（高祖） -->
+            <section id="gaowu" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#gaowu" class="title-link">
+                        <h2>高祖 · 高戊</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前863-前861</span>
+                        <span>在位 3年</span>
+                        <span>灭昊自立，身中三箭</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">昊朝末帝昏聩，明高祖起兵灭昊，身中三箭而亡，为明朝开国奠基。</p>
+                    <div class="image-placeholder"><span class="caption">高戊画像 / 相关文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="gaowu.html#gaowu-1" class="evt">高戊元年</a>
+                    <a href="gaowu.html#gaowu-2" class="evt">高戊二年</a>
+                    <a href="gaowu.html#gaowu-3" class="evt">高戊三年</a>
+                </div>
+            </section>
+
+            <!-- 2. 太甲（太祖） -->
+            <section id="taijia" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#taijia" class="title-link">
+                        <h2>太祖 · 太甲</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前861-前830</span>
+                        <span>在位 31年</span>
+                        <span>事实开国，羽山会盟</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">高戊之子。在高祖之弟康叔辅佐下接替父位，于羽山歃血为盟，攻破昊都寿春，定都洛阳。</p>
+                    <div class="image-placeholder"><span class="caption">太甲羽山会盟图预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="taijia.html#taijia-1" class="evt">太甲元年</a>
+                    <a href="taijia.html#taijia-2" class="evt">太甲二年</a>
+                    <a href="taijia.html#taijia-3" class="evt">太甲三年</a>
+                    <a href="taijia.html#taijia-4" class="evt">太甲四年</a>
+                    <a href="taijia.html#taijia-5" class="evt">太甲五年</a>
+                    <a href="taijia.html#taijia-6" class="evt">太甲六年</a>
+                    <a href="taijia.html#taijia-7" class="evt">太甲七年</a>
+                    <a href="taijia.html#taijia-8" class="evt">太甲八年</a>
+                    <a href="taijia.html#taijia-9" class="evt">太甲九年</a>
+                    <a href="taijia.html#taijia-10" class="evt">太甲十年</a>
+                    <a href="taijia.html#taijia-11" class="evt">太甲十一年</a>
+                    <a href="taijia.html#taijia-12" class="evt">太甲十二年</a>
+                    <a href="taijia.html#taijia-13" class="evt">太甲十三年</a>
+                    <a href="taijia.html#taijia-14" class="evt">太甲十四年</a>
+                    <a href="taijia.html#taijia-15" class="evt">太甲十五年</a>
+                    <a href="taijia.html#taijia-16" class="evt">太甲十六年</a>
+                    <a href="taijia.html#taijia-17" class="evt">太甲十七年</a>
+                    <a href="taijia.html#taijia-18" class="evt">太甲十八年</a>
+                    <a href="taijia.html#taijia-19" class="evt">太甲十九年</a>
+                    <a href="taijia.html#taijia-20" class="evt">太甲二十年</a>
+                    <a href="taijia.html#taijia-21" class="evt">太甲二十一年</a>
+                    <a href="taijia.html#taijia-22" class="evt">太甲二十二年</a>
+                    <a href="taijia.html#taijia-23" class="evt">太甲二十三年</a>
+                    <a href="taijia.html#taijia-24" class="evt">太甲二十四年</a>
+                    <a href="taijia.html#taijia-25" class="evt">太甲二十五年</a>
+                    <a href="taijia.html#taijia-26" class="evt">太甲二十六年</a>
+                    <a href="taijia.html#taijia-27" class="evt">太甲二十七年</a>
+                    <a href="taijia.html#taijia-28" class="evt">太甲二十八年</a>
+                    <a href="taijia.html#taijia-29" class="evt">太甲二十九年</a>
+                    <a href="taijia.html#taijia-30" class="evt">太甲三十年</a>
+                    <a href="taijia.html#taijia-31" class="evt">太甲三十一年</a>
+                </div>
+            </section>
+
+            <!-- 3. 昭乙（太宗） -->
+            <section id="zhaoyi" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#zhaoyi" class="title-link">
+                        <h2>太宗 · 昭乙</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前830-前808</span>
+                        <span>在位 22年</span>
+                        <span>确立典章制度</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">太甲长子。确立明朝典章制度，为后世奠定治国框架。</p>
+                    <div class="image-placeholder"><span class="caption">昭乙时期文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="zhaoyi.html#zhaoyi-1" class="evt">昭乙元年</a>
+                    <a href="zhaoyi.html#zhaoyi-2" class="evt">昭乙二年</a>
+                    <a href="zhaoyi.html#zhaoyi-3" class="evt">昭乙三年</a>
+                    <a href="zhaoyi.html#zhaoyi-4" class="evt">昭乙四年</a>
+                    <a href="zhaoyi.html#zhaoyi-5" class="evt">昭乙五年</a>
+                    <a href="zhaoyi.html#zhaoyi-6" class="evt">昭乙六年</a>
+                    <a href="zhaoyi.html#zhaoyi-7" class="evt">昭乙七年</a>
+                    <a href="zhaoyi.html#zhaoyi-8" class="evt">昭乙八年</a>
+                    <a href="zhaoyi.html#zhaoyi-9" class="evt">昭乙九年</a>
+                    <a href="zhaoyi.html#zhaoyi-10" class="evt">昭乙十年</a>
+                    <a href="zhaoyi.html#zhaoyi-11" class="evt">昭乙十一年</a>
+                    <a href="zhaoyi.html#zhaoyi-12" class="evt">昭乙十二年</a>
+                    <a href="zhaoyi.html#zhaoyi-13" class="evt">昭乙十三年</a>
+                    <a href="zhaoyi.html#zhaoyi-14" class="evt">昭乙十四年</a>
+                    <a href="zhaoyi.html#zhaoyi-15" class="evt">昭乙十五年</a>
+                    <a href="zhaoyi.html#zhaoyi-16" class="evt">昭乙十六年</a>
+                    <a href="zhaoyi.html#zhaoyi-17" class="evt">昭乙十七年</a>
+                    <a href="zhaoyi.html#zhaoyi-18" class="evt">昭乙十八年</a>
+                    <a href="zhaoyi.html#zhaoyi-19" class="evt">昭乙十九年</a>
+                    <a href="zhaoyi.html#zhaoyi-20" class="evt">昭乙二十年</a>
+                    <a href="zhaoyi.html#zhaoyi-21" class="evt">昭乙二十一年</a>
+                    <a href="zhaoyi.html#zhaoyi-22" class="evt">昭乙二十二年</a>
+                </div>
+            </section>
+
+            <!-- 4. 文丁 -->
+            <section id="wending" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#wending" class="title-link">
+                        <h2>文丁</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前808-前791</span>
+                        <span>在位 17年</span>
+                        <span>设明台，颁《明宪》</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">昭乙之子。设"明台"，颁布《明宪》，开明朝文治之先河。</p>
+                    <div class="image-placeholder"><span class="caption">文丁明台遗址预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="wending.html#wending-1" class="evt">文丁元年</a>
+                    <a href="wending.html#wending-2" class="evt">文丁二年</a>
+                    <a href="wending.html#wending-3" class="evt">文丁三年</a>
+                    <a href="wending.html#wending-4" class="evt">文丁四年</a>
+                    <a href="wending.html#wending-5" class="evt">文丁五年</a>
+                    <a href="wending.html#wending-6" class="evt">文丁六年</a>
+                    <a href="wending.html#wending-7" class="evt">文丁七年</a>
+                    <a href="wending.html#wending-8" class="evt">文丁八年</a>
+                    <a href="wending.html#wending-9" class="evt">文丁九年</a>
+                    <a href="wending.html#wending-10" class="evt">文丁十年</a>
+                    <a href="wending.html#wending-11" class="evt">文丁十一年</a>
+                    <a href="wending.html#wending-12" class="evt">文丁十二年</a>
+                    <a href="wending.html#wending-13" class="evt">文丁十三年</a>
+                    <a href="wending.html#wending-14" class="evt">文丁十四年</a>
+                    <a href="wending.html#wending-15" class="evt">文丁十五年</a>
+                    <a href="wending.html#wending-16" class="evt">文丁十六年</a>
+                    <a href="wending.html#wending-17" class="evt">文丁十七年</a>
+                </div>
+            </section>
+
+            <!-- 5. 武庚（高宗） -->
+            <section id="wugeng" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#wugeng" class="title-link">
+                        <h2>高宗 · 武庚</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前791-前763</span>
+                        <span>在位 28年</span>
+                        <span>疆域大扩</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">文丁之子。对外扩张疆域，明朝版图达到鼎盛。</p>
+                    <div class="image-placeholder"><span class="caption">武庚疆域图预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="wugeng.html#wugeng-1" class="evt">武庚元年</a>
+                    <a href="wugeng.html#wugeng-2" class="evt">武庚二年</a>
+                    <a href="wugeng.html#wugeng-3" class="evt">武庚三年</a>
+                    <a href="wugeng.html#wugeng-4" class="evt">武庚四年</a>
+                    <a href="wugeng.html#wugeng-5" class="evt">武庚五年</a>
+                    <a href="wugeng.html#wugeng-6" class="evt">武庚六年</a>
+                    <a href="wugeng.html#wugeng-7" class="evt">武庚七年</a>
+                    <a href="wugeng.html#wugeng-8" class="evt">武庚八年</a>
+                    <a href="wugeng.html#wugeng-9" class="evt">武庚九年</a>
+                    <a href="wugeng.html#wugeng-10" class="evt">武庚十年</a>
+                    <a href="wugeng.html#wugeng-11" class="evt">武庚十一年</a>
+                    <a href="wugeng.html#wugeng-12" class="evt">武庚十二年</a>
+                    <a href="wugeng.html#wugeng-13" class="evt">武庚十三年</a>
+                    <a href="wugeng.html#wugeng-14" class="evt">武庚十四年</a>
+                    <a href="wugeng.html#wugeng-15" class="evt">武庚十五年</a>
+                    <a href="wugeng.html#wugeng-16" class="evt">武庚十六年</a>
+                    <a href="wugeng.html#wugeng-17" class="evt">武庚十七年</a>
+                    <a href="wugeng.html#wugeng-18" class="evt">武庚十八年</a>
+                    <a href="wugeng.html#wugeng-19" class="evt">武庚十九年</a>
+                    <a href="wugeng.html#wugeng-20" class="evt">武庚二十年</a>
+                    <a href="wugeng.html#wugeng-21" class="evt">武庚二十一年</a>
+                    <a href="wugeng.html#wugeng-22" class="evt">武庚二十二年</a>
+                    <a href="wugeng.html#wugeng-23" class="evt">武庚二十三年</a>
+                    <a href="wugeng.html#wugeng-24" class="evt">武庚二十四年</a>
+                    <a href="wugeng.html#wugeng-25" class="evt">武庚二十五年</a>
+                    <a href="wugeng.html#wugeng-26" class="evt">武庚二十六年</a>
+                    <a href="wugeng.html#wugeng-27" class="evt">武庚二十七年</a>
+                    <a href="wugeng.html#wugeng-28" class="evt">武庚二十八年</a>
+                </div>
+            </section>
+
+            <!-- 6. 穆辛 -->
+            <section id="muxin" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#muxin" class="title-link">
+                        <h2>穆辛</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前763-前744</span>
+                        <span>在位 19年</span>
+                        <span>恭穆守成</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">武庚长子。恭穆守成，延续明朝国势。</p>
+                    <div class="image-placeholder"><span class="caption">穆辛时期文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="muxin.html#muxin-1" class="evt">穆辛元年</a>
+                    <a href="muxin.html#muxin-2" class="evt">穆辛二年</a>
+                    <a href="muxin.html#muxin-3" class="evt">穆辛三年</a>
+                    <a href="muxin.html#muxin-4" class="evt">穆辛四年</a>
+                    <a href="muxin.html#muxin-5" class="evt">穆辛五年</a>
+                    <a href="muxin.html#muxin-6" class="evt">穆辛六年</a>
+                    <a href="muxin.html#muxin-7" class="evt">穆辛七年</a>
+                    <a href="muxin.html#muxin-8" class="evt">穆辛八年</a>
+                    <a href="muxin.html#muxin-9" class="evt">穆辛九年</a>
+                    <a href="muxin.html#muxin-10" class="evt">穆辛十年</a>
+                    <a href="muxin.html#muxin-11" class="evt">穆辛十一年</a>
+                    <a href="muxin.html#muxin-12" class="evt">穆辛十二年</a>
+                    <a href="muxin.html#muxin-13" class="evt">穆辛十三年</a>
+                    <a href="muxin.html#muxin-14" class="evt">穆辛十四年</a>
+                    <a href="muxin.html#muxin-15" class="evt">穆辛十五年</a>
+                    <a href="muxin.html#muxin-16" class="evt">穆辛十六年</a>
+                    <a href="muxin.html#muxin-17" class="evt">穆辛十七年</a>
+                    <a href="muxin.html#muxin-18" class="evt">穆辛十八年</a>
+                    <a href="muxin.html#muxin-19" class="evt">穆辛十九年</a>
+                </div>
+            </section>
+
+            <!-- 7. 大壬 -->
+            <section id="daren" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#daren" class="title-link">
+                        <h2>大壬</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前744-前740</span>
+                        <span>在位 4年</span>
+                        <span>兄终弟及</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">穆辛之弟。兄终弟及，在位短暂。</p>
+                    <div class="image-placeholder"><span class="caption">大壬时期文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="daren.html#daren-1" class="evt">大壬元年</a>
+                    <a href="daren.html#daren-2" class="evt">大壬二年</a>
+                    <a href="daren.html#daren-3" class="evt">大壬三年</a>
+                    <a href="daren.html#daren-4" class="evt">大壬四年</a>
+                </div>
+            </section>
+
+            <!-- 8. 中癸（兴宗） -->
+            <section id="zhonggui" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#zhonggui" class="title-link">
+                        <h2>兴宗 · 中癸</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前740-前715</span>
+                        <span>在位 25年</span>
+                        <span>中兴之主</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">大壬之子。中兴之主，拨乱反正，振兴明朝。</p>
+                    <div class="image-placeholder"><span class="caption">中癸中兴时期文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="zhonggui.html#zhonggui-1" class="evt">中癸元年</a>
+                    <a href="zhonggui.html#zhonggui-2" class="evt">中癸二年</a>
+                    <a href="zhonggui.html#zhonggui-3" class="evt">中癸三年</a>
+                    <a href="zhonggui.html#zhonggui-4" class="evt">中癸四年</a>
+                    <a href="zhonggui.html#zhonggui-5" class="evt">中癸五年</a>
+                    <a href="zhonggui.html#zhonggui-6" class="evt">中癸六年</a>
+                    <a href="zhonggui.html#zhonggui-7" class="evt">中癸七年</a>
+                    <a href="zhonggui.html#zhonggui-8" class="evt">中癸八年</a>
+                    <a href="zhonggui.html#zhonggui-9" class="evt">中癸九年</a>
+                    <a href="zhonggui.html#zhonggui-10" class="evt">中癸十年</a>
+                    <a href="zhonggui.html#zhonggui-11" class="evt">中癸十一年</a>
+                    <a href="zhonggui.html#zhonggui-12" class="evt">中癸十二年</a>
+                    <a href="zhonggui.html#zhonggui-13" class="evt">中癸十三年</a>
+                    <a href="zhonggui.html#zhonggui-14" class="evt">中癸十四年</a>
+                    <a href="zhonggui.html#zhonggui-15" class="evt">中癸十五年</a>
+                    <a href="zhonggui.html#zhonggui-16" class="evt">中癸十六年</a>
+                    <a href="zhonggui.html#zhonggui-17" class="evt">中癸十七年</a>
+                    <a href="zhonggui.html#zhonggui-18" class="evt">中癸十八年</a>
+                    <a href="zhonggui.html#zhonggui-19" class="evt">中癸十九年</a>
+                    <a href="zhonggui.html#zhonggui-20" class="evt">中癸二十年</a>
+                    <a href="zhonggui.html#zhonggui-21" class="evt">中癸二十一年</a>
+                    <a href="zhonggui.html#zhonggui-22" class="evt">中癸二十二年</a>
+                    <a href="zhonggui.html#zhonggui-23" class="evt">中癸二十三年</a>
+                    <a href="zhonggui.html#zhonggui-24" class="evt">中癸二十四年</a>
+                    <a href="zhonggui.html#zhonggui-25" class="evt">中癸二十五年</a>
+                </div>
+            </section>
+
+            <!-- 9. 桓成甲（世宗） -->
+            <section id="huanchengjia" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#huanchengjia" class="title-link">
+                        <h2>世宗 · 桓成甲</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前715-前699</span>
+                        <span>在位 16年</span>
+                        <span>双字名始，威武守成</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">中癸之子。双字名自此始，威武守成，承上启下。</p>
+                    <div class="image-placeholder"><span class="caption">桓成甲时期文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="huanchengjia.html#huanchengjia-1" class="evt">桓成甲元年</a>
+                    <a href="huanchengjia.html#huanchengjia-2" class="evt">桓成甲二年</a>
+                    <a href="huanchengjia.html#huanchengjia-3" class="evt">桓成甲三年</a>
+                    <a href="huanchengjia.html#huanchengjia-4" class="evt">桓成甲四年</a>
+                    <a href="huanchengjia.html#huanchengjia-5" class="evt">桓成甲五年</a>
+                    <a href="huanchengjia.html#huanchengjia-6" class="evt">桓成甲六年</a>
+                    <a href="huanchengjia.html#huanchengjia-7" class="evt">桓成甲七年</a>
+                    <a href="huanchengjia.html#huanchengjia-8" class="evt">桓成甲八年</a>
+                    <a href="huanchengjia.html#huanchengjia-9" class="evt">桓成甲九年</a>
+                    <a href="huanchengjia.html#huanchengjia-10" class="evt">桓成甲十年</a>
+                    <a href="huanchengjia.html#huanchengjia-11" class="evt">桓成甲十一年</a>
+                    <a href="huanchengjia.html#huanchengjia-12" class="evt">桓成甲十二年</a>
+                    <a href="huanchengjia.html#huanchengjia-13" class="evt">桓成甲十三年</a>
+                    <a href="huanchengjia.html#huanchengjia-14" class="evt">桓成甲十四年</a>
+                    <a href="huanchengjia.html#huanchengjia-15" class="evt">桓成甲十五年</a>
+                    <a href="huanchengjia.html#huanchengjia-16" class="evt">桓成甲十六年</a>
+                </div>
+            </section>
+
+            <!-- 10. 祖文戊（仁宗） -->
+            <section id="zuwenwu" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#zuwenwu" class="title-link">
+                        <h2>仁宗 · 祖文戊</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前699-前688</span>
+                        <span>在位 11年</span>
+                        <span>四恶渐生</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">桓成甲之子。晚年四恶渐生，国势开始走下坡路。</p>
+                    <div class="image-placeholder"><span class="caption">祖文戊时期文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="zuwenwu.html#zuwenwu-1" class="evt">祖文戊元年</a>
+                    <a href="zuwenwu.html#zuwenwu-2" class="evt">祖文戊二年</a>
+                    <a href="zuwenwu.html#zuwenwu-3" class="evt">祖文戊三年</a>
+                    <a href="zuwenwu.html#zuwenwu-4" class="evt">祖文戊四年</a>
+                    <a href="zuwenwu.html#zuwenwu-5" class="evt">祖文戊五年</a>
+                    <a href="zuwenwu.html#zuwenwu-6" class="evt">祖文戊六年</a>
+                    <a href="zuwenwu.html#zuwenwu-7" class="evt">祖文戊七年</a>
+                    <a href="zuwenwu.html#zuwenwu-8" class="evt">祖文戊八年</a>
+                    <a href="zuwenwu.html#zuwenwu-9" class="evt">祖文戊九年</a>
+                    <a href="zuwenwu.html#zuwenwu-10" class="evt">祖文戊十年</a>
+                    <a href="zuwenwu.html#zuwenwu-11" class="evt">祖文戊十一年</a>
+                </div>
+            </section>
+
+            <!-- 11. 文昭乙（穆宗） -->
+            <section id="wenzhaoyi" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#wenzhaoyi" class="title-link">
+                        <h2>穆宗 · 文昭乙</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前688-前681</span>
+                        <span>在位 7年</span>
+                        <span>幼弱被弑</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">祖文戊之子。幼弱即位，被权臣所弑。</p>
+                    <div class="image-placeholder"><span class="caption">文昭乙相关文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="wenzhaoyi.html#wenzhaoyi-1" class="evt">文昭乙元年</a>
+                    <a href="wenzhaoyi.html#wenzhaoyi-2" class="evt">文昭乙二年</a>
+                    <a href="wenzhaoyi.html#wenzhaoyi-3" class="evt">文昭乙三年</a>
+                    <a href="wenzhaoyi.html#wenzhaoyi-4" class="evt">文昭乙四年</a>
+                    <a href="wenzhaoyi.html#wenzhaoyi-5" class="evt">文昭乙五年</a>
+                    <a href="wenzhaoyi.html#wenzhaoyi-6" class="evt">文昭乙六年</a>
+                    <a href="wenzhaoyi.html#wenzhaoyi-7" class="evt">文昭乙七年</a>
+                </div>
+            </section>
+
+            <!-- 12. 武康丁（宪宗） -->
+            <section id="wukangding" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#wukangding" class="title-link">
+                        <h2>宪宗 · 武康丁</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前681-前662</span>
+                        <span>在位 19年</span>
+                        <span>诛权臣，迁都雒邑</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">文昭乙叔父。诛权臣，迁都雒邑，重新稳定政局。</p>
+                    <div class="image-placeholder"><span class="caption">武康丁迁都图预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="wukangding.html#wukangding-1" class="evt">武康丁元年</a>
+                    <a href="wukangding.html#wukangding-2" class="evt">武康丁二年</a>
+                    <a href="wukangding.html#wukangding-3" class="evt">武康丁三年</a>
+                    <a href="wukangding.html#wukangding-4" class="evt">武康丁四年</a>
+                    <a href="wukangding.html#wukangding-5" class="evt">武康丁五年</a>
+                    <a href="wukangding.html#wukangding-6" class="evt">武康丁六年</a>
+                    <a href="wukangding.html#wukangding-7" class="evt">武康丁七年</a>
+                    <a href="wukangding.html#wukangding-8" class="evt">武康丁八年</a>
+                    <a href="wukangding.html#wukangding-9" class="evt">武康丁九年</a>
+                    <a href="wukangding.html#wukangding-10" class="evt">武康丁十年</a>
+                    <a href="wukangding.html#wukangding-11" class="evt">武康丁十一年</a>
+                    <a href="wukangding.html#wukangding-12" class="evt">武康丁十二年</a>
+                    <a href="wukangding.html#wukangding-13" class="evt">武康丁十三年</a>
+                    <a href="wukangding.html#wukangding-14" class="evt">武康丁十四年</a>
+                    <a href="wukangding.html#wukangding-15" class="evt">武康丁十五年</a>
+                    <a href="wukangding.html#wukangding-16" class="evt">武康丁十六年</a>
+                    <a href="wukangding.html#wukangding-17" class="evt">武康丁十七年</a>
+                    <a href="wukangding.html#wukangding-18" class="evt">武康丁十八年</a>
+                    <a href="wukangding.html#wukangding-19" class="evt">武康丁十九年</a>
+                </div>
+            </section>
+
+            <!-- 13. 大宣己（圣宗） -->
+            <section id="daxuanji" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#daxuanji" class="title-link">
+                        <h2>圣宗 · 大宣己</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前662-前649</span>
+                        <span>在位 13年</span>
+                        <span>明台制度臻于完善</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">武康丁之子。明台制度臻于完善，文治达到高峰。</p>
+                    <div class="image-placeholder"><span class="caption">大宣己时期文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="daxuanji.html#daxuanji-1" class="evt">大宣己元年</a>
+                    <a href="daxuanji.html#daxuanji-2" class="evt">大宣己二年</a>
+                    <a href="daxuanji.html#daxuanji-3" class="evt">大宣己三年</a>
+                    <a href="daxuanji.html#daxuanji-4" class="evt">大宣己四年</a>
+                    <a href="daxuanji.html#daxuanji-5" class="evt">大宣己五年</a>
+                    <a href="daxuanji.html#daxuanji-6" class="evt">大宣己六年</a>
+                    <a href="daxuanji.html#daxuanji-7" class="evt">大宣己七年</a>
+                    <a href="daxuanji.html#daxuanji-8" class="evt">大宣己八年</a>
+                    <a href="daxuanji.html#daxuanji-9" class="evt">大宣己九年</a>
+                    <a href="daxuanji.html#daxuanji-10" class="evt">大宣己十年</a>
+                    <a href="daxuanji.html#daxuanji-11" class="evt">大宣己十一年</a>
+                    <a href="daxuanji.html#daxuanji-12" class="evt">大宣己十二年</a>
+                    <a href="daxuanji.html#daxuanji-13" class="evt">大宣己十三年</a>
+                </div>
+            </section>
+
+            <!-- 14. 穆景庚（德宗） -->
+            <section id="mujinggeng" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#mujinggeng" class="title-link">
+                        <h2>德宗 · 穆景庚</h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前649-前641</span>
+                        <span>在位 8年</span>
+                        <span>晚年奢靡</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">大宣己之子。晚年奢靡无度，国力逐渐空虚。</p>
+                    <div class="image-placeholder"><span class="caption">穆景庚时期文物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="mujinggeng.html#mujinggeng-1" class="evt">穆景庚元年</a>
+                    <a href="mujinggeng.html#mujinggeng-2" class="evt">穆景庚二年</a>
+                    <a href="mujinggeng.html#mujinggeng-3" class="evt">穆景庚三年</a>
+                    <a href="mujinggeng.html#mujinggeng-4" class="evt">穆景庚四年</a>
+                    <a href="mujinggeng.html#mujinggeng-5" class="evt">穆景庚五年</a>
+                    <a href="mujinggeng.html#mujinggeng-6" class="evt">穆景庚六年</a>
+                    <a href="mujinggeng.html#mujinggeng-7" class="evt">穆景庚七年</a>
+                    <a href="mujinggeng.html#mujinggeng-8" class="evt">穆景庚八年</a>
+                </div>
+            </section>
+
+            <!-- 15. 帝明辛（末宗） -->
+            <section id="dimingxin" class="dynasty-detail">
+                <div class="dynasty-header">
+                    <a href="#dimingxin" class="title-link">
+                        <h2>末宗 · 帝明辛 <small>末代天王</small></h2>
+                    </a>
+                    <div class="meta">
+                        <span class="years">前641-前639</span>
+                        <span>在位 2年</span>
+                        <span>末代亡国</span>
+                    </div>
+                </div>
+                <div class="dynasty-body">
+                    <p class="desc">穆景庚之子。末代天王，无力回天，明朝为泰朝所灭。</p>
+                    <div class="image-placeholder"><span class="caption">末代遗物预留</span></div>
+                </div>
+                <div class="events">
+                    <a href="dimingxin.html#dimingxin-1" class="evt">帝明辛元年</a>
+                    <a href="dimingxin.html#dimingxin-2" class="evt">帝明辛二年</a>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ========== 注脚 ========== -->
+        <footer class="footer">
+            <span class="seal-sm">萬宗</span> · 古卷珍藏 · 天命攸歸
+            <br style="display:none;" />
+            <span style="font-size:0.7rem;opacity:0.6;">昊 · 明 · 泰 · 寧 · 元 · 衡 · 陳 · 復 · 恒 · 安 · 盛 · 啟</span>
+        </footer>
+
+    </div>
+</body>
+
+</html>
