@@ -1,0 +1,1029 @@
+/* ============================================================
+   万宗历史 · 古卷风格
+   完整样式表 (含全局表格强制边框)
+   ============================================================ */
+
+/* ===== 全局重置 & 基础 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #f5efe6;
+    background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(200, 180, 160, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(200, 180, 160, 0.12) 0%, transparent 60%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4c5b2' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+    color: #2f1b0e;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* ===== 主容器 ===== */
+.scroll-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(250, 245, 235, 0.85);
+    box-shadow: 0 0 60px rgba(100, 70, 40, 0.15), 0 0 0 1px rgba(180, 150, 120, 0.3);
+    border-radius: 12px;
+    padding: 40px 50px 60px;
+    position: relative;
+    backdrop-filter: blur(2px);
+}
+
+/* ===== 卷轴装饰 ===== */
+.scroll-container::before,
+.scroll-container::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(90deg, #b8a088, #d4c0a8, #b8a088);
+    border-radius: 4px;
+}
+
+.scroll-container::before {
+    top: -4px;
+}
+
+.scroll-container::after {
+    bottom: -4px;
+}
+
+/* ===== 标题区 ===== */
+.header {
+    text-align: center;
+    padding: 20px 0 30px;
+    border-bottom: 2px solid #d4c0a8;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-family: 'Ma Shan Zheng', 'STKaiti', cursive;
+    font-size: 4.2rem;
+    color: #5a2d0c;
+    letter-spacing: 18px;
+    text-shadow: 2px 2px 4px rgba(90, 45, 12, 0.1);
+    margin-bottom: 6px;
+}
+
+.header .subtitle {
+    font-size: 1.1rem;
+    color: #7a5a3a;
+    letter-spacing: 6px;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+/* ===== 快速标签栏（三元素分工版） ===== */
+.timeline-overview {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 8px 16px;
+    padding: 36px 20px 16px;
+    margin: 0 0 20px 0;
+    background: rgba(200, 180, 160, 0.08);
+    border-radius: 10px;
+    border: 1px solid #d4c0a8;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6), 0 2px 6px rgba(100, 70, 40, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 每个标签 */
+.timeline-overview .dynasty-tag {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    position: relative;
+    padding: 0 4px;
+    padding-top: 20px;
+    gap: 4px;
+    flex: 0 0 auto;
+    color: inherit;
+}
+
+/* ===== ::before = 左半边线（从左边延伸到刻度点） ===== */
+.timeline-overview .dynasty-tag::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: -48px;
+    right: calc(50% + 0px);
+    height: 2px;
+    background: #b09880;
+    opacity: 0.3;
+    border-radius: 0;
+    z-index: 1;
+}
+
+/* 第一个标签没有左半边线 */
+.timeline-overview .dynasty-tag:first-child::before {
+    display: none;
+}
+
+/* ===== ::after = 右半边线（从刻度点向右延伸） ===== */
+.timeline-overview .dynasty-tag::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: calc(50% + 0px);
+    right: -48px;
+    height: 2px;
+    background: #b09880;
+    opacity: 0.3;
+    border-radius: 0;
+    z-index: 1;
+}
+
+/* 最后一个标签没有右半边线 */
+.timeline-overview .dynasty-tag:last-child::after {
+    display: none;
+}
+
+/* ===== 独立的刻度点（用真实元素） ===== */
+.timeline-overview .dynasty-tag .dot {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: #b09880;
+    border-radius: 50%;
+    border: 2px solid #f5efe6;
+    box-shadow: 0 0 0 1px #b09880;
+    opacity: 0.6;
+    transition: all 0.25s ease;
+    z-index: 2;
+}
+
+/* 首尾刻度点突出（红点放大） */
+.timeline-overview .dynasty-tag:first-child .dot,
+.timeline-overview .dynasty-tag:last-child .dot {
+    width: 10px;
+    height: 10px;
+    background: #8b1a1a;
+    border-color: #8b1a1a;
+    opacity: 0.8;
+}
+
+/* ===== 标签名称 ===== */
+.timeline-overview .dynasty-tag .name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4a2a1a;
+    background: #e8ddd0;
+    padding: 4px 14px;
+    border-radius: 30px;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+    letter-spacing: 1px;
+    box-shadow: 0 1px 4px rgba(100, 70, 40, 0.04);
+    white-space: nowrap;
+    position: relative;
+    z-index: 3;
+}
+
+/* ===== 年份（刻度上方） ===== */
+.timeline-overview .dynasty-tag .year {
+    font-size: 0.6rem;
+    color: #8a7a6a;
+    background: transparent;
+    padding: 0 4px;
+    white-space: nowrap;
+    opacity: 0.7;
+    transition: opacity 0.25s ease;
+    order: -1;
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 3;
+}
+
+/* ===== 悬停效果 ===== */
+.timeline-overview .dynasty-tag:hover .name {
+    background: #c9a96e;
+    color: #2f1b0e;
+    border-color: #b08850;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(180, 130, 70, 0.20);
+}
+
+.timeline-overview .dynasty-tag:hover .year {
+    opacity: 1;
+    color: #5a3a2a;
+}
+
+.timeline-overview .dynasty-tag:hover .dot {
+    background: #8b1a1a;
+    transform: translateX(-50%) scale(1.3);
+}
+
+.timeline-overview .dynasty-tag:hover::before {
+    opacity: 0.6;
+}
+
+.timeline-overview .dynasty-tag:hover::after {
+    opacity: 0.6;
+}
+
+/* ===== 点击高亮（锚点激活） ===== */
+.timeline-overview .dynasty-tag:target .name {
+    background: #8b1a1a;
+    color: #f5efe6;
+    border-color: #6a1010;
+    box-shadow: 0 4px 12px rgba(139, 26, 26, 0.30);
+    font-weight: 700;
+}
+
+.timeline-overview .dynasty-tag:target .year {
+    color: #8b1a1a;
+    opacity: 1;
+    font-weight: 600;
+}
+
+.timeline-overview .dynasty-tag:target .dot {
+    background: #8b1a1a;
+    border-color: #8b1a1a;
+    transform: translateX(-50%) scale(1.3);
+    opacity: 1;
+}
+
+.timeline-overview .dynasty-tag:target::before {
+    opacity: 0.6;
+}
+
+.timeline-overview .dynasty-tag:target::after {
+    opacity: 0.6;
+}
+
+/* ===== 主时间轴内 · 独立节点 ===== */
+.timeline-overview .dynasty-tag.isolated::before,
+.timeline-overview .dynasty-tag.isolated::after {
+    display: none !important;
+}
+
+/* 照抄普通节点的点样式 */
+.timeline-overview .dynasty-tag.isolated .dot {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px !important;
+    height: 10px !important;
+    background: #8b1a1a !important;
+    border-color: #8b1a1a !important;
+    opacity: 0.8 !important;
+    transition: all 0.25s ease;
+    z-index: 2;
+}
+
+/* 紧跟在 isolated 前面的节点（如“吴”）：获得最后节点样式 */
+.timeline-overview .dynasty-tag:has(+ .isolated)::after {
+    display: none !important;
+}
+.timeline-overview .dynasty-tag:has(+ .isolated) .dot {
+    width: 10px !important;
+    height: 10px !important;
+    background: #8b1a1a !important;
+    border-color: #8b1a1a !important;
+    opacity: 0.8 !important;
+}
+
+/* ===== 移动端适配 ===== */
+@media (max-width: 768px) {
+    .timeline-overview {
+        padding: 30px 12px 12px;
+        gap: 6px 10px;
+    }
+
+    .timeline-overview .dynasty-tag {
+        padding-top: 16px;
+    }
+
+    .timeline-overview .dynasty-tag::before {
+        top: 10px;
+        left: -32px;
+        right: calc(50% + 0px);
+    }
+
+    .timeline-overview .dynasty-tag::after {
+        top: 10px;
+        left: calc(50% + 0px);
+        right: -32px;
+    }
+
+    .timeline-overview .dynasty-tag .dot {
+        top: 10px;
+        width: 6px;
+        height: 6px;
+    }
+
+    .timeline-overview .dynasty-tag:first-child .dot,
+    .timeline-overview .dynasty-tag:last-child .dot {
+        width: 8px;
+        height: 8px;
+    }
+
+    .timeline-overview .dynasty-tag .name {
+        font-size: 0.7rem;
+        padding: 3px 10px;
+    }
+
+    .timeline-overview .dynasty-tag .year {
+        font-size: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .timeline-overview {
+        padding: 24px 8px 10px;
+        gap: 4px 6px;
+    }
+
+    .timeline-overview .dynasty-tag {
+        padding-top: 14px;
+    }
+
+    .timeline-overview .dynasty-tag::before {
+        top: 8px;
+        left: -20px;
+        right: calc(50% + 0px);
+    }
+
+    .timeline-overview .dynasty-tag::after {
+        top: 8px;
+        left: calc(50% + 0px);
+        right: -20px;
+    }
+
+    .timeline-overview .dynasty-tag .dot {
+        top: 8px;
+        width: 5px;
+        height: 5px;
+    }
+
+    .timeline-overview .dynasty-tag:first-child .dot,
+    .timeline-overview .dynasty-tag:last-child .dot {
+        width: 8px;
+        height: 8px;
+    }
+
+    .timeline-overview .dynasty-tag .name {
+        font-size: 0.65rem;
+        padding: 2px 8px;
+    }
+
+    .timeline-overview .dynasty-tag .year {
+        font-size: 0.45rem;
+    }
+}
+
+/* ===== 朝代卡片（收缩/展开） ===== */
+.dynasty-card {
+    margin-bottom: 16px;
+    border: 1px solid #ddd0c0;
+    border-radius: 8px;
+    background: rgba(255, 252, 245, 0.6);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(100, 70, 40, 0.06);
+}
+
+.dynasty-card:hover {
+    box-shadow: 0 4px 20px rgba(100, 70, 40, 0.10);
+    border-color: #c9a96e;
+}
+
+.dynasty-card .card-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 24px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.dynasty-card .card-header:hover {
+    background: rgba(200, 180, 160, 0.10);
+}
+
+.dynasty-card .card-header .index {
+    font-size: 0.85rem;
+    color: #b09880;
+    font-weight: 700;
+    min-width: 36px;
+    letter-spacing: 0.5px;
+}
+
+.dynasty-card .card-header .name {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2rem;
+    color: #4a2a1a;
+    letter-spacing: 4px;
+    line-height: 1.2;
+}
+
+.dynasty-card .card-header .name .sub {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #7a5a3a;
+    letter-spacing: 1px;
+    margin-left: 6px;
+}
+
+
+
+.dynasty-card .card-header .toggle-icon {
+    font-size: 1.2rem;
+    color: #b09880;
+    transition: transform 0.3s;
+    margin-left: 4px;
+}
+
+.dynasty-card.open .card-header .toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* ===== 卡片展开内容 ===== */
+.dynasty-card .card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+    padding: 0 24px;
+    background: rgba(255, 252, 245, 0.3);
+    border-top: 1px solid transparent;
+}
+
+.dynasty-card.open .card-body {
+    max-height: 6000px;
+    padding: 20px 24px 28px;
+    border-top-color: #e0d0c0;
+}
+
+.dynasty-card .card-body .desc {
+    font-size: 0.95rem;
+    line-height: 1.9;
+    color: #3a2a1a;
+    margin-bottom: 16px;
+    padding: 8px 16px;
+    background: rgba(200, 180, 160, 0.06);
+    border-left: 3px solid #c9a96e;
+    border-radius: 0 4px 4px 0;
+}
+
+.dynasty-card .card-body .desc strong {
+    color: #5a2d0c;
+}
+
+/* ===== 事件标签（古风徽章样式 · 自动换行） ===== */
+.events {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px 0;
+    margin: 12px 0 8px 0;
+    padding: 6px 0 6px 14px;
+    border-left: 3px solid #c9a96e;
+    background: rgba(200, 180, 160, 0.06);
+    border-radius: 0 4px 4px 0;
+}
+
+.evt {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    background: #f8f3ec;
+    border: 2px solid #ddd0c0;
+    color: #4a3a2a;
+    box-shadow: 0 1px 4px rgba(100, 70, 40, 0.06);
+    transition: all 0.2s ease;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.evt:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(100, 70, 40, 0.10);
+    border-color: #b8a088;
+    background: #f5ede2;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .evt {
+        font-size: 0.7rem;
+        padding: 3px 12px;
+    }
+
+    .events {
+        gap: 6px 8px;
+    }
+}
+
+/* 鼠标悬停高亮 */
+.dynasty-card .card-body .table-wrap tbody tr:hover td {
+    background: #e8ddd0;
+}
+
+/* 小屏适配 */
+@media (max-width: 768px) {
+    .dynasty-card .card-body .table-wrap table {
+        font-size: 0.7rem;
+        min-width: 320px;
+    }
+
+    .dynasty-card .card-body .table-wrap th,
+    .dynasty-card .card-body .table-wrap td {
+        padding: 5px 8px;
+    }
+}
+
+/* ===== 图片占位（简化版） ===== */
+.image-placeholder {
+    margin: 16px 0 8px;
+    padding: 16px;
+    border: 1px solid #d4c0a8;
+    border-radius: 6px;
+    background: #fcf9f5;
+    text-align: center;
+    color: #6a5a4a;
+    font-size: 0.85rem;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* 图片框里面的图片 */
+.image-placeholder img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+}
+
+/* 图片框里面的文字 */
+.image-placeholder .caption {
+    font-size: 0.8rem;
+    color: #8a7a6a;
+    letter-spacing: 1px;
+}
+
+/* ===== 注脚 ===== */
+.footer {
+    text-align: center;
+    padding: 30px 0 10px;
+    border-top: 1px solid #ddd0c0;
+    margin-top: 30px;
+    color: #8a7a6a;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+.footer .seal-sm {
+    display: inline-block;
+    padding: 2px 12px;
+    border: 1px solid #b09880;
+    color: #b09880;
+    border-radius: 2px;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 0.9rem;
+    margin: 0 4px;
+}
+
+.footer br[style*="display:none"] {
+    display: inline !important;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+    .scroll-container {
+        padding: 16px 14px 30px;
+    }
+
+    .header h1 {
+        font-size: 2.6rem;
+        letter-spacing: 10px;
+    }
+
+    .header .subtitle {
+        font-size: 0.9rem;
+        letter-spacing: 3px;
+    }
+
+    .dynasty-card .card-header {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+    }
+
+    .dynasty-card .card-header .name {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+
+    .dynasty-card .card-header .meta {
+        font-size: 0.75rem;
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .dynasty-card .card-header .meta span {
+        padding: 1px 8px;
+    }
+
+    .dynasty-card .card-body {
+        padding: 0 16px;
+    }
+
+    .dynasty-card.open .card-body {
+        padding: 14px 16px 20px;
+    }
+
+    .dynasty-card .card-body .table-wrap table {
+        font-size: 0.7rem;
+        min-width: 320px;
+    }
+
+    .dynasty-card .card-body .table-wrap th,
+    .dynasty-card .card-body .table-wrap td {
+        padding: 4px 8px;
+    }
+
+    .timeline-overview {
+        gap: 4px 8px;
+        padding: 12px 6px;
+    }
+
+    .timeline-overview .dynasty-tag {
+        font-size: 0.65rem;
+        padding: 2px 8px;
+    }
+
+    .image-placeholder .frame {
+        max-width: 100%;
+        height: 80px;
+    }
+}
+
+/* ===== 全局表格样式（适用于所有 .table-wrap） ===== */
+.table-wrap {
+    border: 2px solid #6a5a4a;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 12px 0 16px;
+    background: #fcf9f5;
+}
+
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    min-width: 480px;
+}
+
+.table-wrap th,
+.table-wrap td {
+    border: 1px solid #6a5a4a;
+    padding: 8px 12px;
+    text-align: center;
+    vertical-align: middle;
+    max-width: 290px;
+    /* 限制单列最大宽度，可根据需要调整 */
+    word-wrap: break-word;
+    /* 长内容自动换行 */
+    word-break: break-all;
+    /* 必要时在任意字符处换行 */
+    overflow-wrap: break-word;
+    /* 兼容性写法 */
+}
+
+.table-wrap th {
+    background: #d4c0a8;
+    font-weight: 700;
+    color: #2f1b0e;
+}
+
+.table-wrap tbody tr:nth-child(even) td {
+    background: #f5efe6;
+}
+
+.table-wrap tbody tr:hover td {
+    background: #e8ddd0;
+}
+
+@media (max-width: 768px) {
+    .table-wrap table {
+        font-size: 0.7rem;
+        min-width: 320px;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+        padding: 5px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 2rem;
+        letter-spacing: 6px;
+    }
+
+    .dynasty-card .card-header .name {
+        font-size: 1.2rem;
+    }
+
+    .dynasty-card .card-header .index {
+        min-width: 24px;
+        font-size: 0.7rem;
+    }
+
+    .dynasty-card .card-header .meta span {
+        font-size: 0.65rem;
+    }
+}
+
+/* ===== 滚动条美化 ===== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #eee5d8;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c9a96e;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #b08850;
+}
+
+/* ===== 卡片入场动画 ===== */
+.dynasty-card {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.dynasty-card.appear {
+    animation: fadeUp 0.5s ease forwards;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dynasty-card:nth-child(1) {
+    animation-delay: 0.02s;
+}
+
+.dynasty-card:nth-child(2) {
+    animation-delay: 0.04s;
+}
+
+.dynasty-card:nth-child(3) {
+    animation-delay: 0.06s;
+}
+
+.dynasty-card:nth-child(4) {
+    animation-delay: 0.08s;
+}
+
+.dynasty-card:nth-child(5) {
+    animation-delay: 0.10s;
+}
+
+.dynasty-card:nth-child(6) {
+    animation-delay: 0.12s;
+}
+
+.dynasty-card:nth-child(7) {
+    animation-delay: 0.14s;
+}
+
+.dynasty-card:nth-child(8) {
+    animation-delay: 0.16s;
+}
+
+.dynasty-card:nth-child(9) {
+    animation-delay: 0.18s;
+}
+
+.dynasty-card:nth-child(10) {
+    animation-delay: 0.20s;
+}
+
+.dynasty-card:nth-child(11) {
+    animation-delay: 0.22s;
+}
+
+.dynasty-card:nth-child(12) {
+    animation-delay: 0.24s;
+}
+
+.dynasty-card:nth-child(13) {
+    animation-delay: 0.26s;
+}
+
+.dynasty-card:nth-child(14) {
+    animation-delay: 0.28s;
+}
+
+.dynasty-card:nth-child(15) {
+    animation-delay: 0.30s;
+}
+
+.dynasty-card:nth-child(16) {
+    animation-delay: 0.32s;
+}
+
+/* ============================================================
+   🎯 最终修复：直接作用于 .meta，不依赖任何父级
+   （适用于所有 class="meta" 的元素）
+   ============================================================ */
+
+/* ===== 元数据标签（古风列表样式） ===== */
+.meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px 0;
+    margin: 8px 0 6px 0;
+    padding: 6px 0 6px 14px;
+    border-left: 3px solid #c9a96e;
+    background: rgba(200, 180, 160, 0.06);
+    border-radius: 0 4px 4px 0;
+}
+
+.meta span {
+    display: block;
+    padding: 2px 0;
+    font-size: 0.9rem;
+    color: #4a3a2a;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    white-space: normal;
+}
+
+.meta .years {
+    font-weight: 700;
+    color: #5a2d0c;
+    font-size: 1rem;
+}
+
+.meta span:not(.years)::before {
+    content: "◆ ";
+    color: #b09880;
+    font-size: 0.7rem;
+    margin-right: 4px;
+    opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+    .meta {
+        padding-left: 10px;
+        margin: 6px 0 4px 0;
+    }
+
+    .meta span {
+        font-size: 0.8rem;
+    }
+
+    .meta .years {
+        font-size: 0.9rem;
+    }
+}
+
+/* 让链接颜色继承，不显示蓝色和下划线 */
+.title-link {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.title-link:hover,
+.dynasty-tag:hover {
+    text-decoration: underline !important;
+    color: #8b1a1a !important;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #6a5a4a;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* ===== 纸感背景（仅背景毛糙，文字清晰） ===== */
+.dynasty-detail {
+    position: relative;
+    /* 为伪元素定位 */
+    z-index: 0;
+    /* 建立层叠上下文 */
+    margin-bottom: 28px;
+    padding: 20px 24px;
+    box-sizing: border-box;
+    /* 文字颜色不受滤镜影响 */
+    color: #3a2a1a;
+}
+
+/* 毛糙背景层（::before） */
+.dynasty-detail::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* 覆盖整个父元素 */
+    z-index: -1;
+    /* 放在文字下方 */
+    background: rgba(240, 232, 220, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(160, 130, 100, 0.35);
+    border-radius: 0;
+    box-shadow:
+        0 4px 20px rgba(80, 50, 30, 0.08),
+        inset 0 0 60px rgba(200, 180, 160, 0.10);
+    /* 关键：只对背景层施加毛边滤镜 */
+    filter: url(filter.svg#torn-edge);
+    pointer-events: none;
+    /* 防止干扰鼠标事件 */
+    transition: box-shadow 0.4s ease, background 0.4s ease;
+}
+
+/* 悬停时背景层变化 */
+.dynasty-detail:hover::before {
+    background: rgba(235, 225, 210, 0.85);
+    box-shadow:
+        0 6px 28px rgba(80, 50, 30, 0.14),
+        inset 0 0 80px rgba(200, 180, 160, 0.18);
+}
+
+/* ===== 导航按钮 ===== */
+.nav-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.nav-btn {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 30px;
+    background: #e8ddd0;
+    color: #4a2a1a;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border: 1px solid #d4c0a8;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 4px rgba(100, 70, 40, 0.06);
+}
+
+.nav-btn:hover {
+    background: #c9a96e;
+    color: #2f1b0e;
+    border-color: #b08850;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(180, 130, 70, 0.20);
+}
+
