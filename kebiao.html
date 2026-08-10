@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HKBU智能课表</title>
     <!-- Tailwind CSS v3 -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas 用于将课表保存为图片 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <!-- Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -172,16 +175,24 @@
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
     <div class="container mx-auto px-4 py-8 max-w-6xl glass-effect rounded-2xl shadow-2xl">
         <!-- 标题部分 -->
         <header class="timetable-header mb-6 flex justify-between items-center">
             <h1 class="text-3xl md:text-4xl font-bold">HKBU智能课表</h1>
             <div>
-                <button id="changeBackgroundBtn" class="form-button flex items-center gap-2">
-                    <i class="fa fa-image"></i>
-                    更换背景
-                </button>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button id="downloadBtn" class="form-button flex items-center gap-2">
+                        <i class="fa fa-download"></i>
+                        下载课表
+                    </button>
+                    <button id="changeBackgroundBtn" class="form-button flex items-center gap-2">
+                        <i class="fa fa-image"></i>
+                        更换背景
+                    </button>
+                    <input type="file" id="backgroundImageInput" accept="image/*" class="hidden">
+                </div>
                 <input type="file" id="backgroundImageInput" accept="image/*" class="hidden">
             </div>
         </header>
@@ -192,11 +203,13 @@
             <form id="addCourseForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label for="courseCode" class="form-label">课程代码</label>
-                    <input type="text" id="courseCode" name="courseCode" class="form-input" placeholder="例如：COMP3121" required>
+                    <input type="text" id="courseCode" name="courseCode" class="form-input" placeholder="例如：COMP3121"
+                        required>
                 </div>
                 <div>
                     <label for="courseTitle" class="form-label">课程名称</label>
-                    <input type="text" id="courseTitle" name="courseTitle" class="form-input" placeholder="例如：人工智能导论" required>
+                    <input type="text" id="courseTitle" name="courseTitle" class="form-input" placeholder="例如：人工智能导论"
+                        required>
                 </div>
                 <div>
                     <label for="courseDay" class="form-label">星期</label>
@@ -215,39 +228,36 @@
                     <label for="courseTime" class="form-label">时间</label>
                     <select id="courseTime" name="courseTime" class="form-input" required>
                         <option value="">选择时间</option>
-                        <option value="08:30">08:30</option>
-                        <option value="09:30">09:30</option>
-                        <option value="10:30">10:30</option>
-                        <option value="11:30">11:30</option>
-                        <option value="12:30">12:30</option>
-                        <option value="13:30">13:30</option>
-                        <option value="14:30">14:30</option>
-                        <option value="15:30">15:30</option>
-                        <option value="16:30">16:30</option>
-                        <option value="17:30">17:30</option>
-                        <option value="18:30">18:30</option>
-                        <option value="19:30">19:30</option>
-                        <option value="20:30">20:30</option>
-                        <option value="21:30">21:30</option>
                     </select>
                 </div>
                 <div>
                     <label for="courseLocation" class="form-label">地点</label>
-                    <input type="text" id="courseLocation" name="courseLocation" class="form-input" placeholder="例如：MBG 101">
+                    <input type="text" id="courseLocation" name="courseLocation" class="form-input"
+                        placeholder="例如：MBG 101">
                 </div>
                 <div>
-                    <label for="courseDuration" class="form-label">课程时长（小时）</label>
-                    <select id="courseDuration" name="courseDuration" class="form-input" required>
-                        <option value="1">1小时</option>
-                        <option value="2">2小时</option>
-                        <option value="3">3小时</option>
-                        <option value="4">4小时</option>
+                    <label for="courseDuration" class="form-label">课程时长（格数）</label>
+                    <select id="courseDurationSelect" class="form-input">
+                        <option value="1">1格</option>
+                        <option value="2">2格</option>
+                        <option value="3">3格</option>
+                        <option value="4">4格</option>
+                        <option value="custom">自定义</option>
                     </select>
+                    <input type="number" id="courseDuration" name="courseDuration" class="form-input" step="1" min="1"
+                        placeholder="输入格数" style="display: none; margin-top: 4px;">
+                    <p class="text-xs text-gray-500 mt-1">选择预设或自定义输入</p>
                 </div>
-
-                <div class="md:col-span-1 flex items-end">
+                <div>
+                    <label for="gridInterval" class="form-label">时间刻度（分钟）</label>
+                    <input type="number" id="gridInterval" name="gridInterval" class="form-input" value="60" min="5"
+                        step="5" required>
+                    <p class="text-xs text-gray-500 mt-1">每格代表分钟数，修改后课表将重新生成并清空已有课程</p>
+                </div>
+                <div>
+                    <div class="h-6"></div>
                     <button type="submit" class="form-button w-full">
-                        <i class="fa fa-plus mr-2"></i>添加课程
+                        <i class="fa fa-plus mr-2">添加课程</i>
                     </button>
                 </div>
             </form>
@@ -272,143 +282,339 @@
                     <!-- 时间行 -->
                     <tr>
                         <td class="time-cell">08:30</td>
-                        <td class="content-cell" data-time="08:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="08:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="08:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="08:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="08:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="08:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="08:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="08:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="08:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="08:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="08:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="08:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="08:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="08:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">09:30</td>
-                        <td class="content-cell" data-time="09:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="09:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="09:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="09:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="09:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="09:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="09:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="09:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="09:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="09:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="09:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="09:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="09:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="09:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">10:30</td>
-                        <td class="content-cell" data-time="10:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="10:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="10:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="10:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="10:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="10:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="10:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="10:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="10:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="10:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="10:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="10:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="10:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="10:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">11:30</td>
-                        <td class="content-cell" data-time="11:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="11:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="11:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="11:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="11:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="11:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="11:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="11:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="11:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="11:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="11:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="11:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="11:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="11:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">12:30</td>
-                        <td class="content-cell" data-time="12:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="12:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="12:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="12:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="12:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="12:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="12:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="12:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="12:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="12:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="12:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="12:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="12:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="12:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">13:30</td>
-                        <td class="content-cell" data-time="13:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="13:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="13:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="13:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="13:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="13:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="13:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="13:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="13:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="13:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="13:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="13:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="13:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="13:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">14:30</td>
-                        <td class="content-cell" data-time="14:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="14:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="14:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="14:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="14:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="14:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="14:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="14:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="14:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="14:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="14:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="14:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="14:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="14:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">15:30</td>
-                        <td class="content-cell" data-time="15:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="15:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="15:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="15:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="15:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="15:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="15:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="15:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="15:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="15:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="15:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="15:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="15:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="15:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">16:30</td>
-                        <td class="content-cell" data-time="16:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="16:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="16:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="16:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="16:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="16:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="16:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="16:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="16:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="16:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="16:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="16:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="16:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="16:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">17:30</td>
-                        <td class="content-cell" data-time="17:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="17:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="17:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="17:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="17:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="17:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="17:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="17:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="17:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="17:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="17:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="17:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="17:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="17:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">18:30</td>
-                        <td class="content-cell" data-time="18:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="18:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="18:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="18:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="18:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="18:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="18:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="18:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="18:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="18:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="18:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="18:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="18:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="18:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">19:30</td>
-                        <td class="content-cell" data-time="19:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="19:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="19:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="19:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="19:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="19:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="19:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="19:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="19:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="19:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="19:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="19:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="19:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="19:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell">20:30</td>
-                        <td class="content-cell" data-time="20:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="20:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="20:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="20:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="20:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="20:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="20:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="20:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="20:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="20:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="20:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="20:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="20:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="20:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="time-cell rounded-bl-xl">21:30</td>
-                        <td class="content-cell" data-time="21:30" data-day="mon"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="21:30" data-day="tue"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="21:30" data-day="wed"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="21:30" data-day="thu"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="21:30" data-day="fri"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell" data-time="21:30" data-day="sat"><div class="content-cell-inner"></div></td>
-                        <td class="content-cell rounded-br-xl" data-time="21:30" data-day="sun"><div class="content-cell-inner"></div></td>
+                        <td class="content-cell" data-time="21:30" data-day="mon">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="21:30" data-day="tue">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="21:30" data-day="wed">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="21:30" data-day="thu">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="21:30" data-day="fri">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell" data-time="21:30" data-day="sat">
+                            <div class="content-cell-inner"></div>
+                        </td>
+                        <td class="content-cell rounded-br-xl" data-time="21:30" data-day="sun">
+                            <div class="content-cell-inner"></div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -419,10 +625,108 @@
         // 存储用户添加的课程
         let userCourses = [];
 
+        // 当前时间刻度（分钟），默认60
+        let gridInterval = 60;
+
+        // 生成当前刻度下的时间槽数组（从08:30到21:30）
+        function getTimeSlots() {
+            const slots = [];
+            let minutes = 8 * 60 + 30; // 08:30
+            const endMinutes = 21 * 60 + 30; // 21:30
+            while (minutes <= endMinutes) {
+                const h = String(Math.floor(minutes / 60)).padStart(2, '0');
+                const m = String(minutes % 60).padStart(2, '0');
+                slots.push(h + ':' + m);
+                minutes += gridInterval;
+            }
+            return slots;
+        }
+
+        // 重新生成课表表格（清空已有课程）
+        function renderTimetable() {
+            const tbody = document.querySelector('.timetable tbody');
+            if (!tbody) return;
+            // 清空 tbody
+            tbody.innerHTML = '';
+            const timeSlots = getTimeSlots();
+            timeSlots.forEach((time, index) => {
+                const tr = document.createElement('tr');
+                // 时间列
+                const tdTime = document.createElement('td');
+                tdTime.className = 'time-cell' + (index === timeSlots.length - 1 ? ' rounded-bl-xl' : '');
+                tdTime.textContent = time;
+                tr.appendChild(tdTime);
+                // 七天列
+                const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                days.forEach((day, dayIdx) => {
+                    const td = document.createElement('td');
+                    td.className = 'content-cell';
+                    td.setAttribute('data-time', time);
+                    td.setAttribute('data-day', day);
+                    // 最后一个行和最后一个列增加圆角
+                    if (index === timeSlots.length - 1 && dayIdx === days.length - 1) {
+                        td.className += ' rounded-br-xl';
+                    }
+                    const inner = document.createElement('div');
+                    inner.className = 'content-cell-inner';
+                    td.appendChild(inner);
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 绑定单元格点击事件（用于自动填充或删除课程）
+        function bindCellClickEvents() {
+            const contentCells = document.querySelectorAll('.content-cell');
+            contentCells.forEach(cell => {
+                // 先移除之前绑定的监听，避免重复
+                cell.removeEventListener('click', cellClickHandler);
+                cell.addEventListener('click', cellClickHandler);
+            });
+        }
+
+        // 单元格点击处理函数
+        function cellClickHandler() {
+            const day = this.getAttribute('data-day');
+            const time = this.getAttribute('data-time');
+            // 如果单元格为空，自动填充表单并滚动到表单
+            if (!this.querySelector('.course-card')) {
+                document.getElementById('courseDay').value = day;
+                document.getElementById('courseTime').value = time;
+                document.getElementById('addCourseForm').scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('courseCode').focus();
+            } else {
+                // 如果单元格已有课程，显示课程详情
+                const courseCard = this.querySelector('.course-card');
+                const courseTitle = courseCard.querySelector('.font-semibold').textContent;
+                const courseDetails = courseCard.querySelector('.text-gray-600').textContent;
+                const courseInstructor = courseCard.querySelector('.text-gray-500').textContent;
+                alert(`课程详情:\n${courseTitle}\n${courseDetails}\n${courseInstructor}\n\n点击确定删除此课程`);
+                // 删除课程
+                removeCourse(day, time);
+            }
+        }
+
+        // 更新 courseTime 下拉选项，根据当前刻度动态生成
+        function updateTimeOptions() {
+            const select = document.getElementById('courseTime');
+            if (!select) return;
+            const timeSlots = getTimeSlots();
+            // 清空原有选项，保留第一个空选项
+            select.innerHTML = '<option value="">选择时间</option>';
+            timeSlots.forEach(time => {
+                const opt = document.createElement('option');
+                opt.value = time;
+                opt.textContent = time;
+                select.appendChild(opt);
+            });
+        }
+
         // 颜色列表，用于为课程随机分配不同的颜色
         const courseColors = [
             'border-blue-400 bg-blue-50',
-            'border-green-400 bg-green-50', 
+            'border-green-400 bg-green-50',
             'border-purple-400 bg-purple-50',
             'border-yellow-400 bg-yellow-50',
             'border-red-400 bg-red-50',
@@ -432,36 +736,109 @@
         ];
 
         // 校区地点列表（只包含字母代码）
-        const NEW_CAMPUS = ['CVA','SCM','JC','SCE','ACC','AAB','SCC','DLB','WLB','AML','JSC'];
-        const OLD_CAMPUS = ['FSC','YSS','RRS','SCT','OEE','OEM','OEW','CEC','STB','ASH','ACH','LMC'];
+        const NEW_CAMPUS = ['CVA', 'SCM', 'JC', 'SCE', 'ACC', 'AAB', 'SCC', 'DLB', 'WLB', 'AML', 'JSC'];
+        const OLD_CAMPUS = ['FSC', 'YSS', 'RRS', 'SCT', 'OEE', 'OEM', 'OEW', 'CEC', 'STB', 'ASH', 'ACH', 'LMC'];
 
         // 初始化课程表
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            // 切换自定义输入框
+            const selectDur = document.getElementById('courseDurationSelect');
+            const inputDur = document.getElementById('courseDuration');
+            selectDur.addEventListener('change', function () {
+                if (this.value === 'custom') {
+                    inputDur.style.display = 'block';
+                    inputDur.focus();
+                    inputDur.value = '';
+                } else {
+                    inputDur.style.display = 'none';
+                    inputDur.value = this.value;
+                }
+            });
+            // 如果用户手动输入，同时更新 select 的显示（可选）
+            inputDur.addEventListener('input', function () {
+                if (this.value) {
+                    selectDur.value = 'custom';
+                }
+            });
+
             const addCourseForm = document.getElementById('addCourseForm');
-            
+            // 初始化刻度值
+            const gridInput = document.getElementById('gridInterval');
+            if (gridInput) {
+                gridInterval = parseInt(gridInput.value) || 60;
+            }
+
+            // 初始渲染课表
+            renderTimetable();
+            // 重新绑定单元格点击事件（因为renderTimetable清空了td）
+            bindCellClickEvents();
+            updateTimeOptions();
+
+            // 监听刻度变化
+            gridInput.addEventListener('change', function () {
+                const newVal = parseInt(this.value);
+                if (isNaN(newVal) || newVal < 5) {
+                    alert('刻度必须为大于等于5的数字');
+                    this.value = gridInterval;
+                    return;
+                }
+                // 检查当前是否有课程
+                if (userCourses.length > 0) {
+                    if (!confirm('更改刻度将清空所有已添加的课程，确定继续吗？')) {
+                        this.value = gridInterval;
+                        return;
+                    }
+                }
+                gridInterval = newVal;
+                // 清空课程数据
+                userCourses = [];
+                // 重新渲染表格
+                renderTimetable();
+                bindCellClickEvents();
+                updateTimeOptions();
+                // 清除所有高亮（无课程了）
+                clearAllUrgent();
+                alert('课表已更新，刻度变为 ' + gridInterval + ' 分钟，原有课程已清空。');
+            });
+
             // 表单提交事件
-            addCourseForm.addEventListener('submit', function(e) {
+            addCourseForm.addEventListener('submit', function (e) {
                 e.preventDefault();
-                
+
                 // 获取表单数据
                 const courseCode = document.getElementById('courseCode').value;
                 const courseTitle = document.getElementById('courseTitle').value;
                 const courseDay = document.getElementById('courseDay').value;
                 const courseTime = document.getElementById('courseTime').value;
                 const courseLocation = document.getElementById('courseLocation').value;
-                const courseDuration = parseInt(document.getElementById('courseDuration').value);
-                
+                const durationSelect = document.getElementById('courseDurationSelect');
+                const durationInput = document.getElementById('courseDuration');
+                let courseDuration;
+                if (durationSelect.value === 'custom') {
+                    courseDuration = parseFloat(durationInput.value);
+                    if (isNaN(courseDuration) || courseDuration <= 0) {
+                        alert('请输入有效的自定义时长');
+                        return;
+                    }
+                } else {
+                    courseDuration = parseFloat(durationSelect.value);
+                }
+                if (isNaN(courseDuration) || courseDuration <= 0) {
+                    alert('请输入有效的课程时长');
+                    return;
+                }
+
                 // 检查时间冲突
                 const timeConflict = checkTimeConflict(courseDay, courseTime, courseDuration);
-                
+
                 if (timeConflict) {
                     alert('该时间段已有课程，请选择其他时间！');
                     return;
                 }
-                
+
                 // 随机选择一个颜色
                 const randomColor = courseColors[Math.floor(Math.random() * courseColors.length)];
-                
+
                 // 创建新课程对象
                 const newCourse = {
                     code: courseCode,
@@ -472,130 +849,268 @@
                     location: courseLocation,
                     color: randomColor
                 };
-                
+
                 // 分配唯一 id，添加到课程列表
-                newCourse.id = 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
+                newCourse.id = 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
                 userCourses.push(newCourse);
 
                 // 在课程表中显示课程
                 addCourseToTable(newCourse);
-
                 // 更新相邻跨校冲突高亮
                 updateConflictHighlights();
-                
                 // 重置表单
                 addCourseForm.reset();
-                
+                // 保持刻度输入框显示当前刻度值
+                document.getElementById('gridInterval').value = gridInterval;
+                // 重置时长选择状态：恢复预设值，隐藏自定义输入框
+                const selectDur = document.getElementById('courseDurationSelect');
+                const inputDur = document.getElementById('courseDuration');
+                // 默认选中第一个预设值（1格）
+                selectDur.value = '1';
+                inputDur.style.display = 'none';
+                inputDur.value = ''; // 清空自定义值
                 // 显示成功消息
                 alert('课程添加成功！');
             });
 
-            // 添加单元格点击事件
-            const contentCells = document.querySelectorAll('.content-cell');
-            contentCells.forEach(cell => {
-                cell.addEventListener('click', function() {
-                    const day = this.getAttribute('data-day');
-                    const time = this.getAttribute('data-time');
-                    
-                    // 如果单元格为空，自动填充表单并滚动到表单
-                    if (!this.querySelector('.course-card')) {
-                        document.getElementById('courseDay').value = day;
-                        document.getElementById('courseTime').value = time;
-                        document.getElementById('addCourseForm').scrollIntoView({ behavior: 'smooth' });
-                        document.getElementById('courseCode').focus();
+            // 下载课表为图片（带自定义标题、背景虚化，支持三种规格）
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function () {
+                    // 1. 让用户输入标题
+                    let title = prompt('请输入课表标题：', 'HKBU智能课表');
+                    if (title === null) title = 'HKBU智能课表';
+                    title = title.trim() || 'HKBU智能课表';
+
+                    // 2. 选择规格
+                    let sizeOption = prompt('请选择下载规格：\n1. default（原始尺寸）\n2. 电脑屏幕（宽屏）\n3. 手机屏幕（竖屏）', '1');
+                    let scaleWidth = 0, scaleHeight = 0; // 0 表示自动
+                    let isDefault = true;
+                    if (sizeOption === '2') {
+                        isDefault = false;
+                        scaleWidth = 1920;  // 宽屏宽度
+                        scaleHeight = 1080;    // 高度自适应
+                    } else if (sizeOption === '3') {
+                        isDefault = false;
+                        scaleWidth = 1080;  // 竖屏宽度
+                        scaleHeight = 0;    // 高度自适应
                     } else {
-                        // 如果单元格已有课程，显示课程详情
-                        const courseCard = this.querySelector('.course-card');
-                        const courseTitle = courseCard.querySelector('.font-semibold').textContent;
-                        const courseDetails = courseCard.querySelector('.text-gray-600').textContent;
-                        const courseInstructor = courseCard.querySelector('.text-gray-500').textContent;
-                        
-                        alert(`课程详情:\n${courseTitle}\n${courseDetails}\n${courseInstructor}\n\n点击确定删除此课程`);
-                        
-                        // 删除课程
-                        removeCourse(day, time);
+                        // default 或无效输入
+                        isDefault = true;
                     }
+
+                    // 3. 获取表格容器
+                    const tableContainer = document.querySelector('.timetable-container');
+                    if (!tableContainer) return;
+
+                    // 4. 克隆表格容器
+                    const clone = tableContainer.cloneNode(true);
+                    // 确保表格宽度适应内容
+                    const table = clone.querySelector('table');
+                    if (table) {
+                        table.style.width = '100%';
+                        table.style.borderCollapse = 'collapse';
+                    }
+                    // 设置内边距，防止边框被裁
+                    clone.style.padding = '10px';
+                    // 强制宽度为内容宽度，避免换行
+                    clone.style.display = 'inline-block';
+                    clone.style.width = 'auto';
+
+                    // 5. 创建标题并插入
+                    const titleDiv = document.createElement('div');
+                    titleDiv.textContent = title;
+                    titleDiv.style.textAlign = 'center';
+                    titleDiv.style.fontSize = '24px';
+                    titleDiv.style.fontWeight = 'bold';
+                    titleDiv.style.color = '#1f2937';
+                    titleDiv.style.padding = '16px 0 12px 0';
+                    titleDiv.style.fontFamily = "'Inter', 'system-ui', sans-serif";
+                    titleDiv.style.letterSpacing = '1px';
+                    clone.insertBefore(titleDiv, clone.firstChild);
+
+                    // 6. 创建包裹容器，设置背景
+                    const wrapper = document.createElement('div');
+                    wrapper.style.position = 'relative';
+                    wrapper.style.display = 'inline-block';
+                    wrapper.style.borderRadius = '16px';
+                    wrapper.style.overflow = 'hidden';
+                    wrapper.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
+
+                    // 背景图
+                    const bodyBg = document.body.style.backgroundImage;
+                    if (bodyBg && bodyBg !== 'none' && bodyBg !== '') {
+                        wrapper.style.backgroundImage = bodyBg;
+                        wrapper.style.backgroundSize = 'cover';
+                        wrapper.style.backgroundPosition = 'center';
+                    } else {
+                        wrapper.style.background = 'linear-gradient(to bottom right, #eff6ff, #f3e8ff)';
+                    }
+
+                    // 玻璃效果 → 改为在 wrapper 内部添加背景层实现虚化
+                    // 1. 创建一个背景层（绝对定位，覆盖wrapper）
+                    const bgLayer = document.createElement('div');
+                    bgLayer.style.position = 'absolute';
+                    bgLayer.style.top = '0';
+                    bgLayer.style.left = '0';
+                    bgLayer.style.width = '100%';
+                    bgLayer.style.height = '100%';
+                    bgLayer.style.borderRadius = '16px';
+                    bgLayer.style.overflow = 'hidden';
+                    bgLayer.style.zIndex = '0';
+                    // 使用 wrapper 的背景图作为背景层的背景
+                    if (bodyBg && bodyBg !== 'none' && bodyBg !== '') {
+                        bgLayer.style.backgroundImage = bodyBg;
+                        bgLayer.style.backgroundSize = 'cover';
+                        bgLayer.style.backgroundPosition = 'center';
+                    } else {
+                        bgLayer.style.background = 'linear-gradient(to bottom right, #eff6ff, #f3e8ff)';
+                    }
+                    // 对背景层应用模糊滤镜
+                    bgLayer.style.filter = 'blur(10px)';
+                    bgLayer.style.transform = 'scale(1.05)'; // 稍微放大防止边缘漏白
+                    // 将背景层添加到 wrapper（在 clone 之前）
+                    wrapper.appendChild(bgLayer);
+
+                    // 2. 修改 clone 样式：去掉 backdrop-filter，仅保留半透明背景
+                    clone.style.background = 'rgba(255, 255, 255, 0.35)';
+                    // 删除 clone 上的 backdrop-filter 相关行
+                    clone.style.border = '1px solid rgba(255, 255, 255, 0.28)';
+                    clone.style.borderRadius = '16px';
+                    clone.style.margin = '0';
+                    // 确保 clone 位于背景层之上
+                    clone.style.position = 'relative';
+                    clone.style.zIndex = '1';
+
+                    wrapper.appendChild(clone);
+
+                    // 7. 处理尺寸规格
+                    // 先临时将 wrapper 添加到文档，以获取实际尺寸
+                    document.body.appendChild(wrapper);
+                    // 获取实际内容宽高
+                    const actualWidth = wrapper.scrollWidth;
+                    const actualHeight = wrapper.scrollHeight;
+
+                    // 根据规格设置最终截图尺寸
+                    let captureWidth = actualWidth;
+                    let captureHeight = actualHeight;
+                    if (!isDefault) {
+                        // 按比例缩放
+                        const aspectRatio = actualWidth / actualHeight;
+                        if (scaleWidth > 0) {
+                            captureWidth = scaleWidth;
+                            captureHeight = Math.round(scaleWidth / aspectRatio);
+                        }
+                        // 如果是竖屏（宽高比 < 1），可能希望高度也指定，但这里我们只设置宽度，高度自适应
+                        // 为了更好适应，我们可以设置最大高度限制，但保持比例
+                    }
+
+                    // 重新设置 wrapper 尺寸（确保截图按此尺寸）
+                    wrapper.style.width = captureWidth + 'px';
+                    wrapper.style.height = captureHeight + 'px';
+                    // 内容自适应
+                    clone.style.width = '100%';
+                    clone.style.height = '100%';
+
+                    // 8. 截图
+                    html2canvas(wrapper, {
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: null,
+                        logging: false,
+                        width: captureWidth,
+                        height: captureHeight,
+                    }).then(canvas => {
+                        wrapper.remove();
+                        const link = document.createElement('a');
+                        link.download = 'HKBU_课表.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    }).catch(err => {
+                        wrapper.remove();
+                        alert('下载失败，请重试');
+                        console.error(err);
+                    });
                 });
-            });
+            }
+
         });
 
         // 将课程添加到表格
         function addCourseToTable(course) {
-            // 获取起始时间的索引
-            const timeSlots = ['08:30', '09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30', '16:30', '17:30', '18:30', '19:30', '20:30', '21:30'];
+            const timeSlots = getTimeSlots();
             const startIndex = timeSlots.indexOf(course.time);
-            
-            if (startIndex !== -1) {
-                // 获取起始单元格
-                const startCell = document.querySelector(`.content-cell[data-day="${course.day}"][data-time="${course.time}"]`);
-                const startCellInner = startCell.querySelector('.content-cell-inner');
-                
-                // 创建横跨多个时间段的课程卡片
-                startCellInner.innerHTML = `
-                    <div class="course-card ${course.color} absolute top-0 left-0 w-full z-10 rounded-lg shadow-sm flex flex-col justify-center items-center text-xs md:text-sm" data-course-id="${course.id}" style="height: ${course.duration * 60}px;">
-                        <div class="font-semibold">${course.title}</div>
-                        <div class="text-gray-600 location-text">${course.location}</div>
-                    </div>
-                `;
-                
-                // 标记所有相关单元格为已占用
-                for (let i = 0; i < course.duration; i++) {
-                    const currentTime = timeSlots[startIndex + i];
-                    if (!currentTime) break;
-                    
-                    const cell = document.querySelector(`.content-cell[data-day="${course.day}"][data-time="${currentTime}"]`);
-                    if (cell) {
-                        cell.dataset.occupied = 'true';
-                        cell.dataset.courseTime = course.time; // 存储课程的起始时间
-                        
-                        // 对于非起始单元格，隐藏其内容
-                        if (i > 0) {
-                            const cellInner = cell.querySelector('.content-cell-inner');
-                            cellInner.style.visibility = 'hidden';
-                        }
+            if (startIndex === -1) return;
+
+            // 课程占用的行数 = 时长（格数）
+            const rowsOccupied = course.duration;
+            // 检查是否为正整数
+            if (!Number.isInteger(rowsOccupied) || rowsOccupied <= 0) {
+                alert('课程时长必须为正整数！');
+                return;
+            }
+
+            const startCell = document.querySelector(`.content-cell[data-day="${course.day}"][data-time="${course.time}"]`);
+            if (!startCell) return;
+            const startCellInner = startCell.querySelector('.content-cell-inner');
+
+            // 卡片高度 = 行数 * 60px
+            const cardHeight = rowsOccupied * 60;
+            startCellInner.innerHTML = `
+                <div class="course-card ${course.color} absolute top-0 left-0 w-full z-10 rounded-lg shadow-sm flex flex-col justify-center items-center text-xs md:text-sm" 
+                    data-course-id="${course.id}" style="height: ${cardHeight}px;">
+                    <div class="font-semibold">${course.title}</div>
+                    <div class="text-gray-600 location-text">${course.location}</div>
+                </div>
+            `;
+
+            // 标记所有相关单元格为已占用
+            for (let i = 0; i < rowsOccupied; i++) {
+                const currentTime = timeSlots[startIndex + i];
+                if (!currentTime) break;
+                const cell = document.querySelector(`.content-cell[data-day="${course.day}"][data-time="${currentTime}"]`);
+                if (cell) {
+                    cell.dataset.occupied = 'true';
+                    cell.dataset.courseTime = course.time;
+                    if (i > 0) {
+                        const cellInner = cell.querySelector('.content-cell-inner');
+                        cellInner.style.visibility = 'hidden';
                     }
                 }
-
-                // 添加完课程后更新跨校冲突高亮
-                updateConflictHighlights();
             }
+            updateConflictHighlights();
         }
 
         // 从表格中移除课程
         function removeCourse(day, time) {
-            // 查找课程的起始时间
             const cell = document.querySelector(`.content-cell[data-day="${day}"][data-time="${time}"]`);
+            if (!cell) return;
             const courseTime = cell.dataset.courseTime || time;
-            
-            // 查找对应的课程
             const course = userCourses.find(c => c.day === day && c.time === courseTime);
-            
-            if (course) {
-                // 获取时间槽列表
-                const timeSlots = ['08:30', '09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30', '16:30', '17:30', '18:30', '19:30', '20:30', '21:30'];
-                const startIndex = timeSlots.indexOf(course.time);
-                
-                // 清除所有相关单元格
-                for (let i = 0; i < course.duration; i++) {
-                    const currentTime = timeSlots[startIndex + i];
-                    if (!currentTime) break;
-                    
-                    const currentCell = document.querySelector(`.content-cell[data-day="${day}"][data-time="${currentTime}"]`);
-                    if (currentCell) {
-                        const cellInner = currentCell.querySelector('.content-cell-inner');
-                        cellInner.innerHTML = '';
-                        cellInner.style.visibility = 'visible';
-                        delete currentCell.dataset.occupied;
-                        delete currentCell.dataset.courseTime;
-                    }
+            if (!course) return;
+
+            const timeSlots = getTimeSlots();
+            const startIndex = timeSlots.indexOf(course.time);
+            if (startIndex === -1) return;
+
+            const rowsOccupied = course.duration; // 已经是格数
+            if (!Number.isInteger(rowsOccupied) || rowsOccupied <= 0) return;
+
+            for (let i = 0; i < rowsOccupied; i++) {
+                const currentTime = timeSlots[startIndex + i];
+                if (!currentTime) break;
+                const currentCell = document.querySelector(`.content-cell[data-day="${day}"][data-time="${currentTime}"]`);
+                if (currentCell) {
+                    const cellInner = currentCell.querySelector('.content-cell-inner');
+                    cellInner.innerHTML = '';
+                    cellInner.style.visibility = 'visible';
+                    delete currentCell.dataset.occupied;
+                    delete currentCell.dataset.courseTime;
                 }
-                
-                // 从用户课程列表中移除
-                userCourses = userCourses.filter(c => !(c.day === day && c.time === courseTime));
-                
-                // 更新跨校冲突高亮
-                updateConflictHighlights();
             }
+            userCourses = userCourses.filter(c => !(c.day === day && c.time === courseTime));
+            updateConflictHighlights();
         }
 
         // ---------- 跨校冲突检测与高亮相关函数 ----------
@@ -649,7 +1164,7 @@
             }
             // 添加悬浮提示文本（仅在高亮时显示）
             card.setAttribute('title', '两节课地点较远，建议重新规划');
-            
+
             // 为高亮课程卡片添加点击事件监听
             card.removeEventListener('click', onUrgentCardClick); // 先移除已有的监听器，避免重复添加
             card.addEventListener('click', onUrgentCardClick);
@@ -661,19 +1176,19 @@
             event.stopPropagation(); // 阻止事件冒泡
             const card = this;
             const courseId = card.getAttribute('data-course-id');
-            
+
             // 移除之前的菜单
             const existingMenu = document.querySelector('.highlight-menu');
             if (existingMenu) {
                 existingMenu.remove();
             }
-            
+
             // 创建菜单
             const menu = document.createElement('div');
             menu.className = 'highlight-menu show';
             menu.style.top = event.clientY + 'px';
             menu.style.left = event.clientX + 'px';
-            
+
             const html = `
                 <div class="highlight-menu-item remove-highlight" data-course-id="${courseId}">
                     <i class="fa fa-times"></i> 取消高亮
@@ -684,19 +1199,19 @@
             `;
             menu.innerHTML = html;
             document.body.appendChild(menu);
-            
+
             // 为菜单项添加点击事件
             const removeHighlightItem = menu.querySelector('.remove-highlight');
             const deleteCourseItem = menu.querySelector('.delete-course');
-            
-            removeHighlightItem.addEventListener('click', function(e) {
+
+            removeHighlightItem.addEventListener('click', function (e) {
                 e.stopPropagation();
                 // 移除高亮
                 removeHighlight(courseId);
                 menu.remove();
             });
-            
-            deleteCourseItem.addEventListener('click', function(e) {
+
+            deleteCourseItem.addEventListener('click', function (e) {
                 e.stopPropagation();
                 // 删除课程
                 const course = userCourses.find(c => c.id === courseId);
@@ -705,9 +1220,9 @@
                 }
                 menu.remove();
             });
-            
+
             // 延迟添加外部点击监听，避免立即关闭菜单
-            setTimeout(function() {
+            setTimeout(function () {
                 function handleDocumentClick(e) {
                     // 如果点击不在菜单内，则关闭菜单
                     if (!menu.contains(e.target) && menu.parentElement) {
@@ -723,10 +1238,10 @@
         function removeHighlight(courseId) {
             const course = userCourses.find(c => c.id === courseId);
             if (!course) return;
-            
+
             const card = document.querySelector(`.course-card[data-course-id="${courseId}"]`);
             if (!card) return;
-            
+
             // 移除该课程的高亮
             card.classList.remove('urgent');
             const badge = card.querySelector('.conflict-badge');
@@ -734,12 +1249,12 @@
             card.removeAttribute('title');
             card.removeEventListener('click', onUrgentCardClick);
             card.style.cursor = 'default';
-            
+
             // 找到与该课程相邻且产生冲突的课程，也取消它们的高亮
-            const timeSlots = ['08:30', '09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30', '16:30', '17:30', '18:30', '19:30', '20:30', '21:30'];
+            const timeSlots = getTimeSlots();
             const startIndex = timeSlots.indexOf(course.time);
             const endIndex = startIndex + course.duration; // 该课程结束的时间槽索引
-            
+
             // 检查是否有课程紧接在该课程之后
             if (endIndex < timeSlots.length) {
                 const nextTime = timeSlots[endIndex];
@@ -756,7 +1271,7 @@
                     }
                 }
             }
-            
+
             // 检查是否有课程在该课程之前且紧邻该课程
             if (startIndex > 0) {
                 // 查找在该课程之前的所有课程
@@ -784,7 +1299,7 @@
         function updateConflictHighlights() {
             clearAllUrgent();
 
-            const timeSlots = ['08:30', '09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30', '16:30', '17:30', '18:30', '19:30', '20:30', '21:30'];
+            const timeSlots = getTimeSlots();
 
             // 按日分组课程
             const byDay = {};
@@ -797,7 +1312,7 @@
             Object.keys(byDay).forEach(day => {
                 const courses = byDay[day];
                 // 按起始时段排序
-                courses.sort((a,b) => timeSlots.indexOf(a.time) - timeSlots.indexOf(b.time));
+                courses.sort((a, b) => timeSlots.indexOf(a.time) - timeSlots.indexOf(b.time));
 
                 for (let i = 0; i < courses.length; i++) {
                     const A = courses[i];
@@ -830,22 +1345,22 @@
         const backgroundImageInput = document.getElementById('backgroundImageInput');
 
         // 点击按钮触发文件选择
-        changeBackgroundBtn.addEventListener('click', function() {
+        changeBackgroundBtn.addEventListener('click', function () {
             backgroundImageInput.click();
         });
 
         // 处理文件选择
-        backgroundImageInput.addEventListener('change', function(event) {
+        backgroundImageInput.addEventListener('change', function (event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     document.body.style.backgroundImage = `url('${e.target.result}')`;
                     document.body.style.backgroundSize = 'cover';
                     document.body.style.backgroundPosition = 'center';
                     document.body.style.backgroundRepeat = 'no-repeat';
                     document.body.style.backgroundAttachment = 'fixed';
-                    
+
                     // 保存到本地存储
                     localStorage.setItem('customBackground', e.target.result);
                 };
@@ -854,7 +1369,7 @@
         });
 
         // 页面加载时恢复保存的背景
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             const savedBackground = localStorage.getItem('customBackground');
             if (savedBackground) {
                 document.body.style.backgroundImage = `url('${savedBackground}')`;
@@ -867,28 +1382,34 @@
 
         // 检查时间冲突
         function checkTimeConflict(day, startTime, duration) {
-            const timeSlots = ['08:30', '09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30', '16:30', '17:30', '18:30', '19:30', '20:30', '21:30'];
+            const timeSlots = getTimeSlots();
             const startIndex = timeSlots.indexOf(startTime);
-            
-            // 检查是否超出时间范围
-            if (startIndex + duration > timeSlots.length) {
+            if (startIndex === -1) {
+                alert('无效的开始时间');
+                return true;
+            }
+            // duration 已经是格数
+            const rowsOccupied = duration;
+            if (!Number.isInteger(rowsOccupied) || rowsOccupied < 1) {
+                alert('课程时长必须为正整数！');
+                return true;
+            }
+            if (startIndex + rowsOccupied > timeSlots.length) {
                 alert('课程时长超出可用时间范围！');
                 return true;
             }
-            
-            // 检查每个时间段是否已被占用
-            for (let i = 0; i < duration; i++) {
+            for (let i = 0; i < rowsOccupied; i++) {
                 const currentTime = timeSlots[startIndex + i];
                 const cell = document.querySelector(`.content-cell[data-day="${day}"][data-time="${currentTime}"]`);
-                
                 if (cell && cell.dataset.occupied === 'true') {
                     alert(`时间段 ${currentTime} 已被占用！`);
                     return true;
                 }
             }
-            
             return false;
         }
+
     </script>
 </body>
+
 </html>
