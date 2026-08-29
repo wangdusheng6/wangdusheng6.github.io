@@ -1,0 +1,513 @@
+一	声调	符号标记	数字标记							
+	第1声	ā, ē, ī, ō, ū, r̄	1							
+	第2声	á, é, í, ó, ú, ŕ	2							
+	第3声	ã, ẽ, ĩ, õ, ũ, r̃	3							
+	第4声	à, è, ì, ò, ù, r̀	4							
+	第5声	ä, ë, ï, ö, ü, r̈	5							
+	第6声	å, e̊, i̊, o̊, ů, r̊	6							
+	第7声	ȧ, ė, i̇, ȯ, u̇, ṙ	7							
+
+二	万综语音系									
+	I. Vocalm 元音									
+	1．a e i o u r 为单元音									
+	2．多元音为六个音的自由组合									
+	3．由这些单元音与多元音加辅音词尾n ŋ gn的，仍被视为元音									
+	II. Bashalm辅音									
+	1. b d f g h ʒ tʒ dʒ k l m n p q r s ts ds t v w x j z l（元音后）th sh ch zh hw kw为万综语常见的辅音									
+	2．ð ll ŋ仅在拼写外文或外文转写时用									
+	3．辅音后标h则送气化，后标w则唇音化，后标j则硬腭音化									
+	4．p k s t ts tʒ f等清音在单词的中间武末尾，发音需浊化，但不标出，这是为了简化发音。									
+	III. Special de Snâcan 特殊符号									
+	：表示延音									
+	IV. Ton声调									
+	1．1234567表示万综语一至七声，前四声对应汉语普通话中的四声									
+	2．调声调的位置，也是重音的位置									
+	3．标注非声调语言时，1表示重音标在主音所在。									
+
+三	GRAMER 语法 LESION II									
+	1. Jumlas'ctos big'nictur 句子结构									
+	S sujetema主谱									
+	P pedic谓语									
+	O obujet宾语									
+	Sj soj定语									
+	B buj状语									
+	C complotoj补语									
+	A abensitoj同位语									
+	C copula系动词									
+	Pj paredishatij表语									
+	a. SPO主谓宾 SCPj主系表									
+	b. Sj+O: depnol de don 美丽的房子									
+	de tihor denth 虎的牙									
+	maselaus ni vaqu'文之段落									
+	c. O+Sj: libloc vu lerd ano mātin晨读之书									
+	pubas cos si dict hlu死掉了的虫子（定从）									
+	d. B可在任意位置，用于整句的修饰									
+	修饰动词时，在动词前后									
+	e. 倒装句用于强调:O+S+P宾主谓 Pj +S+C表主系									
+	Sea barlês, je nadois inr.大麦茶,我正喝的是。									
+	Ano saliodinemo,hal haya.沙漠里,他住在。									
+	f. 诗歌与修辞格中,词序相对灵活(便于压韵,对仗)									
+	2.Clauzula从句									
+	a. De sujetemo clauzula主语从句S.C.									
+	Cos hansâtu nin si shonpilanc de.今天的事太恐怖了!									
+	b. De obujet clauzula 宾语从句O.C.									
+	Je fec qu'od je polozuch, en vis tam.我做									
+	我喜欢的,你也是。									
+	c. De soj clauzula定语从句Sj.C.									
+	Jen culan po la riho, qu'atori si mis gruny de]									
+	我们沿着混浊的河走。									
+	d. De abensitoj clauzula同位语从句A.C									
+	Yi, qu'ie câgar ex un desênochder, founde									
+	la misêum她，一个老师,创办了这座博物馆。									
+	e. De Paredishatij clauzula表语从向Pj.C									
+	Ce si qu'od vis polozuch 这是你想要的。									
+	⑥.De buj clauzula状语从句B.C.									
+	Si vis non câtar equ'o, condûlan la equ'o-calobanit. 如果你不骑马，就开马车。									
+	3. Jumlas'ctos句式									
+	a. Idecrenas'c 陈述句									
+	Atohubteas'c肯定句(A)									
+	Bmenfeas'c 否定句(B)									
+	b. Oqu'atemas'c 问句									
+	c. Vu eferongnar 强调									
+	(1). Diblobmernfeas'c双重否定句									
+	(2). Vosoapatonas'c 感叹句(3). Piconetmias'c 祈使句									
+	(4). Sualutonis'c 反问句									
+	4. Jonsa de Znainsy de Edverbum一些重要的副词									
+	①. A.肯定 B.否定									
+	能 pôts不能,禁止nuonpôts									
+	必须maun nuonmaun									
+	应该 borte nuonborte									
+	可能mozhei nuonmozhei									
+	将要eutê 将不会nuoneutê									
+	最好meladaj nuonmeladaj									
+	需要richetas nuonrichetas									
+	不得不cuthe禁止nuoncuthe									
+	是(强调)si nuonsi									
+	②. De têgaflig edverbum频率副词									
+	nijan< dalamuge<balvat<cozon<ezenis<dûman< sempre									
+
+四	万综语时态TEMZA									
+	万综语时态由时态助词(temza particalo)体现，用在句子结尾									
+	Temza bê yactiscethe per "Temza Particalo", usi ano de jumlas'ctos finis.									
+	时态助词	中文释义	词性	分类						
+	inr	着，进行体	pati.	时态助词						
+	le	了，过去时	pati.	时态助词						
+	ede	过，过去完成体	pati.	时态助词						
+	hlu	已，完成体	pati.	时态助词						
+	aulm	将，将来时	pati.	时态助词						
+
+五	个位数：	1: ùn								
+		2: dùs								
+		3: trìns								
+		4: qu'àr								
+		5: qu'ìve								
+		6: sisù								
+		7: septèn								
+		8: buìto								
+		9: nèf								
+	十位数：	10: sènx								
+		20: dù-sènx								
+		30: trìns-sènx								
+		40: qu'àr-sènx								
+		50: qu'ìve-sènx								
+		60: sisù-sènx								
+		70: septèn-sènx								
+		80: buìto-sènx								
+		90: nèf-sènx								
+	复合数字：	11: sènx-ùn	21: dù-sènx-ùn	31: trìns-sènx-ùn	41: qu'àr-sènx-ùn	51: qu'ìve-sènx-ùn	61: sisù-sènx-ùn	71: septèn-sènx-ùn	81: buìto-sènx-ùn	91: nèf-sènx-ùn
+	（十位+个位）	12: sènx-dùs	22: dù-sènx-dùs	32: trìns-sènx-dùs	42: qu'àr-sènx-dùs	52: qu'ìve-sènx-dùs	62: sisù-sènx-dùs	72: septèn-sènx-dùs	82: buìto-sènx-dùs	92: nèf-sènx-dùs
+		13: sènx-trìns	23: dù-sènx-trìns	33: trìns-sènx-trìns	43: qu'àr-sènx-trìns	53: qu'ìve-sènx-trìns	63: sisù-sènx-trìns	73: septèn-sènx-trìns	83: buìto-sènx-trìns	93: nèf-sènx-trìns
+		14: sènx-qu'àr	24: dù-sènx-qu'àr	34: trìns-sènx-qu'àr	44: qu'àr-sènx-qu'àr	54: qu'ìve-sènx-qu'àr	64: sisù-sènx-qu'àr	74: septèn-sènx-qu'àr	84: buìto-sènx-qu'àr	94: nèf-sènx-qu'àr
+		15: sènx-qu'ìve	25: dù-sènx-qu'ìve	35: trìns-sènx-qu'ìve	45: qu'àr-sènx-qu'ìve	55: qu'ìve-sènx-qu'ìve	65: sisù-sènx-qu'ìve	75: septèn-sènx-qu'ìve	85: buìto-sènx-qu'ìve	95: nèf-sènx-qu'ìve
+		16: sènx-sisù	26: dù-sènx-sisù	36: trìns-sènx-sisù	46: qu'àr-sènx-sisù	56: qu'ìve-sènx-sisù	66: sisù-sènx-sisù	76: septèn-sènx-sisù	86: buìto-sènx-sisù	96: nèf-sènx-sisù
+		17: sènx-septèn	27: dù-sènx-septèn	37: trìns-sènx-septèn	47: qu'àr-sènx-septèn	57: qu'ìve-sènx-septèn	67: sisù-sènx-septèn	77: septèn-sènx-septèn	87: buìto-sènx-septèn	97: nèf-sènx-septèn
+		18: sènx-buìto	28: dù-sènx-buìto	38: trìns-sènx-buìto	48: qu'àr-sènx-buìto	58: qu'ìve-sènx-buìto	68: sisù-sènx-buìto	78: septèn-sènx-buìto	88: buìto-sènx-buìto	98: nèf-sènx-buìto
+		19: sènx-nèf	29: dù-sènx-nèf	39: trìns-sènx-nèf	49: qu'àr-sènx-nèf	59: qu'ìve-sènx-nèf	69: sisù-sènx-nèf	79: septèn-sènx-nèf	89: buìto-sènx-nèf	99: nèf-sènx-nèf
+	一百：	100: cēnty								
+	示例：	1 ùn      0 nùle     4 qu'àr     5 qu'ìve								
+		12 sènx-ùn       23 dù-sènx-ùn								
+		67 sisù-sènx-septèn								
+		83 buìto-sènx-trìns								
+		101 cēnty-ùn								
+		121 cēnty-dù-sènx-ùn								
+		234 dù-cēnty-trìns-sènx-qu'àr								
+		1020 mōly-dù-sènx								
+		3703 trìns-mōly-septèn-cēnty-trìns								
+		12836 wāny dù-mōly-buìto-cēnty-trìns-sènx-sisù								
+		227439 dù-sènx-dù-wāny septèn-mōly-qu'àr-cēnty-trìns-sènx-nèf								
+		206749 dù-senxiwāny sisù-mōly-septèn-cēnty-qu'àr-sènx-nèf (dù-sènx-wāny ......)								
+
+六	词性Vordutono									
+	声调	单词	中文释义	词性						
+	1	conjuctio	连词	n.						
+	1	edjectiv	形容词	n.						
+	1	edverbum	副词	n.						
+	1	etadmen	介词	n.						
+	1	interjctio	感叹词	n.						
+	4	num	名词	n.						
+	1	numerlo	数词	n.						
+	1	plonomen	代词	n.						
+	1	qu'antifior	量词	n.						
+	1	vasa	冠词	n.						
+	1	verbum	动词	n.						
+
+七	表示程度的副词									
+	声调	单词	中文释义	词性						
+	7	mis	很	edv.						
+	7	mot	更	edv.						
+	7	moss	最	edv.						
+	Mis表示强调，Mot构成比较级，Moss构成最高级。									
+	Hal si mot haudce cor je.他比我更高。									
+	Hal si la moss haudce der ano la mond.他是世界上最高的人。									
+
+八	动助词Verbum Paticalo，或者Paticulo vu Verbum：									
+	用于动词之后表示动词的状态与性质，有些动词不能单独构成独立的意义，或不能完全表达动作的状态与性质，需要借助动助词表示完整的意思，动助词的否定形式为uns（不）（词性：助词），动助词可以叠加使用									
+	序号	单词	中文释义	词性						
+	1.	ic	……正，端正	pati.						
+	2.	od	……动，表示运动	pati.						
+	3.	at	……出，有，出现	pati.						
+	4.	on	……上，从下到上，从低级到高级	pati.						
+	5.	us	……下，解除状态	pati.						
+	6.	ael	……开，从关闭、闭塞到打开、开放	pati.						
+	7.	un	……住，从动到停止	pati.						
+	8.	ol	……中，恰好走到	pati.						
+	9.	in	……进，从外到内	pati.						
+	10.	oa	……出去，从内到外	pati.						
+	11.	al	……下来，从上到下，从高级到低级	pati.						
+	12.	eu	……偏，有偏差	pati.						
+	13.	ut	……来，从远处来到眼下，周遭	pati.						
+	14.	ual	……得，成功	pati.						
+	15.	eb	……掉，从有到无，强调变少	pati.						
+	16.	ul	……过，越过，穿过，经过	pati.						
+	17.	aic	……及，与……有关	pati.						
+	18.	e	……完，结束，停止	pati.						
+	19.	u	……光，从有到无，强调动作进行后现已没有	pati.						
+	20.	ue	……开，发散，铺展	pati.						
+	21.	ar	……平，使平坦，清除，现已没有	pati.						
+	22.	aur	……倒，倒下，使不能站立、立足	pati.						
+	23.	ia	……去，离开现有状态	pati.						
+	24.	er	……于，限制范围内	pati.						
+	25.	ish	……成，完成，做成	pati.						
+	26.	io	……除，清除，变少，强调过程	pati.						
+	27.	ion	……到，达到某种状态	pati.						
+	28.	uo	……明白，清晰了解	pati.						
+	29.	oi	……空，使空虚	pati.						
+	30.	ae	……好，动作效果好	pati.						
+	31.	ob	……错，施加错误动作	pati.						
+	32.	ao	……足，全面、足够、充分	pati.						
+	33.	it	……走，消失	pati.						
+	34.	em	……干，干涸、干枯、干旱	pati.						
+	35.	or	……翻，使……剧烈变化	pati.						
+	36.	ac	……回，回到原有状态	pati.						
+	37.	ith	……出，从内到外	pati.						
+	38.	ea	互相……，复数主语相互之间做……动作	pati.						
+	39.	ec	……全，……齐，完善，完备	pati.						
+	40.	ep	……爆，力量过大而使失控	pati.						
+	41.	om	……一下，强调动作程度小、轻微	pati.						
+	42.	ua	……出，从内到外	pati.						
+	43.	ei	……平，使平衡	pati.						
+	44.	et	……倒，颠倒次序	pati.						
+	45.	id	……得，能够	pati.						
+	46.	um	……上，开始并继续	pati.						
+	47.	ag	……上，达到某种状态	pati.						
+	48.	esc	……开，分离，分开	pati.						
+	49.	ur	……下，容纳下	pati.						
+	50.	isc	……下来，动作完成结果	pati.						
+	51.	uel	……下来，状态出现并继续发展	pati.						
+	52.	eal	……下来，过去继续到现在，开始继续到最后	pati.						
+	动助词的否定形式是在动助词后加 “uns”（不），表示该动作状态或性质的反面。									
+	具体来说，每个动助词的否定形式含义如下：									
+	序号	单词	中文释义	词性						
+	1.	ic uns	不端正，不正确	pati.						
+	2.	od uns	不动，不运动	pati.						
+	3.	at uns	不出，没有，不出现；不起，不抬起	pati.						
+	4.	on uns	不上，不从下到上，不从低级到高级	pati.						
+	5.	us uns	不下，不解除状态	pati.						
+	6.	ael uns	不开，不从关闭、闭塞到打开、开放	pati.						
+	7.	un uns	不住，不从动到停止	pati.						
+	8.	ol uns	不中，不恰好走到	pati.						
+	9.	in uns	不进，不从外到内	pati.						
+	10.	oa uns	不出去，不从内到外	pati.						
+	11.	al uns	不下来，不从上到下，不从高级到低级	pati.						
+	12.	eu uns	不偏，没有偏差	pati.						
+	13.	ut uns	不来，不从远处来到眼下，周遭	pati.						
+	14.	ual uns	不得，不成功	pati.						
+	15.	eb uns	不掉，不从有到无，不强调变少	pati.						
+	16.	ul uns	不过，不越过，不穿过，不经过	pati.						
+	17.	aic uns	不及，与……无关	pati.						
+	18.	e uns	不完，不结束，不停止	pati.						
+	19.	u uns	不光，不从有到无，不强调动作进行后现已没有	pati.						
+	20.	ue uns	不开，不发散，不铺展	pati.						
+	21.	ar uns	不平，不使平坦，不清除，不现已没有	pati.						
+	22.	aur uns	不倒，不倒下，不使不能站立、立足	pati.						
+	23.	ia uns	不去，不离开现有状态	pati.						
+	24.	er uns	不于，不限制范围内	pati.						
+	25.	ish uns	不成，不完成，不做成	pati.						
+	26.	io uns	不除，不清除，不变少，不强调过程	pati.						
+	27.	ion uns	不到，不达到某种状态	pati.						
+	28.	uo uns	不明白，不清晰了解	pati.						
+	29.	oi uns	不空，不使空虚	pati.						
+	30.	ae uns	不好，动作效果不好	pati.						
+	31.	ob uns	不错，不施加错误动作	pati.						
+	32.	ao uns	不足，不全面、不够、不充分	pati.						
+	33.	it uns	不走，不消失	pati.						
+	34.	em uns	不干涸、不干枯、不干旱	pati.						
+	35.	or uns	不翻，不使……剧烈变化	pati.						
+	36.	ac uns	不回，不回到原有状态	pati.						
+	37.	ith uns	不出，不从内到外	pati.						
+	38.	ea uns	不互相……，复数主语不相互之间做……动作	pati.						
+	39.	ec uns	不全，不齐，不完善，不完备	pati.						
+	40.	ep uns	不爆，力量不大而不使失控	pati.						
+	41.	om uns	不一下，不强调动作程度小、轻微	pati.						
+	42.	ua uns	不出，不从内到外	pati.						
+	43.	ei uns	不平，不使平衡	pati.						
+	44.	et uns	不倒，不颠倒次序	pati.						
+	45.	id uns	不得，不能够	pati.						
+	46.	um uns	不上，不开始并不继续	pati.						
+	47.	ag uns	不上，不达到某种状态	pati.						
+	48.	esc uns	不开，不分离，不分开	pati.						
+	49.	ur uns	不下，不容纳下	pati.						
+	50.	isc uns	不下来，动作不完成结果	pati.						
+	51.	uel uns	不下来，状态不出现并不继续发展	pati.						
+	52.	eal uns	不下来，过去不继续到现在，开始不继续到最后	pati.						
+	序号	类别	举例	说明						
+	1	空间方向	on (上), us (下), in (进), oa (出), al (下来), ul (过)	动作的空间路径						
+	2	状态变化	ael (开), un (住), eb (掉), u (光), ar (平), aur (倒)	动作的结果状态						
+	3	时间方向	e (完), ut (来), ia (去), ual (得), ion (到)	动作的时间进程						
+	4	动作性质	ae (好), ob (错), ao (足), ic (正), od (动), it (走)	动作的效果与方式						
+	5	抽象关系	aic (及), er (于), ea (互相), ac (回)	动作的关联关系						
+	6	其他	em (干涸), or (翻), ep (爆), om (一下), ei (平), et (倒), id (得), um (上), ag (上), esc (开), ur (下), isc (下来), uel (下来), eal (下来)	各类动作修饰						
+
+九	人称代词：									
+	声调	单词	中文释义	场合	词性	分类				
+	4	chun	诸位	cira.	plon.	人称				
+	4	chust	您	cira.	plon.	人称				
+	4	dutre	您的（敬称），令-，贵-，高-		plon.	人称				
+	4	hal	他		plon.	人称				
+	4	haln	他们		plon.	人称				
+	4	haln'o	他们的		plon.	人称				
+	4	hal'o	他的		plon.	人称				
+	1	je	我们		plon.	人称				
+	1	jen	我		plon.	人称				
+	1	jen'o	我们的		plon.	人称				
+	1	je'o	我的		plon.	人称				
+	4	meaj	我的（谦称），家-，鄙-，拙-		plon.	人称				
+	1	ti	它		plon.	人称				
+	1	tin	它们		plon.	人称				
+	1	tin'o	它们的		plon.	人称				
+	1	ti'o	它的		plon.	人称				
+	5	vis	你		plon.	人称				
+	5	visn	你们		plon.	人称				
+	5	visn'o	你们的		plon.	人称				
+	5	vis'o	你的		plon.	人称				
+	1	yi	她		plon.	人称				
+	4	yi	他（不明性别）		plon.	人称				
+	1	yin	她们		plon.	人称				
+	4	yin	他们（不明性别）		plon.	人称				
+	1	yin'o	她们的		plon.	人称				
+	4	yin'o	他们的（不明性别）		plon.	人称				
+	1	yi'o	她的		plon.	人称				
+	4	yi'o	他的（不明性别）		plon.	人称				
+
+十	不定代词：									
+	声调	单词	中文释义	词性	分类					
+	1	jonsa	一些，一些的	edj.	不定代词					
+	1	mendqu'e	任何，任何的	edj.	不定代词					
+	1	athy	所有，所有的	edj.	不定代词					
+	1	qu'elqu'e	某个，某个的	edj.	不定代词					
+	1	jonsader	一些人	plon.	不定代词					
+	1-1	jonsascasir	一些物	plon.	不定代词					
+	1-4	jonsacadal	一些事	plon.	不定代词					
+	1-4	jonsaagoredo	一些事物	plon.	不定代词					
+	1-7	jonsagoredo	一些事物	plon.	不定代词					
+	1-7	jonsaplatsia	一些地方	plon.	不定代词					
+	1	mendqu'eder	任何人	plon.	不定代词					
+	1-1	mendqu'escasir	任何物	plon.	不定代词					
+	1-4	mendqu'ecadal	任何事	plon.	不定代词					
+	1-4	mendqu'eagoredo	任何事物	plon.	不定代词					
+	1-7	mendqu'eplatsia	任何地方	plon.	不定代词					
+	1	athyder	所有人	plon.	不定代词					
+	1-1	athyscasir	所有物	plon.	不定代词					
+	1-4	athycadal	所有事	plon.	不定代词					
+	1-4	athyagoredo	所有事物	plon.	不定代词					
+	1-7	athyplatsia	所有地方	plon.	不定代词					
+	1	qu'elqu'eder	某个人，某人	plon.	不定代词					
+	1-1	qu'elqu'escasir	某物	plon.	不定代词					
+	1-4	qu'elqu'ecadal	某事	plon.	不定代词					
+	1-4	qu'elqu'eagoredo	某个事物，某事物	plon.	不定代词					
+	1-7	qu'elqu'eplatsia	某个地方，某地	plon.	不定代词					
+	0	nonder	没有人，无人	plon.	不定代词					
+	1	nonscasir	没有物，无物	plon.	不定代词					
+	4	noncadal	没有事，无事	plon.	不定代词					
+	4	nonagoredo	没有事务，无事物	plon.	不定代词					
+	7	nonplatsia	没有地方，无地	plon.	不定代词					
+
+十一	表示方向：									
+	声调	单词	中文释义	词性1	词性2	分类				
+	4	aduist	东	edj.	n.	方向				
+	4	aduisteim	偏东	edj.	n.	方向				
+	4	aduisteimorin	偏东	n.		方向				
+	1	bu	北	edj.	n.	方向				
+	4	buaduist	东北，NE	edj.	n.	方向				
+	4	bu-buaduist	东北北，NNE	edj.	n.	方向				
+	1	bu-buosten	西北北，NNW	edj.	n.	方向				
+	1	bueim	偏北	edj.	n.	方向				
+	1	bueimorin	偏北	n.		方向				
+	1	buosten	西北，NW	edj.	n.	方向				
+	4	bu-sudaduist	东南北，SNE	edj.	n.	方向				
+	1	bu-sudosten	西南北，SNW	edj.	n.	方向				
+	4	fai	右	edj.		方向				
+	4	fiei	后	edj.		方向				
+	1	giua	中，中间；介于	edj.		方向				
+	1	intra	内	edj.		方向				
+	4	oasht	外	edj.		方向				
+	1	osten	西	edj.	n.	方向				
+	1	osteneim	偏西	edj.	n.	方向				
+	1	osteneimorin	偏西	n.		方向				
+	4	qien	上	edj.		方向				
+	1	sud	南	edj.	n.	方向				
+	4	sudaduist	东南，SE	edj.	n.	方向				
+	4	sud-buaduist	东北南，NSE	edj.	n.	方向				
+	1	sud-buosten	西北南，NSW	edj.	n.	方向				
+	1	sudeim	偏南	edj.	n.	方向				
+	1	sudeimorin	偏南	n.		方向				
+	1	sudosten	西南，SW	edj.	n.	方向				
+	4	sud-sudaduist	东南南，SSE	edj.	n.	方向				
+	1	sud-sudosten	西南南，SSW	edj.	n.	方向				
+	4	trai	左	edj.		方向				
+	4	tron	前	edj.		方向				
+	3	zui	下	edj.		方向				
+
+十二	¡Honòn dìr! 早上好。									
+	¡Honòn mātin/sābjer/pōdmi/góber /vēsbo/nōctu......早上好/上午好/中午好/下午好/傍晚好/晚上好......									
+	¿En vïs?你呢？									
+	Ch'àos sēmpre. 永别了。									
+	Jē eäcapatma.我完全肯定。									
+	Jē rėfuzo. 我拒绝。									
+	Jē vóhamoya. 我反对。									
+	Mēchuor shárcon/góatia/mïraganjone.非常感激。									
+	Nònti. 不会的。									
+	Negwe. 还不够。									
+	Cërtu./Acōrtu.当然了。									
+	Cërtuns. 当然不是了。									
+
+十三	Hman 1									
+	23tua., Meut, 2025									
+	1, jē plōn. 我 (1st sg.)									
+	2, sābjer n. 早上；上午									
+	3, dìr n. 日间，白天									
+	4, vïs plōn. 你 (2nd sg.)									
+	5, nōctus, nōctu n. 晚上；夜晚									
+	24tua., Meut									
+	6, hàl plōn. 他 (3rd sg. M)									
+	7, yī plōn. 她 (3rd sg. F)									
+	8, nùle nūm. 零，〇									
+	9, ōu nūm. 零，〇 (inf.)									
+	10, ōur (f.), o (inf.) conj. 或，或者									
+	25tua., Meut									
+	11, tī plōn. 牠 (3rd sg. Non-Human)									
+	12, yì plōn. 他 (3rd sg. Other Cases)									
+	13, ùn nūm. 一									
+	14, dùs nūm. 二									
+	15, mātin n. 早上									
+	Hman 2									
+	26tua., Meut									
+	16, jēn plōn. 我们 (1st pl.)									
+	17, trìns nūm. 三									
+	18, nòn int. 不！； pati. 不，不是									
+	19, si int. 是的 ； v. 是									
+	20, en conj. 和，与									
+	27tua., Meut									
+	21, pōdmi n. 中午									
+	22, góber n. 下午									
+	23, vïsn plōn. 你们 (2nd pl.)									
+	24, hàln plōn. 他们 (3rd pl. M)									
+	25, qu'àr nūm. 四									
+	28tua., Meut									
+	26, honòn int. 你好 (f.)； v. 问好									
+	27, hījbe int. 你好 (inf.)									
+	28, vēsbo n. 傍晚									
+	29, qu'ìve, qu'ivè nūm. 五									
+	30, ös int. 对，对的									
+	29tua., Meut									
+	31, poi int. 请！; pati. 请									
+	32, yīn plōn. 她们 (3rd pl. F)									
+	33, tīn plōn. 牠们 (3rd pl. Non-Human)									
+	34, sisù nūm. 六									
+	35, ēven n. 傍晚									
+	30tua., Meut									
+	36, yìn plōn. 他们 (3rd pl. Other Cases)									
+	37, suāron n. 晚上									
+	38, suāmi n. 午夜									
+	39, chùst plōn. 您 (2nd sg. formal)									
+	40, chùn plōn. 您们，诸位 (2nd pl. formal)									
+	31tua., Meut									
+	*-(a)nol (suffix)名词变形容词后缀									
+	41, mātinol edj. 早上									
+	42, sābjeranol edj. 早上；上午									
+	43, septèn nūm. 七									
+	44, buìto nūm. 八									
+	45, ch'àos int. 再见； v. 对...再见									
+	1tua., Juin.									
+	46, jē'o plōn. 我的 (1st sg. Gen.)									
+	47, vïs'o plōn. 你的 (2nd sg. Gen.)									
+	48, pōdminol edj. 中午									
+	49, vēsbonol edj. 傍晚									
+	50, góberanol edj. 下午									
+	¡Hēulax la dìr vu Internaciònol Aduliòn!									
+	Hman 3									
+	2tua., Juin.									
+	51, hàl'o plōn. 他的 (3rd sg. M Gen.)									
+	52, yī'o plōn. 她的 (3rd sg. F Gen.)									
+	53, nèf nūm. 九									
+	54, sènx nūm 十									
+	55, ēvenol edj. 傍晚									
+	3tua. Juin.									
+	56, tī'o plōn. 牠的 (3rd sg. Non-Human Gen.)									
+	57, yì'o plōn. 他的 (3rd sg. Other Cases Gen.)									
+	58, suāronol edj. 夜晚，晚上									
+	59, nōctunol edj. 晚上									
+	60, suāminol edj. 午夜									
+	4tua. Juin.									
+	61, jēn'o plōn. 我们的 (1st pl. Gen.)									
+	62, vïsn'o plōn. 你们的 (2nd pl. Gen.)									
+	63, sènx-ùn nūm. 十一									
+	64, dùs-sènx nūm. 二十									
+	65, gāerhūnc n. (literary)鸡鸣，早晨									
+	5tua. Juin.									
+	66, hàln'o plōn. 他们的 (3rd pl. M Gen.)									
+	67, yīn'o plōn. 她们的 (3rd pl. F Gen.)									
+	68, dae int. (slang)对！；是！									
+	69, be int. (slang)不对！；不是！									
+	70, cēnty nūm. 百，一百									
+
+十四	介词：									
+	声调	单词	中文释义	例句	词性	分类				
+	0	ab	自从,	ab hal'o ta'lfar duct le自从他父亲死后      	eta.	介词				
+	0	abss	距离,	abss 5 zhole beijiun距离北京5华里       	eta.	介词				
+	0	ano	在……上，内，中,	ano esum在夏天, ano em在行动中       	eta.	介词				
+	0	apute	在……之间,	apute studento, vis si la moss m'selenzeaj de. 所有学生之中，你是最吵闹的。  	eta.	介词				
+	0	athla	在……期间,	athla la tawabeya corodha在疫情时期       	eta.	介词				
+	0	au	根据,	au de la natrun carbon根据碳元素的性质      	eta.	介词				
+	0	cor	对，对于,	sanitoze cor la viso给器皿消毒, cor nebuyi对于 贵族来说    	eta.	介词				
+	0	de	的,	goda de rancan好计划, de la stocvaqu'朋友的     	eta., pati.	介词				
+	0	det	的,	de+de, alim det diranzhug eufetag科学历法的作用      	eta.	介词				
+	0	do	到，至,	do la noctu到夜晚, do inglia到英国, do sacin 19tua. 到19世纪  	eta.	介词				
+	0	erwac	朝，朝向,	curan erwac hal'o hjumre朝他的房间走       	eta.	介词				
+	0	ex	作为,	ex un de drany lerzoe作为国家公民      	eta.	介词				
+	0	fai	右	          	eta.	介词				
+	0	fiei	后	          	eta.	介词				
+	0	giua	中，中间；介于	          	eta.	介词				
+	0	intra	内	          	eta.	介词				
+	0	meth	有；带着,	meth fenomenal de efeiuca有极好的效果       	eta.	介词				
+	0	mitwi	在……与……中间,	esêt mitwi yi'o ta'lfar en neimur坐在 他的父母中间    	eta.	介词				
+	0	oasht	外	          	eta.	介词				
+	0	per	由；每,	per dir每人, pisnajil per un rh'eoriticezt由一位修辞学家撰写     	eta.	介词				
+	0	po	沿着，顺着,	curan po la pauleveth沿着林荫大道走       	eta.	介词				
+	0	qien	上	          	eta.	介词				
+	0	trai	左	          	eta.	介词				
+	0	tron	前	          	eta.	介词				
+	0	via	经过,	curan via un nelpencaper走过摩天大厦, via india do zogia 取道印度到中国  	eta.	介词				
+	0	vom	来自,	vom nanjiun来自南京, pruntent vom cuoseadech 据皇室展露的消息     	eta.	介词				
+	0	vu	用来；以；为了；以来,	ascud vu hal为他鼓掌, vu ovôlen la spemra为了揭示阴谋    	eta.	介词				
+	0	zui	下		eta.	介词				
