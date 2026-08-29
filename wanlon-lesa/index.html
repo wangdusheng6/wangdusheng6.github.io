@@ -1,478 +1,1104 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="zh">
+
 <head>
-  <!-- 手机端视口标签（适配核心，必须加） -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta charset="utf-8">
-  <title>Wanlon-Lesa</title>
-  <style>
-    /* 全局样式重置 + 液态玻璃基础配置 */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      user-select: none;
-    }
-    /* 全局图片样式：强制覆盖，配合滑动框统一高度 */
-    img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover; /* 裁剪保持比例，不拉伸 */
-      border: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 50%, #333 50%, #111 100%);
-      background-attachment: fixed;
-      color: #000;
-      padding-bottom: 50px;
-      padding: 0 10px; /* 手机端左右留边 */
-    }
-
-    /* 液态玻璃核心样式 */
-    .glass {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      margin: 0 auto 40px; /* 模块之间留间距，居中 */
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 999;
-      padding: 10px 16px;
-      width: 100%;
-      max-width: 1200px;
-    }
-    nav {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap; /* 手机端导航换行 */
-    }
-
-    /* 导航栏logo容器：文字+图片水平居中，文字左、logo右 */
-    .logo {
-      font-weight: bold;
-      font-size: 24px;
-      color: #000;
-      display: flex;
-      align-items: center;
-      gap: 12px; /* 文字和logo的间距 */
-    }
-    /* 导航栏本地小logo：圆角+柔化边缘+防变形 */
-    .Wanlon-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px; /* 圆润圆角 */
-      filter: blur(0.8px); /* 柔化边缘 */
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      object-fit: cover;
-    }
-
-    ul {
-      list-style: none;
-      display: flex;
-      gap: 16px; /* 缩小导航间距，适配手机 */
-      margin-top: 10px;
-    }
-    a {
-      color: #000;
-      text-decoration: none;
-      font-size: 16px; /* 缩小导航文字 */
-      transition: all 0.3s ease;
-      padding: 6px 10px;
-      border-radius: 8px;
-    }
-    a:hover {
-      background: rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(4px);
-    }
-
-    .hero {
-      max-width: 1200px;
-      padding: 30px 20px;
-      text-align: center;
-    }
-    .hero h1 {
-      margin: 0 0 16px;
-      font-size: 36px; /* 缩小主标题，适配手机 */
-      font-weight: bold;
-    }
-    .hero p {
-      margin: 0 0 24px;
-      font-size: 18px;
-      color: #333;
-      line-height: 1.6;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-top: 20px; /* 增加按钮区上间距，防止挤在一起 */
-    }
-    .btn {
-      display: inline-block;
-      padding: 10px 20px;
-      border-radius: 12px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-    }
-    .btn.contact {
-      background: rgba(0, 0, 0, 0.8);
-      color: #fff;
-    }
-    .btn.files, .btn.ai-agent {
-      background: rgba(255, 255, 255, 0.6);
-      color: #000;
-    }
-    .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-    }
-
-    /* About板块：核心样式 */
-    .about {
-      max-width: 1200px;
-      padding: 30px 20px;
-    }
-    .about h2 {
-      font-size: 28px;
-      margin-bottom: 20px;
-      font-weight: bold;
-      text-align: center;
-    }
-    /* 图文容器：适配电脑/手机布局 */
-    .about-content {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    /* 文字容器：自适应宽度 */
-    .about-text {
-      flex: 1;
-      min-width: 280px;
-      font-size: 18px;
-    }
-    .about-text p {
-      margin-bottom: 8px;
-    }
-    /* 图片框容器：包裹同板块的两个滑动框，统一控制 */
-    .slide-box-group {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* 核心：滑动图片框样式 - 强制统一高度+宽度，保留液态玻璃风格 */
-    .slide-box {
-      position: relative;
-      width: 220px; /* 固定宽度 */
-      height: 300px; /* 强制统一高度！所有图片框都一样高，可自行修改 */
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.4);
-      filter: blur(0.5px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      overflow: hidden; /* 隐藏超出图片，滑动核心 */
-      flex-shrink: 0; /* 不被挤压，保持宽度 */
-    }
-    /* 图片滚动容器：横向排列，滑动核心 */
-    .slide-inner {
-      display: flex;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.3s ease-in-out; /* 滑动更丝滑 */
-    }
-    /* 单张图片容器：占满滑动框 */
-    .slide-item {
-      flex: 0 0 100%;
-      width: 100%;
-      height: 100%;
-    }
-    /* 滑动切换箭头：液态玻璃风格，悬浮高亮 */
-    .slide-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(6px);
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      color: #333;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      transition: all 0.2s ease;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-      /* 防止箭头被选中 */
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .slide-btn:hover {
-      background: rgba(255,255,255,1);
-      color: #000;
-    }
-    /* 左右箭头位置 */
-    .slide-prev { left: 10px; }
-    .slide-next { right: 10px; }
-    /* 清除按钮默认样式，避免点击异常 */
-    .slide-btn:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(100,100,100,0.3);
-    }
-
-    /* 响应式：手机端（768px以下）专属样式 */
-    @media (max-width: 768px) {
-      .logo { font-size: 20px; }
-      .Wanlon-logo { width: 32px; height: 32px; }
-      ul { gap: 10px; }
-      a { font-size: 14px; padding: 4px 8px; }
-      /* 手机端滑动框缩小，保持统一高度 */
-      .slide-box {
-        width: 160px;
-        height: 220px; /* 手机端也统一高度，和电脑端比例一致 */
-      }
-      .slide-btn {
-        width: 30px;
-        height: 30px;
-        font-size: 14px;
-      }
-      .slide-box-group { gap: 10px; }
-      .about-content { gap: 15px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>万综·汉语辞典</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <header class="glass">
-    <nav>
-      <div class="logo">
-        Wanlon-lesa
-        <img src="/images/Wanlon-logo.png" alt="Wanlon-lesa nav logo" class="Wanlon-logo">
-      </div>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="Files.html">Files</a></li>
-        <li><a href="AIagent.html">AI Agent</a></li>
-        <li><a href="wanlon_network.html">Word Cloud</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <section class="hero glass">
-    <h1>Wanlon-Lesa</h1>
-    <p>Build the Babel Tower of the world!!!</p>
-    <div class="buttons">
-      <a class="btn contact" href="contact.html">Contact Us</a>
-      <a class="btn files" href="Wanlon-lesa.xlsx" download>Files Access</a>
-      <a class="btn ai-agent" href="AIagent.html">Our AI Agent</a>
+    <div class="book" id="book">
+        <div id="pagesContainer"></div>
     </div>
-  </section>
 
-  <!-- 第一个About板块：Wanlon-Ciraduro → 组1：slide1+slide2 → 手机端联动 -->
-  <section id="about1" class="about glass">
-    <h2>Wanlon-Ciraduro: Our AI Agent</h2>
-    <div class="about-content">
-      <div class="about-text">
-        <p>I am Wanlon-Ciraduro, a wanlon-lesa speaker.</p>
-        <p>I am the royal bot of the Wanlon Empire.</p>
-        <p>I can write poems and articles for you!!!</p>
-        <p>Can I do you a favor?</p>
-      </div>
-      <!-- 图片框组1：标记group="1" -->
-      <div class="slide-box-group" group="1">
-        <!-- 滑动框1：group1  -->
-        <div class="slide-box" id="slide1" group="1">
-          <div class="slide-inner" id="slideInner1">
-            <div class="slide-item"><img src="/images/Wanlon-logo1.jpg" href="/images/Wanlon-logo1.jpg" alt="Wanlon-Ciraduro-1"></div>
-            <div class="slide-item"><img src="/images/Wanlon-logo2.jpg" href="/images/Wanlon-logo2.jpg" alt="Wanlon-Ciraduro-2"></div>
-            <div class="slide-item"><img src="/images/Wanlon-logo3.png" href="/images/Wanlon-logo3.png" alt="Wanlon-Ciraduro-3"></div>
-          </div>
-          <button class="slide-btn slide-prev" onclick="changeSlide('slide1', -1)"><i class="fas fa-chevron-left"></i></button>
-          <button class="slide-btn slide-next" onclick="changeSlide('slide1', 1)"><i class="fas fa-chevron-right"></i></button>
-        </div>
-        <!-- 滑动框2：group1  -->
-        <div class="slide-box" id="slide2" group="1">
-          <div class="slide-inner" id="slideInner2">
-            <div class="slide-item"><img src="/images/Wanlon-logo4.jpg" href="/images/Wanlon-logo4.jpg" alt="Wanlon-Ciraduro-4"></div>
-            <div class="slide-item"><img src="/images/Wanlon-logo5.jpg" href="/images/Wanlon-logo5.jpg" alt="Wanlon-Ciraduro-5"></div>
-            <div class="slide-item"><img src="/images/Wanlon-logo6.png" href="/images/Wanlon-logo6.png" alt="Wanlon-Ciraduro-6"></div>
-          </div>
-          <button class="slide-btn slide-prev" onclick="changeSlide('slide2', -1)"><i class="fas fa-chevron-left"></i></button>
-          <button class="slide-btn slide-next" onclick="changeSlide('slide2', 1)"><i class="fas fa-chevron-right"></i></button>
-        </div>
-      </div>
-    </n>
-      </div>
-        <div class="buttons">
-        <a class="btn ai-agent" href="AIagent.html">Use ME!!!</a>
-      </div>
-    </div>
-  </section>
+    <script>
+        // ============================================================
+        // 配置
+        // ============================================================
+        const DATA_URL = 'wanlon_data.jsonl';
 
-  <!-- 第二个About板块：Wanlon-Forhigour → 组2：slide3+slide4 → 手机端联动 -->
-  <section id="about2" class="about glass">
-    <h2>Wanlon-Forhigour: The Dictionary of Wanlon-Lesa</h2>
-    <div class="about-content">
-      <div class="about-text">
-        <p>This is the ever first Wanlon-Lesa Forhigour.</p>
-        <p>We love to learn Wanlon-Lesa from it.</p>
-        <p>You can gain your vocabularies here.</p>
-        <p>So, please enjoy yourself!</p>
-      </div>
-      <!-- 图片框组2：标记group="2"，手机端联动 -->
-      <div class="slide-box-group" group="2">
-        <!-- 滑动框3：group2 → 电脑独立/手机联动 -->
-        <div class="slide-box" id="slide3" group="2">
-          <div class="slide-inner" id="slideInner3">
-            <div class="slide-item"><img src="/images/Wanlon-book.png" href="/images/Wanlon-book.png" alt="Forhigour-1"></div>
-            <div class="slide-item"><img src="/images/Wanlon-book2.png" href="/images/Wanlon-book2.png" alt="Forhigour-2"></div>
-            <div class="slide-item"><img src="/images/Wanlon-book3.png" href="/images/Wanlon-book3.png" alt="Forhigour-3"></div>
-          </div>
-          <button class="slide-btn slide-prev" onclick="changeSlide('slide3', -1)"><i class="fas fa-chevron-left"></i></button>
-          <button class="slide-btn slide-next" onclick="changeSlide('slide3', 1)"><i class="fas fa-chevron-right"></i></button>
-        </div>
-        <!-- 滑动框4：group2 → 电脑独立/手机联动（修复按钮绑定！） -->
-        <div class="slide-box" id="slide4" group="2">
-          <div class="slide-inner" id="slideInner4">
-            <div class="slide-item"><img src="/images/Wanlon-book4.png" href="/images/Wanlon-book4.png" alt="Forhigour-4"></div>
-            <div class="slide-item"><img src="/images/Wanlon-book5.png" href="/images/Wanlon-book5.png" alt="Forhigour-5"></div>
-            <div class="slide-item"><img src="/images/Wanlon-book6.png" href="/images/Wanlon-book6.png" alt="Forhigour-6"></div>
-            <div class="slide-item"><img src="/images/Wanlon-book7.png" href="/images/Wanlon-book7.png" alt="Forhigour-7"></div>
-          </div>
-          <!-- 修正：删除多余的</</i>，正确嵌套<i>图标标签 -->
-          <button class="slide-btn slide-prev" onclick="changeSlide('slide4', -1)"><i class="fas fa-chevron-left"></i></button>
-          <button class="slide-btn slide-next" onclick="changeSlide('slide4', 1)"><i class="fas fa-chevron-right"></i></button>
-        </div>
-      </div>
-    </n>
-      </div>
-        <div class="buttons">
-          <a class="btn files" href="Files.html">Download Here^~^</a>
-      </div>
-    </div>
-  </section>
+        // ============================================================
+        // 全局变量
+        // ============================================================
+        let allEntries = [];
+        let forewordText = '序言加载中...';
+        let afterwordText = '后记加载中...';
+        let appendix1Text = '附录一加载中...';
+        let appendix2Text = '附录二加载中...';
+        let pages = [];
+        let currentPageIndex = 0;
+        const container = document.getElementById('pagesContainer');
+        const statusBar = document.getElementById('statusBar');
 
-  <!-- 核心JS：解决滑动失效+统一高度+电脑独立/手机联动 -->
-  <script>
-    // 初始化所有滑动框的索引，存储为对象，更易维护
-    const slideIndexes = {
-      slide1: 0,
-      slide2: 0,
-      slide3: 0,
-      slide4: 0
-    };
-
-    // 检测是否为手机端（768px以下）
-    function isMobile() {
-      return window.innerWidth <= 768;
-    }
-
-    // 核心滑动函数：id=滑动框ID，step=1(下一张)/-1(上一张)
-    function changeSlide(boxId, step) {
-      // 获取当前滑动框、内层容器、图片项
-      const box = document.getElementById(boxId);
-      const inner = document.getElementById(`slideInner${boxId.slice(-1)}`);
-      const items = inner.querySelectorAll('.slide-item');
-      if (!box || !inner || items.length === 0) return; // 防错
-
-      // 获取当前组、当前索引
-      const group = box.getAttribute('group');
-      let currentIndex = slideIndexes[boxId];
-      // 计算新索引（循环切换）
-      currentIndex = (currentIndex + step + items.length) % items.length;
-      slideIndexes[boxId] = currentIndex;
-      // 执行滑动
-      inner.style.transform = `translateX(-${currentIndex * 100}%)`;     
-    }
-    // 鼠标拖拽滑动：适配所有滑动框，电脑独立/手机联动
-    document.querySelectorAll('.slide-box').forEach(box => {
-      let startX = 0, moveX = 0;
-      const boxId = box.id;
-      const group = box.getAttribute('group');
-      // 鼠标按下/触摸开始（兼容手机触摸）
-      box.addEventListener('mousedown', startDrag);
-      box.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // 阻止浏览器默认滚动
-        startDrag(e.touches[0]);
-      });
-      // 鼠标移动/触摸移动
-      document.addEventListener('mousemove', moveDrag);
-      document.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        moveDrag(e.touches[0]);
-      });
-      // 鼠标松开/触摸结束
-      document.addEventListener('mouseup', endDrag);
-      document.addEventListener('touchend', (e) => {
-        endDrag(e.changedTouches[0]);
-      });
-      // 鼠标离开
-      box.addEventListener('mouseleave', endDrag);
-
-      // 开始拖拽：记录初始位置
-      function startDrag(e) {
-        startX = e.clientX;
-        box.style.cursor = 'grabbing';
-        moveX = 0;
-      }
-      // 拖拽中：计算移动距离
-      function moveDrag(e) {
-        if (startX === 0) return;
-        moveX = e.clientX - startX;
-      }
-      // 结束拖拽：判断是否切换图片（拖拽距离>50px触发）
-      function endDrag() {
-        box.style.cursor = 'grab';
-        if (Math.abs(moveX) > 50) {
-          // 左拖=下一张(1)，右拖=上一张(-1)
-          const step = moveX < 0 ? 1 : -1;
-          changeSlide(boxId, step);
+        // ============================================================
+        // 工具函数
+        // ============================================================
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
         }
-        startX = 0;
-        moveX = 0;
-      }
-    });
 
-    // 初始化鼠标样式
-    document.querySelectorAll('.slide-box').forEach(box => {
-      box.style.cursor = 'grab';
-    });
+        function entryHtml(entry) {
+            const word = escapeHtml(entry.word || '');
+            const tone = escapeHtml(entry.tone || '');
+            const usage = escapeHtml(entry.usage || '');
+            const pos = escapeHtml(entry.pos || '');
+            const category = escapeHtml(entry.category || '');
+            const meaning = escapeHtml(entry.meaning || '');
+            let html = `<div class="entry"><div class="head"><span class="word">${word}</span><span class="tone">${tone}</span><span class="meta">`;
+            if (usage) html += `<span>${usage}</span>`;
+            if (pos) html += `<span>${pos}</span>`;
+            if (category) html += `<span>${category}</span>`;
+            html += `</span></div><div class="meaning">${meaning}</div></div>`;
+            return html;
+        }
 
-    // 窗口大小变化时，重置索引（防止布局错乱）
-    window.addEventListener('resize', () => {
-      Object.keys(slideIndexes).forEach(boxId => {
-        const inner = document.getElementById(`slideInner${boxId.slice(-1)}`);
-        if (inner) inner.style.transform = `translateX(0)`;
-        slideIndexes[boxId] = 0;
-      });
-    });
-  </script>
+        // 取词条用于排序的首字符：跳过前导的空白、连字符（含常见变体）和点号，返回第一个有效字符（原始字符）
+        function leadingCharForSort(word) {
+            const w = (word || '').trim();
+            if (!w) return ''; // 无有效字符
+            // 去掉前导的空白、连字符（含常见变体）和点号
+            const s = w.replace(/^[\s\-\u2010-\u2015\u2212·.]+/, '');
+            if (!s) return ''; // 全部是分隔符
+            return s[0]; // 取第一个字符
+        }
 
+        // ============================================================
+        // 核心分页函数（一次性完成，极速）
+        // ============================================================
+        function splitIntoBodyPages(entries) {
+            if (!entries || entries.length === 0) {
+                return ['<div class="page body-page"><p style="text-align:center;padding:2rem;">暂无词条</p><div class="page-number">1</div></div>'];
+            }
+
+            // 1. 计算内容区域尺寸（模拟 .page 的内容区域）
+            // 假设 .page 的 padding 为 1.5rem 上下，1rem 左右（与 CSS 一致）
+            // 为了精确，我们使用 getComputedStyle 获取实际的 padding 值
+            const pageSample = document.createElement('div');
+            pageSample.className = 'page';
+            pageSample.style.cssText = 'position: absolute; left: -9999px; top: 0; width: 210mm; height: 297mm; padding: 1.5rem 1rem; box-sizing: border-box;';
+            document.body.appendChild(pageSample);
+            const contentWidth = pageSample.clientWidth;
+            const contentHeight = pageSample.clientHeight;
+            document.body.removeChild(pageSample);
+
+            // 2. 创建测量容器，尺寸等于内容区域，不带内边距
+            const temp = document.createElement('div');
+            temp.className = 'body-page';
+            temp.style.cssText = `
+                position: absolute;
+                left: -9999px;
+                top: 0;
+                width: 210mm;
+                height: 500mm;
+                overflow: hidden;
+                column-count: 2;
+                column-gap: 1rem;
+                column-fill: auto;
+                padding: 0.2rem 0;
+                box-sizing: border-box;
+                font-size: 1rem;
+                line-height: 1.5;
+            `;
+            document.body.appendChild(temp);
+
+            // 3. 插入所有词条
+            const allHtml = entries.map(e => entryHtml(e)).join('');
+            temp.innerHTML = allHtml;
+            void temp.offsetHeight; // 强制回流
+
+            // 4. 获取词条元素和最大高度
+            const items = temp.querySelectorAll('.entry');
+            const maxHeight = temp.clientHeight * 1.2;
+
+            // 获取词条下边距
+            const sampleEl = items[0];
+            const sampleStyle = getComputedStyle(sampleEl);
+            const marginBottom = parseFloat(sampleStyle.marginBottom) || 0;
+
+            // 5. 分组
+            const groups = [];
+            const groupLetters = [];
+            let startIndex = 0;
+            let currentHeight = 0;
+
+            for (let i = 0; i < items.length; i++) {
+                const el = items[i];
+                // 注意：offsetHeight 不包含 margin，所以要加上 marginBottom
+                const h = el.offsetHeight + marginBottom;
+
+                if (startIndex === i) {
+                    currentHeight = h;
+                    continue;
+                }
+                if (currentHeight + h > maxHeight) {
+                    groups.push(entries.slice(startIndex, i));
+                    // 记录该组首字母（去变音、大写）
+                    const first = entries[startIndex];
+                    const raw = leadingCharForSort(first.word);
+                    let letter = '#';
+                    if (raw) {
+                        const normalized = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                        const upper = normalized.toUpperCase();
+                        const code = upper.charCodeAt(0);
+                        if (code >= 65 && code <= 90) {
+                            letter = upper;
+                        } else if (code < 65) {
+                            letter = '-';
+                        } else {
+                            letter = 'α';
+                        }
+                    }
+                    groupLetters.push(letter);
+                    startIndex = i;
+                    currentHeight = h;
+                } else {
+                    currentHeight += h;
+                }
+            }
+            if (startIndex < entries.length) {
+                groups.push(entries.slice(startIndex));
+                // 记录该组首字母
+                const first = entries[startIndex];
+                const raw = leadingCharForSort(first.word);
+                let letter = '#';
+                if (raw) {
+                    const normalized = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    const upper = normalized.toUpperCase();
+                    const code = upper.charCodeAt(0);
+                    if (code >= 65 && code <= 90) {
+                        letter = upper;
+                    } else if (code < 65) {
+                        letter = '-';
+                    } else {
+                        letter = 'α';
+                    }
+                }
+                groupLetters.push(letter);
+            }
+
+            document.body.removeChild(temp);
+
+            // 6. 生成最终页面 HTML
+            if (groups.length === 0) {
+                return ['<div class="page body-page"><p style="text-align:center;padding:2rem;">暂无词条</p><div class="page-number">1</div></div>'];
+            }
+            // 辅助函数：从词条获取首字母（去变音、大写）
+            function getLetter(entry) {
+                const raw = leadingCharForSort(entry.word);
+                if (!raw) return '#';
+                const normalized = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const upper = normalized.toUpperCase();
+                const code = upper.charCodeAt(0);
+                if (code >= 65 && code <= 90) return upper;
+                if (code < 65) return '-';
+                return 'α';
+            }
+
+            const htmls = groups.map((group, idx) => {
+                let contentHtml = '';
+                let lastLetter = ''; // 上一组的最后一个词条的字母
+                if (idx > 0) {
+                    const prevGroup = groups[idx - 1];
+                    const lastEntry = prevGroup[prevGroup.length - 1];
+                    if (lastEntry) {
+                        lastLetter = getLetter(lastEntry);
+                    }
+                }
+                // 遍历本组所有词条
+                for (let j = 0; j < group.length; j++) {
+                    const entry = group[j];
+                    const currentLetter = getLetter(entry);
+                    // 如果当前字母与上一个不同，且当前字母非空，则插入标题
+                    if (currentLetter && currentLetter !== lastLetter) {
+                        contentHtml += `<div class="letter-title">${currentLetter}</div>`;
+                        lastLetter = currentLetter; // 更新为当前字母，避免重复插入
+                    }
+                    contentHtml += entryHtml(entry);
+                }
+                return `<div class="page body-page">${contentHtml}<div class="page-number">${idx + 1}</div></div>`;
+            });
+            return { htmls, groups, groupLetters };
+        }
+
+        // ============================================================
+        // 纯文本分页函数（用于序和后记）
+        // ============================================================
+        // ============================================================
+        // 纯文本分页函数（按页面容量自动分页，类似正文）
+        // ============================================================
+        function splitTextIntoPages(text, baseLabel, pageType) {
+            if (!text || text.trim() === '') {
+                return [{
+                    type: pageType,
+                    label: baseLabel,
+                    html: `<div class="page ${pageType}"><p style="text-align:center;padding:2rem;">暂无内容</p><div class="page-number">${baseLabel}</div></div>`
+                }];
+            }
+
+            // 1. 分割为段落（保留段落边界）
+            let paragraphs = text.split(/<\/p>\s*<p>/i).map(p => p.trim()).filter(p => p);
+            if (paragraphs.length === 0) {
+                paragraphs = text.split(/\n+/).map(p => p.trim()).filter(p => p);
+            }
+            if (paragraphs.length === 0) {
+                return [{
+                    type: pageType,
+                    label: baseLabel,
+                    html: `<div class="page ${pageType}"><p style="text-align:center;padding:2rem;">内容为空</p><div class="page-number">${baseLabel}</div></div>`
+                }];
+            }
+
+            // 2. 获取页面尺寸（固定 210mm × 297mm）
+            const pageWidth = 210;
+            const pageHeight = 297;
+            const mmToPx = 3.7795;
+            // 获取实际 padding
+            const tempPage = document.createElement('div');
+            tempPage.className = 'page';
+            tempPage.style.cssText = 'position:absolute;left:-9999px;visibility:hidden;';
+            document.body.appendChild(tempPage);
+            const compStyle = getComputedStyle(tempPage);
+            const pTop = parseFloat(compStyle.paddingTop) || 1.5 * 16;
+            const pBottom = parseFloat(compStyle.paddingBottom) || 1.5 * 16;
+            const pLeft = parseFloat(compStyle.paddingLeft) || 1 * 16;
+            const pRight = parseFloat(compStyle.paddingRight) || 1 * 16;
+            document.body.removeChild(tempPage);
+
+            // 使用实际页面容器尺寸，保证测量与显示一致
+            const container = document.getElementById('pagesContainer');
+            let containerWidth = container ? container.clientWidth : (pageWidth * mmToPx);
+            let containerHeight = container ? container.clientHeight : (pageHeight * mmToPx);
+            // 减去 padding
+            const contentWidth = containerWidth - pLeft - pRight;
+            const contentHeight = containerHeight - pTop - pBottom;
+
+            // 3. 创建测量容器
+            const pWrapper = document.createElement('div');
+            pWrapper.style.cssText = `
+                font-size: 1rem;
+                line-height: 1.8;
+                text-indent: 2em;
+                width: ${contentWidth}px;
+                padding-bottom: 2px;
+                position: absolute;
+                left: -9999px;
+                top: 0;
+                box-sizing: border-box;
+            `;
+            document.body.appendChild(pWrapper);
+
+            // 4. 逐段添加，直到超出高度，然后截断
+            const pageContents = [];
+            let currentHtml = '';       // 当前页累积的 HTML
+            let currentHeight = 0;
+
+
+            for (let i = 0; i < paragraphs.length; i++) {
+                let limitHeight = contentHeight;
+                if (pageContents.length === 0) {
+                    limitHeight = contentHeight - 40;   // 第一页减去标题高度
+                } else {
+                    limitHeight = contentHeight;
+                }
+                const pText = paragraphs[i];
+                // 尝试将本段落完整加入当前页
+                const testHtml = currentHtml + `<p style="margin:0;padding:0;">${pText}</p>`;
+                pWrapper.innerHTML = testHtml;
+                const testHeight = pWrapper.scrollHeight;
+
+                if (currentHeight === 0) {
+                    // 第一段总是先加进去
+                    currentHtml = testHtml;
+                    currentHeight = testHeight;
+                    continue;
+                }
+
+                if (testHeight <= limitHeight) {
+                    // 加入后未超限，保留
+                    currentHtml = testHtml;
+                    currentHeight = testHeight;
+                } else {
+                    // 超限了，需要将本段落拆分：前半部分留在当前页，后半部分留到下一页
+                    // 分段策略：从段落中逐字符添加，直到刚好不超限
+                    // 为了提高效率，采用二分法查找可容纳的最大字符数
+                    const fullPara = pText;
+                    const paraLength = fullPara.length;
+                    // 逐字符填充法：一个一个字符尝试，直到超限
+                    let bestLen = 0;
+                    for (let idx = 1; idx <= fullPara.length; idx++) {
+                        const testHtml = currentHtml + `<p style="margin:0;padding:0;">${fullPara.substring(0, idx)}</p>`;
+                        pWrapper.innerHTML = testHtml;
+                        const h = pWrapper.scrollHeight;
+                        if (h < limitHeight) {
+                            bestLen = idx;
+                        } else {
+                            break;
+                        }
+                    }
+                    // 二分查找结束，得到 bestLen
+
+                    // 当前页最终内容
+                    const part1 = fullPara.substring(0, bestLen);
+                    let part2 = fullPara.substring(bestLen);
+                    // 去除 part2 前导空白（空格、制表符、换行等），避免出现多余缩进
+                    part2 = part2.trimStart();
+                    part2 = part2.replace(/^[\s\u3000]+/, '');
+
+                    // 保存当前页
+                    const finalHtml = currentHtml + `<p style="margin:0;padding:0;">${part1}</p>`;
+                    pageContents.push(finalHtml);
+
+                    // 重置当前页为剩余部分
+                    // 如果 bestLen === 0，说明整个段落都放到下一页，它是完整段落，不应有 continuation 类
+                    const continuationClass = (bestLen === 0) ? '' : ' class="continuation"';
+                    currentHtml = `<p style="margin:0;padding:0;"${continuationClass}>${part2}</p>`;
+                    currentHeight = pWrapper.scrollHeight;
+
+                    // 如果 part2 为空，则跳过（但理论上不会）
+                }
+            }
+
+            // 处理最后一页
+            if (currentHtml) {
+                pageContents.push(currentHtml);
+            }
+
+            // 清理
+            document.body.removeChild(pWrapper);
+
+            // 生成页面对象
+            if (pageContents.length === 1) {
+                const content = pageContents[0];
+                return [{
+                    type: pageType,
+                    label: baseLabel,
+                    html: `<div class="page ${pageType}">${content}<div class="page-number">${baseLabel}</div></div>`
+                }];
+            } else {
+                return pageContents.map((htmlContent, idx) => {
+                    let label;
+                    if (idx === 0) {
+                        label = baseLabel;
+                    } else {
+                        // 从 baseLabel 的字符开始递增（如 C → D → E）
+                        const baseChar = baseLabel.charCodeAt(0);
+                        const nextChar = String.fromCharCode(baseChar + idx);
+                        label = nextChar;
+                    }
+                    return {
+                        type: pageType,
+                        label: label,
+                        html: `<div class="page ${pageType}">${htmlContent}<div class="page-number">${label}</div></div>`
+                    };
+                });
+            }
+        }
+
+        function splitAppendixIntoPages(text, startLabel, pageType) {
+            if (!text || text.trim() === '') {
+                return [{
+                    type: pageType,
+                    label: startLabel,
+                    html: `<div class="page ${pageType}"><p style="text-align:center;padding:2rem;">暂无内容</p><div class="page-number">${startLabel}</div></div>`
+                }];
+            }
+
+            const linesAll = text.split(/\n/);
+            const items = [];
+            let currentItem = '';
+            const numberChars = '一二三四五六七八九十';
+            for (let line of linesAll) {
+                // 检查原始行是否以制表符或空格开头（即行首有空白），如果是，则视为续行
+                if (line.match(/^[\t ]/)) {
+                    // 续行，附加到当前条目（保留原始缩进）
+                    if (currentItem) {
+                        currentItem += '\n' + line;
+                    } else {
+                        // 如果没有当前条目，但行首有空白，说明可能是文件开头有空白行，忽略或作为内容
+                        // 这里我们仍将其作为内容开始（罕见情况）
+                        currentItem = line;
+                    }
+                } else {
+                    // 行首非空白，检查是否以汉字编号开头
+                    const trimmed = line.trim();
+                    if (trimmed.length > 0 && numberChars.includes(trimmed[0])) {
+                        // 新条目
+                        if (currentItem) items.push(currentItem.trim());
+                        currentItem = line;
+                    } else {
+                        // 非编号行，作为续行
+                        if (currentItem) {
+                            currentItem += '\n' + line;
+                        } else {
+                            currentItem = line;
+                        }
+                    }
+                }
+            }
+            if (currentItem) items.push(currentItem.trim());
+            if (items.length === 0) items.push(text.trim());
+
+            // ---- 获取页面内容高度（与 splitTextIntoPages 一致） ----
+            const pageWidth = 210;
+            const pageHeight = 297;
+            const mmToPx = 3.7795;
+            const tempPage = document.createElement('div');
+            tempPage.className = 'page';
+            tempPage.style.cssText = 'position:absolute;left:-9999px;visibility:hidden;';
+            document.body.appendChild(tempPage);
+            const compStyle = getComputedStyle(tempPage);
+            const pTop = parseFloat(compStyle.paddingTop) || 1.5 * 16;
+            const pBottom = parseFloat(compStyle.paddingBottom) || 1.5 * 16;
+            const pLeft = parseFloat(compStyle.paddingLeft) || 1 * 16;
+            const pRight = parseFloat(compStyle.paddingRight) || 1 * 16;
+            document.body.removeChild(tempPage);
+
+            const container = document.getElementById('pagesContainer');
+            let containerWidth = container ? container.clientWidth : (pageWidth * mmToPx);
+            let containerHeight = container ? container.clientHeight : (pageHeight * mmToPx);
+            const contentWidth = containerWidth - pLeft - pRight;
+            const contentHeight = containerHeight - pTop - pBottom;
+            const SAFETY = 0; // 附录编号内容无外部标题，不减去
+
+            // ---- 罗马数字转换工具 ----
+            function toRoman(num) {
+                const romanMap = [
+                    { val: 1000, str: 'M' }, { val: 900, str: 'CM' },
+                    { val: 500, str: 'D' }, { val: 400, str: 'CD' },
+                    { val: 100, str: 'C' }, { val: 90, str: 'XC' },
+                    { val: 50, str: 'L' }, { val: 40, str: 'XL' },
+                    { val: 10, str: 'X' }, { val: 9, str: 'IX' },
+                    { val: 5, str: 'V' }, { val: 4, str: 'IV' },
+                    { val: 1, str: 'I' }
+                ];
+                let result = '';
+                for (let r of romanMap) {
+                    while (num >= r.val) {
+                        result += r.str;
+                        num -= r.val;
+                    }
+                }
+                return result;
+            }
+
+            function romanToNum(roman) {
+                const map = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+                let num = 0, prev = 0;
+                for (let i = roman.length - 1; i >= 0; i--) {
+                    const val = map[roman[i]];
+                    if (val < prev) num -= val;
+                    else num += val;
+                    prev = val;
+                }
+                return num;
+            }
+
+            // ---- 测量工具：一次测量所有行的实际高度 ----
+            // 构建测量容器，只包含一个 <p> 用于测量单行，但为了一次性获得所有行高，我们可以将所有行分别放入不同的 <p> 并测量。
+            // 更高效：构建一个包含所有行的容器，然后逐个获取每个 <p> 的 offsetHeight。
+            const measureWrapper = document.createElement('div');
+            measureWrapper.style.cssText = `
+                font-size: 1rem;
+                line-height: 1.8;
+                text-indent: 0;
+                width: ${contentWidth}px;
+                position: absolute;
+                left: -9999px;
+                top: 0;
+                box-sizing: border-box;
+                padding: 0;
+                margin: 0;
+            `;
+            document.body.appendChild(measureWrapper);
+
+            // 全局行列表（每个编号段拆分行）
+            const allPages = [];
+            let currentStartNum = romanToNum(startLabel);
+
+            // 对每个编号段进行处理
+            for (let idxItem = 0; idxItem < items.length; idxItem++) {
+                const item = items[idxItem];
+                // 将该段按行分割
+                const segLines = item.split(/\n/);
+                // 测量每行的高度（带样式）
+                // 我们一次性插入该段的所有行，并测量高度
+                measureWrapper.innerHTML = '';
+                for (let line of segLines) {
+                    const p = document.createElement('p');
+                    p.style.cssText = 'margin:0;padding:0;white-space:pre-wrap;';
+                    p.textContent = line;
+                    measureWrapper.appendChild(p);
+                }
+                void measureWrapper.offsetHeight; // 强制回流
+                const lineElements = measureWrapper.querySelectorAll('p');
+                const lineHeights = [];
+                for (let pEl of lineElements) {
+                    lineHeights.push(pEl.offsetHeight);
+                }
+
+                // 逐行累加，分页
+                let pageLines = [];
+                let currentHeight = 0;
+                const limitHeight = contentHeight - SAFETY; // SAFETY=0，但保留
+                for (let i = 0; i < segLines.length; i++) {
+                    const h = lineHeights[i];
+                    if (currentHeight + h > limitHeight && currentHeight > 0) {
+                        // 保存当前页
+                        const pageContent = pageLines.join('\n');
+                        const label = toRoman(currentStartNum);
+                        const html = `<div class="page ${pageType}"><p style="margin:0;padding:0;white-space:pre-wrap;">${pageContent}</p><div class="page-number">${label}</div></div>`;
+                        allPages.push({ type: pageType, label: label, html: html });
+                        currentStartNum++;
+                        // 重置
+                        pageLines = [];
+                        currentHeight = 0;
+                        // 当前行需要放入新页
+                        pageLines.push(segLines[i]);
+                        currentHeight += h;
+                    } else {
+                        pageLines.push(segLines[i]);
+                        currentHeight += h;
+                    }
+                }
+                // 处理剩余的页
+                if (pageLines.length > 0) {
+                    const pageContent = pageLines.join('\n');
+                    const label = toRoman(currentStartNum);
+                    const html = `<div class="page ${pageType}"><p style="margin:0;padding:0;white-space:pre-wrap;">${pageContent}</p><div class="page-number">${label}</div></div>`;
+                    allPages.push({ type: pageType, label: label, html: html });
+                    currentStartNum++;
+                }
+
+                // 清理测量容器（准备下一个编号段）
+                measureWrapper.innerHTML = '';
+            }
+
+            document.body.removeChild(measureWrapper);
+            return allPages;
+        }
+
+        // ============================================================
+        // 生成目录 HTML
+        // ============================================================
+        function generateTocHtml(letterStartPage, bodyPageCount, forewordIndex, afterwordIndex, imageIndex, imageLabel, appendix1Index, appendix1Label, appendix2Index, appendix2Label) {
+            const letters = Object.keys(letterStartPage).sort((a, b) => {
+                if (a === '-') return -1;
+                if (b === '-') return 1;
+                if (a === 'α') return 1;
+                if (b === 'α') return -1;
+                return a.localeCompare(b);
+            });
+
+            const letterItems = letters.map(letter => {
+                const page = letterStartPage[letter];
+                const displayLetter = letter === '#' ? '其他' : letter;
+                return `<a class=".toc-grid a" onclick="jumpToLetter('${letter}', event)">${displayLetter} <span class="toc-page">${page}</span></a>`;
+            }).join('');
+
+            let html = `
+                <a class="toc-heading" onclick="goToPage(${forewordIndex})">序 <span class="toc-page">C</span></a>
+            `;
+            if (imageIndex !== undefined && imageLabel) {
+                html += `
+                <a class="toc-heading" onclick="goToPage(${imageIndex})">图片 <span class="toc-page">${imageLabel}</span></a>
+                `;
+            }
+            html += `
+                <div class="toc-heading">正文</div>
+                ${letterItems}
+            `;
+
+            // 先添加后记
+            html += `
+                <a class="toc-heading" onclick="goToPage(${afterwordIndex})">后记 <span class="toc-page">I</span></a>
+            `;
+
+            // 再添加附录
+            if (appendix1Index !== undefined || appendix2Index !== undefined) {
+                html += `<div class="toc-heading">附录</div>`;
+                if (appendix1Index !== undefined && appendix1Label) {
+                    html += `<a class=".toc-grid a" style="column-span: all;" onclick="goToPage(${appendix1Index})">附录一 <span class="toc-page">${appendix1Label}</span></a>`;
+                }
+                if (appendix2Index !== undefined && appendix2Label) {
+                    html += `<a class=".toc-grid a" style="column-span: all;" onclick="goToPage(${appendix2Index})">附录二 <span class="toc-page">${appendix2Label}</span></a>`;
+                }
+            }
+
+            return html;
+        }
+
+        // ============================================================
+        // 跳转到字母
+        // ============================================================
+        function jumpToLetter(letter, e) {
+            if (e) e.stopPropagation();
+            const idx = allEntries.findIndex(e => {
+                const raw = leadingCharForSort(e.word);
+                if (!raw) return false;
+                const normalized = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const upper = normalized.toUpperCase();
+                const code = upper.charCodeAt(0);
+                let key;
+                if (code >= 65 && code <= 90) {
+                    key = upper;
+                } else if (code < 65) {
+                    key = '-';
+                } else {
+                    key = 'α';
+                }
+                return key === letter;
+            });
+
+            // 计算该词条所在的正文页索引（pages 数组中的索引）
+            let cumulative = 0;
+            let targetPage = -1;
+            for (let i = 0; i < pages.length; i++) {
+                const p = pages[i];
+                if (p.type === 'body') {
+                    // 统计当前页的词条数
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = p.html;
+                    const count = tempDiv.querySelectorAll('.entry').length;
+                    if (cumulative + count > idx) {
+                        targetPage = i;
+                        break;
+                    }
+                    cumulative += count;
+                }
+            }
+            if (targetPage !== -1) {
+                goToPage(targetPage);
+            }
+        }
+
+        // ============================================================
+        // 构建所有页面
+        // ============================================================
+        function buildPages() {
+            pages = [];
+
+
+            // ---- 封面 ----
+            pages.push({
+                type: 'cover',
+                label: 'cover',
+                html: `<div class="page cover" id="page-cover"> <h1>萬漢辭典</h1> <div class="subtitle">WANLON-ZOGIA-LESA FORHIGOUR</div> <img class="badge" src="badge.png" alt="Badge"> <div class="author">王篤生 編</div> <div class="meta">修訂版 · 18700+個詞條</div> </div>`
+            });
+
+            // ---- 扉页（含简短题词，页码 A） ----
+            pages.push({
+                type: 'flyleaf',
+                label: 'A',
+                html: `<div class="page" id="page-flyleaf" style="padding-top:8rem;padding-left:2rem;font-family:'Georgia','Times New Roman',serif;font-style:italic;color:#3d3228;">
+                    <br><br><br><br><br><br><br><br><br><br>
+                    <p style="font-size:3rem;margin:0;line-height:1.6;-webkit-text-stroke: 0.4px #d4af37;">Reu athyden</p>
+                    <p style="font-size:3rem;margin:0;line-height:1.6;padding-left:2rem;-webkit-text-stroke: 0.4px #d4af37;">qu'ie polozuch otanecuisna</p>
+                    <p style="font-size:3rem;margin:0;line-height:1.6;padding-left:2rem;-webkit-text-stroke: 0.4px #d4af37;">la nouval de Barbel Tawn</p>
+                    <p style="font-size:3rem;margin:0;line-height:1.6;padding-left:4rem;-webkit-text-stroke: 0.4px #d4af37;">vu athy do hjumanithyn</p>
+                    <div class="page-number" style="font-style:normal;font-family:inherit;">A</div>
+                </div>`
+            });
+
+            // ---- 序（可能多页） ----
+            const forewordPages = splitTextIntoPages(forewordText, 'C', 'foreword');
+            forewordPages.forEach((p, idx) => {
+                if (idx === 0) {
+                    // 第一页显示标题
+                    p.html = p.html.replace('<div class="page foreword">', '<div class="page foreword"><h2>序</h2>');
+                }
+                pages.push(p);
+            });
+
+            // ---- 图片页（插入在序和正文之间） ----
+            // 图片文件列表（请自行填写实际路径）
+            const imageFiles = ['image/image1.png', 'image/image2.png', 'image/image3.png', 'image/image4.png', 'image/image5.png', 'image/image6.png', 'image/image7.png', 'image/image8.png', 'image/image9.png', 'image/image10.png', 'image/image11.png', 'image/image12.png', 'image/image13.png', 'image/image14.png', 'image/image15.png', 'image/image16.png', 'image/image17.png', 'image/image18.png', 'image/image19.png', 'image/image20.png', 'image/image21.png', 'image/image22.png', 'image/image23.png', 'image/image24.png', 'image/image25.png', 'image/image26.png', 'image/image27.png', 'image/image28.png', 'image/image29.png', 'image/image30.png', 'image/image31.png', 'image/image32.png'];
+            if (imageFiles.length > 0) {
+                // 辅助函数：数字转列名（1->A, 27->AA）
+                function toColumnName(n) {
+                    let s = '';
+                    while (n > 0) {
+                        n--;
+                        s = String.fromCharCode(65 + (n % 26)) + s;
+                        n = Math.floor(n / 26);
+                    }
+                    return s;
+                }
+
+                // 获取序的最后一页的页码字母
+                let startLetter = 'F';
+                if (forewordPages.length > 0) {
+                    const lastForeword = forewordPages[forewordPages.length - 1];
+                    const lastLetter = lastForeword.label;
+                    startLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
+                }
+                let startNum = startLetter.charCodeAt(0) - 64; // A=1
+                for (let i = 0; i < imageFiles.length; i++) {
+                    const num = startNum + i;
+                    const label = toColumnName(num);
+                    const imgHtml = `<div class="page image-page"><img src="${imageFiles[i]}" style="width:100%;height:100%;object-fit:contain;"><div class="page-number">${label}</div></div>`;
+                    pages.push({ type: 'image', label: label, html: imgHtml });
+                }
+            }
+
+            // ---- 正文分页 ----
+            const { htmls: bodyHtmls, groups, groupLetters } = splitIntoBodyPages(allEntries);
+            const bodyPageCount = bodyHtmls.length;
+            bodyHtmls.forEach((html, idx) => {
+                const letter = groupLetters[idx] || '';
+                const letterHtml = letter ? `<div class="letter-header">${letter}</div>` : '';
+                const htmlWithHeader = html.replace('<div class="page body-page">', `<div class="page body-page">${letterHtml}`);
+                pages.push({ type: 'body', label: String(idx + 1), html: htmlWithHeader });
+            });
+
+            // ---- 后记（可能多页） ----
+            const afterwordStartLabel = String(bodyPageCount + 1);
+            // 后记页码用罗马数字（I, II, III, IV, V...）
+            function toRoman(num) {
+                const romanMap = [
+                    { val: 1000, str: 'M' }, { val: 900, str: 'CM' },
+                    { val: 500, str: 'D' }, { val: 400, str: 'CD' },
+                    { val: 100, str: 'C' }, { val: 90, str: 'XC' },
+                    { val: 50, str: 'L' }, { val: 40, str: 'XL' },
+                    { val: 10, str: 'X' }, { val: 9, str: 'IX' },
+                    { val: 5, str: 'V' }, { val: 4, str: 'IV' },
+                    { val: 1, str: 'I' }
+                ];
+                let result = '';
+                for (let r of romanMap) {
+                    while (num >= r.val) {
+                        result += r.str;
+                        num -= r.val;
+                    }
+                }
+                return result;
+            }
+
+            const afterwordPages = splitTextIntoPages(afterwordText, afterwordStartLabel, 'afterword');
+            afterwordPages.forEach((p, idx) => {
+                if (idx === 0) {
+                    p.html = p.html.replace('<div class="page afterword">', '<div class="page afterword"><h2>后记</h2>');
+                }
+                // 将页码改为罗马数字（从 I 开始）
+                const romanLabel = toRoman(idx + 1);
+                p.label = romanLabel;
+                p.html = p.html.replace(
+                    /<div class="page-number">.*?<\/div>/,
+                    `<div class="page-number">${romanLabel}</div>`
+                );
+                pages.push(p);
+            });
+
+            // ---- 附录一（接后记页码之后，使用罗马数字） ----
+            // 获取后记最后一页的罗马数字
+            let lastAfterwordLabel = 'I';
+            for (let i = pages.length - 1; i >= 0; i--) {
+                if (pages[i].type === 'afterword') {
+                    lastAfterwordLabel = pages[i].label;
+                    break;
+                }
+            }
+            // 罗马数字转数字
+            function romanToNum(roman) {
+                const map = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+                let num = 0, prev = 0;
+                for (let i = roman.length - 1; i >= 0; i--) {
+                    const val = map[roman[i]];
+                    if (val < prev) num -= val;
+                    else num += val;
+                    prev = val;
+                }
+                return num;
+            }
+            const lastNum = romanToNum(lastAfterwordLabel);
+            const appendix1StartNum = lastNum + 1;
+            const appendix1Label = toRoman(appendix1StartNum);
+
+            // 分页附录一
+            const appendix1Pages = splitAppendixIntoPages(appendix1Text, appendix1Label, 'appendix');
+            appendix1Pages.forEach((p, idx) => {
+                if (idx === 0) {
+                    // 自定义标题：三行（保留空格，换行用 <br>）
+                    const titleHtml = `<h2>附录一<br>Amorin de la Temza Corona Birus<br>Amor del Tiempo Corona Virus<br>新冠时期的爱情</h2>`;
+                    // 在第一个 <p> 标签前插入标题
+                    p.html = p.html.replace('<p style="margin:0;padding:0;white-space:pre-wrap;">', titleHtml + '<p style="margin:0;padding:0;white-space:pre-wrap;">');
+                }
+                pages.push(p);
+            });
+
+            // ---- 附录二（接附录一页码之后） ----
+            // 获取附录一最后一页的罗马数字
+            let lastAppendix1Label = appendix1Label;
+            for (let i = pages.length - 1; i >= 0; i--) {
+                if (pages[i].type === 'appendix') {
+                    lastAppendix1Label = pages[i].label;
+                    break;
+                }
+            }
+            const appendix1LastNum = romanToNum(lastAppendix1Label);
+            const appendix2StartNum = appendix1LastNum + 1;
+            const appendix2Label = toRoman(appendix2StartNum);
+
+            const appendix2Pages = splitAppendixIntoPages(appendix2Text, appendix2Label, 'appendix');
+            appendix2Pages.forEach((p, idx) => {
+                if (idx === 0) {
+                    // 自定义标题：附录二 + 两个空格 + 重要语法杂记
+                    const titleHtml = `<h2>附录二  重要语法杂记</h2>`;
+                    p.html = p.html.replace('<p style="margin:0;padding:0;white-space:pre-wrap;">', titleHtml + '<p style="margin:0;padding:0;white-space:pre-wrap;">');
+                }
+                pages.push(p);
+            });
+
+            // ---- 计算每个首字母的起始页码 ----
+            const letterStartPage = {};
+            groups.forEach((group, idx) => {
+                const pageNum = idx + 1;
+                group.forEach(entry => {
+                    const w = entry.word || '';
+                    const raw = leadingCharForSort(w);
+                    let key = '#';
+                    if (raw) {
+                        const normalized = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                        const upper = normalized.toUpperCase();
+                        const code = upper.charCodeAt(0);
+                        if (code >= 65 && code <= 90) {
+                            key = upper;
+                        } else if (code < 65) {
+                            key = '-';
+                        } else {
+                            key = 'α';
+                        }
+                    }
+                    if (!(key in letterStartPage)) {
+                        letterStartPage[key] = pageNum;
+                    }
+                });
+            });
+
+            // 获取序和后记的第一页索引（用于目录跳转）
+            const forewordIndex = pages.findIndex(p => p.type === 'foreword');
+            const afterwordIndex = pages.findIndex(p => p.type === 'afterword');
+            // 获取图片页的第一页索引和标签（用于目录跳转）
+            let imageIndex = undefined;
+            let imageLabel = '';
+            for (let i = 0; i < pages.length; i++) {
+                if (pages[i].type === 'image') {
+                    imageIndex = i + 1; // 因为目录会插入在索引1，所以后面的页索引+1
+                    imageLabel = pages[i].label;
+                    break;
+                }
+            }
+
+            // ---- 获取附录一和附录二的索引（用于目录跳转） ----
+            const appendix1Index = pages.findIndex(p => p.type === 'appendix' && p.html.includes('附录一'));
+            const appendix2Index = pages.findIndex(p => p.type === 'appendix' && p.html.includes('附录二'));
+
+            // 因为目录页即将插入到索引1，所有后续页的索引都会 +1
+            const tocHtml = generateTocHtml(
+                letterStartPage,
+                bodyPageCount,
+                forewordIndex + 1,
+                afterwordIndex + 1,
+                imageIndex,
+                imageLabel,
+                appendix1Index !== -1 ? appendix1Index + 1 : undefined,
+                appendix1Label,
+                appendix2Index !== -1 ? appendix2Index + 1 : undefined,
+                appendix2Label
+            );
+
+            // ---- 创建目录页并插入到索引1（封面之后，序之前） ----
+            const tocPage = {
+                type: 'toc',
+                label: 'B',
+                html: `<div class="page toc" id="page-toc"><h2>目录</h2><div class="toc-grid">${tocHtml}</div><div class="page-number">B</div></div>`
+            };
+            pages.splice(2, 0, tocPage); // 在索引2插入（封面0，扉页1）
+
+        }
+
+        // ============================================================
+        // 渲染和导航
+        // ============================================================
+        function renderAllPages() {
+            container.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+            pages.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.innerHTML = p.html;
+                const pageEl = div.firstElementChild;
+                pageEl.dataset.index = idx;
+                if (idx !== 0) pageEl.classList.remove('active');
+                pageEl.style.display = (idx === 0) ? '' : 'none';
+                fragment.appendChild(pageEl);
+            });
+            container.appendChild(fragment);
+            // 激活第一页
+            const first = container.children[0];
+            if (first) {
+                first.classList.add('active');
+                first.style.display = '';
+            }
+            currentPageIndex = 0;
+        }
+
+        function goToPage(index) {
+            if (index < 0 || index >= pages.length) return;
+            container.querySelectorAll('.page').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
+            const target = container.children[index];
+            if (target) {
+                target.classList.add('active');
+                target.style.display = '';
+            }
+            currentPageIndex = index;
+        }
+
+        // ============================================================
+        // 事件绑定
+        // ============================================================
+        document.getElementById('book').addEventListener('click', function (e) {
+            // 如果点击的是“回目录”的标题，不处理翻页
+            if (e.target.closest('.letter-title, .letter-header, .foreword h2, .afterword h2, .appendix h2')) {
+                return;
+            }
+            if (e.target.closest('a')) return;
+            const active = container.querySelector('.page.active');
+            if (!active) return;
+            const rect = active.getBoundingClientRect();
+            const isLeft = (e.clientX - rect.left) < rect.width / 2;
+            let target = currentPageIndex;
+            if (isLeft) target = Math.max(0, currentPageIndex - 1);
+            else target = Math.min(pages.length - 1, currentPageIndex + 1);
+            if (target !== currentPageIndex) goToPage(target);
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowLeft') { const t = Math.max(0, currentPageIndex - 1); if (t !== currentPageIndex) goToPage(t); e.preventDefault(); }
+            else if (e.key === 'ArrowRight') { const t = Math.min(pages.length - 1, currentPageIndex + 1); if (t !== currentPageIndex) goToPage(t); e.preventDefault(); }
+        });
+
+        // ============================================================
+        // 主加载
+        // ============================================================
+        async function loadData() {
+            console.log('⏳ loadData 开始');
+            const metaEl = document.querySelector('#page-cover .meta');
+            if (metaEl) metaEl.innerHTML = '⏳ 加载中...';
+
+            try {
+                const resp = await fetch(DATA_URL);
+                // 加载序和后记（外部文件）
+                try {
+                    const fResp = await fetch('序.txt');
+                    if (fResp.ok) forewordText = await fResp.text();
+                    else console.warn('序.txt 加载失败');
+                } catch (e) { console.warn('序.txt 异常', e); }
+
+                try {
+                    const aResp = await fetch('后记.txt');
+                    if (aResp.ok) afterwordText = await aResp.text();
+                    else console.warn('后记.txt 加载失败');
+                } catch (e) { console.warn('后记.txt 异常', e); }
+
+                // 加载附录一
+                try {
+                    const app1Resp = await fetch('附录一.txt');
+                    if (app1Resp.ok) appendix1Text = await app1Resp.text();
+                    else console.warn('附录一.txt 加载失败');
+                } catch (e) { console.warn('附录一.txt 异常', e); }
+                // 加载附录二
+                try {
+                    const app2Resp = await fetch('附录二.txt');
+                    if (app2Resp.ok) appendix2Text = await app2Resp.text();
+                    else console.warn('附录二.txt 加载失败');
+                } catch (e) { console.warn('附录二.txt 异常', e); }
+
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const text = await resp.text();
+                const lines = text.split('\n').filter(l => l.trim());
+                allEntries = lines.map((l, i) => {
+                    try { return JSON.parse(l); }
+                    catch (err) { throw new Error(`第 ${i + 1} 行 JSON 解析失败: ${err.message}`); }
+                });
+                console.log(`✅ 成功加载 ${allEntries.length} 条词条`);
+            } catch (err) {
+                console.error('❌ 数据加载失败:', err);
+                if (metaEl) {
+                    metaEl.innerHTML = `<span style="color:#c0392b;">⚠️ ${err.message}</span>`;
+                }
+                statusBar.textContent = '❌ 加载失败，请检查控制台错误';
+                allEntries = [];
+                buildPages();
+                renderAllPages();
+                return;
+            }
+
+            // 构建所有页面（同步，但很快）
+            buildPages();
+            renderAllPages();
+
+            // 更新封面数量
+            const countEl = document.getElementById('entryCount');
+            if (countEl) countEl.textContent = allEntries.length;
+            adjustScale();
+            //跳转回目录
+            container.addEventListener('click', function (e) {
+                const target = e.target.closest('.letter-title, .letter-header, .foreword h2, .afterword h2, .appendix h2');
+                if (target) {
+                    e.stopPropagation(); // 阻止冒泡到 #book 的翻页监听
+                    const tocIndex = pages.findIndex(p => p.type === 'toc');
+                    if (tocIndex !== -1) {
+                        goToPage(tocIndex);
+                    }
+                }
+            });
+        }
+
+        // 窗口缩放调节：使内容随窗口宽度等比缩放，分页不变
+        function adjustScale() {
+            const bookEl = document.getElementById('book');
+            if (!bookEl) return;
+
+            // 先清空 transform，测量“自然尺寸”（基准尺寸）
+            const prevTransform = bookEl.style.transform;
+            bookEl.style.transform = 'none';
+
+            const baseW = bookEl.offsetWidth;   // 包含 padding、书脊等
+            const baseH = bookEl.offsetHeight;
+
+            // 视口可用大小（body 已无 padding）
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            // 给书留一点安全边距，避免贴边（可按需修改或设为 0）
+            const SAFE_MARGIN = 16; // px
+            const availW = Math.max(0, vw - SAFE_MARGIN * 2);
+            const availH = Math.max(0, vh - SAFE_MARGIN * 2);
+
+            // 按宽高都能容纳的比例缩放（PDF 式）
+            let scale = 1;
+            if (baseW > 0 && baseH > 0) {
+                scale = Math.min(availW / baseW, availH / baseH);
+            }
+
+            // 不限制下限，上下尽量适配；如需限制可启用下一行：
+            // scale = Math.max(0.2, Math.min(scale, 3));
+
+            bookEl.style.transformOrigin = 'center center';
+            bookEl.style.transform = `scale(${scale})`;
+        }
+
+        // DOM 加载完成后执行
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+        window.addEventListener('resize', adjustScale);
+    </script>
 </body>
-</html>
 
+</html>
