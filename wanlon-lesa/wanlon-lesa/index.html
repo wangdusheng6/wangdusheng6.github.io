@@ -12,6 +12,63 @@
     <div class="book" id="book">
         <div id="pagesContainer"></div>
     </div>
+    <div class="sidebar-toggle">
+        <button id="btnSidebar">☰ 工具</button>
+    </div>
+    <div class="sidebar" id="sidebar">
+        <header>
+            <span>工具面板</span>
+            <button id="btnCloseSidebar" title="关闭">✕</button>
+        </header>
+        <div class="section">
+            <h3>1. 跳转到页码/字母</h3>
+            <div class="row">
+                <input type="text" id="jumpInput" placeholder="例如：12、I、A、AA" />
+                <button class="action" id="btnJump">跳转</button>
+            </div>
+            <small class="muted">提示：I 会弹框区分“前置 I（字母）/ 后置 I（罗马）”</small>
+        </div>
+        <div class="section">
+            <h3>2. 搜索词条（单词/释义）</h3>
+            <div class="row">
+                <input type="text" id="searchInput" placeholder="输入关键词..." />
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+        <div class="section">
+            <h3>3. 下载 PDF</h3>
+            <div class="download-options">
+                <label><input type="radio" name="dlScope" value="all" checked /> 全选</label>
+                <label><input type="radio" name="dlScope" value="body" /> 仅下载正文</label>
+                <label><input type="radio" name="dlScope" value="custom" /> 自定义页</label>
+                <div class="custom-spec" id="customSpecBox">
+                    <input type="text" id="customSpec" placeholder="例: 1-5, 7, A-D, AA-AC, I-IV" />
+                    <small class="muted">数字=正文；字母=前置页/图片；罗马=后记/附录</small>
+                </div>
+            </div>
+            <div class="row" style="margin-top:8px;">
+                <button class="action" id="btnPrintExport" style="background:#5a4d3b; width: 100%;">下载为PDF</button>
+            </div>
+            <div class="progress-container" id="progressContainer" style="display: none; margin-top: 8px;">
+                <progress id="pdfProgress" value="0" max="100"></progress>
+                <small class="muted" id="dlStatus"
+                    style="display: block; text-align: center; margin-top: 4px;">准备中...</small>
+            </div>
+        </div>
+    </div>
+    <!-- I 歧义弹窗 -->
+    <div class="modal-mask" id="modalMask">
+        <div class="modal" id="modalI">
+            <h4>请选择要跳转的 I</h4>
+            <div class="choice">
+                <button id="btnIFront">前置 I（正文之前的字母 I）</button>
+                <button id="btnIBack">后置 I（正文之后的罗马 I）</button>
+            </div>
+            <div class="modal-actions">
+                <button id="btnModalCancel">取消</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ============================================================
@@ -23,6 +80,69 @@
         // 全局变量
         // ============================================================
         let allEntries = [];
+        // ---- 新增全局变量与工具 ----
+        let entryIdToPageIndex = new Map();   // entry._id -> pages索引
+        let firstBodyPageIndex = -1;          // 第一个正文页在 pages 中的索引
+        let labelsToIndices = new Map();      // 标签(字符串大写) -> [索引数组]
+        let _IModalFront = [], _IModalBack = [];
+
+        function addLabelIndex(label, index) {
+            const L = String(label || '').toUpperCase();
+            if (!labelsToIndices.has(L)) labelsToIndices.set(L, []);
+            labelsToIndices.get(L).push(index);
+        }
+
+        // 罗马数字转换（全局统一）
+        function toRoman(num) {
+            const romanMap = [
+                { val: 1000, str: 'M' }, { val: 900, str: 'CM' },
+                { val: 500, str: 'D' }, { val: 400, str: 'CD' },
+                { val: 100, str: 'C' }, { val: 90, str: 'XC' },
+                { val: 50, str: 'L' }, { val: 40, str: 'XL' },
+                { val: 10, str: 'X' }, { val: 9, str: 'IX' },
+                { val: 5, str: 'V' }, { val: 4, str: 'IV' },
+                { val: 1, str: 'I' }
+            ];
+            let result = '';
+            for (let r of romanMap) {
+                while (num >= r.val) { result += r.str; num -= r.val; }
+            }
+            return result;
+        }
+        function romanToNum(roman) {
+            if (!roman) return NaN;
+            const s = roman.toUpperCase().trim();
+            const map = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+            let num = 0, prev = 0;
+            for (let i = s.length - 1; i >= 0; i--) {
+                const val = map[s[i]];
+                if (!val) return NaN;
+                if (val < prev) num -= val; else num += val;
+                prev = val;
+            }
+            return num;
+        }
+        function toColumnName(n) {
+            let s = '';
+            while (n > 0) { n--; s = String.fromCharCode(65 + (n % 26)) + s; n = Math.floor(n / 26); }
+            return s;
+        }
+        function colNameToNum(col) {
+            let s = String(col || '').toUpperCase().trim();
+            if (!s) return NaN;
+            let n = 0;
+            for (let i = 0; i < s.length; i++) {
+                const c = s.charCodeAt(i);
+                if (c < 65 || c > 90) return NaN;
+                n = n * 26 + (c - 64);
+            }
+            return n;
+        }
+        function nextColName(col) {
+            const n = colNameToNum(col);
+            if (isNaN(n)) return null;
+            return toColumnName(n + 1);
+        }
         let forewordText = '序言加载中...';
         let afterwordText = '后记加载中...';
         let appendix1Text = '附录一加载中...';
@@ -30,7 +150,6 @@
         let pages = [];
         let currentPageIndex = 0;
         const container = document.getElementById('pagesContainer');
-        const statusBar = document.getElementById('statusBar');
 
         // ============================================================
         // 工具函数
@@ -47,7 +166,8 @@
             const pos = escapeHtml(entry.pos || '');
             const category = escapeHtml(entry.category || '');
             const meaning = escapeHtml(entry.meaning || '');
-            let html = `<div class="entry"><div class="head"><span class="word">${word}</span><span class="tone">${tone}</span><span class="meta">`;
+            const dataId = (entry && typeof entry._id === 'number') ? ` data-entry-id="${entry._id}"` : '';
+            let html = `<div class="entry"${dataId}><div class="head"><span class="word">${word}</span><span class="tone">${tone}</span><span class="meta">`;
             if (usage) html += `<span>${usage}</span>`;
             if (pos) html += `<span>${pos}</span>`;
             if (category) html += `<span>${category}</span>`;
@@ -678,8 +798,11 @@
         // 构建所有页面
         // ============================================================
         function buildPages() {
-            pages = [];
+            entryIdToPageIndex.clear();
+            labelsToIndices.clear();
+            firstBodyPageIndex = -1;
 
+            pages = [];
 
             // ---- 封面 ----
             pages.push({
@@ -687,7 +810,8 @@
                 label: 'cover',
                 html: `<div class="page cover" id="page-cover"> <h1>萬漢辭典</h1> <div class="subtitle">WANLON-ZOGIA-LESA FORHIGOUR</div> <img class="badge" src="badge.png" alt="Badge"> <div class="author">王篤生 編</div> <div class="meta">修訂版 · 18700+個詞條</div> </div>`
             });
-
+            const coverIndex = pages.length - 1;
+            addLabelIndex('cover', coverIndex);
             // ---- 扉页（含简短题词，页码 A） ----
             pages.push({
                 type: 'flyleaf',
@@ -701,15 +825,18 @@
                     <div class="page-number" style="font-style:normal;font-family:inherit;">A</div>
                 </div>`
             });
+            const flyIndex = pages.length - 1;
+            addLabelIndex('A', flyIndex);
 
             // ---- 序（可能多页） ----
             const forewordPages = splitTextIntoPages(forewordText, 'C', 'foreword');
             forewordPages.forEach((p, idx) => {
                 if (idx === 0) {
-                    // 第一页显示标题
                     p.html = p.html.replace('<div class="page foreword">', '<div class="page foreword"><h2>序</h2>');
                 }
                 pages.push(p);
+                const pageIndex = pages.length - 1;
+                addLabelIndex(p.label, pageIndex);
             });
 
             // ---- 图片页（插入在序和正文之间） ----
@@ -740,17 +867,32 @@
                     const label = toColumnName(num);
                     const imgHtml = `<div class="page image-page"><img src="${imageFiles[i]}" style="width:100%;height:100%;object-fit:contain;"><div class="page-number">${label}</div></div>`;
                     pages.push({ type: 'image', label: label, html: imgHtml });
+                    const idx = pages.length - 1;
+                    addLabelIndex(label, idx);
                 }
             }
 
             // ---- 正文分页 ----
             const { htmls: bodyHtmls, groups, groupLetters } = splitIntoBodyPages(allEntries);
             const bodyPageCount = bodyHtmls.length;
+            // firstBodyPageIndex = pages.length;
             bodyHtmls.forEach((html, idx) => {
                 const letter = groupLetters[idx] || '';
                 const letterHtml = letter ? `<div class="letter-header">${letter}</div>` : '';
                 const htmlWithHeader = html.replace('<div class="page body-page">', `<div class="page body-page">${letterHtml}`);
-                pages.push({ type: 'body', label: String(idx + 1), html: htmlWithHeader });
+                const pageObj = { type: 'body', label: String(idx + 1), html: htmlWithHeader };
+                pages.push(pageObj);
+                const pageIndex = pages.length - 1;
+                addLabelIndex(pageObj.label, pageIndex);
+                // 为当前页的所有词条建立 entry -> page 映射
+                const group = groups[idx];
+                if (group) {
+                    for (const ent of group) {
+                        if (typeof ent._id === 'number') {
+                            entryIdToPageIndex.set(ent._id, pageIndex);
+                        }
+                    }
+                }
             });
 
             // ---- 后记（可能多页） ----
@@ -789,6 +931,8 @@
                     `<div class="page-number">${romanLabel}</div>`
                 );
                 pages.push(p);
+                const pageIndex = pages.length - 1;
+                addLabelIndex(p.label, pageIndex);
             });
 
             // ---- 附录一（接后记页码之后，使用罗马数字） ----
@@ -826,6 +970,8 @@
                     p.html = p.html.replace('<p style="margin:0;padding:0;white-space:pre-wrap;">', titleHtml + '<p style="margin:0;padding:0;white-space:pre-wrap;">');
                 }
                 pages.push(p);
+                const pageIndex = pages.length - 1;
+                addLabelIndex(p.label, pageIndex);
             });
 
             // ---- 附录二（接附录一页码之后） ----
@@ -849,6 +995,8 @@
                     p.html = p.html.replace('<p style="margin:0;padding:0;white-space:pre-wrap;">', titleHtml + '<p style="margin:0;padding:0;white-space:pre-wrap;">');
                 }
                 pages.push(p);
+                const pageIndex = pages.length - 1;
+                addLabelIndex(p.label, pageIndex);
             });
 
             // ---- 计算每个首字母的起始页码 ----
@@ -909,14 +1057,37 @@
                 appendix2Label
             );
 
-            // ---- 创建目录页并插入到索引1（封面之后，序之前） ----
+            // ---- 创建目录页并插入到索引2（封面0，扉页1） ----
             const tocPage = {
                 type: 'toc',
                 label: 'B',
                 html: `<div class="page toc" id="page-toc"><h2>目录</h2><div class="toc-grid">${tocHtml}</div><div class="page-number">B</div></div>`
             };
-            pages.splice(2, 0, tocPage); // 在索引2插入（封面0，扉页1）
+            const insertAt = 2;              // 目录固定在索引2
+            pages.splice(insertAt, 0, tocPage);
 
+            // ========== 重建所有索引映射（推荐方案B） ==========
+            labelsToIndices.clear();
+            for (let i = 0; i < pages.length; i++) {
+                addLabelIndex(pages[i].label, i);
+            }
+
+            entryIdToPageIndex.clear();
+            for (let i = 0; i < pages.length; i++) {
+                if (pages[i].type === 'body') {
+                    // 从页面 HTML 中读取所有 entry 的 data-entry-id
+                    const tmp = document.createElement('div');
+                    tmp.innerHTML = pages[i].html;
+                    tmp.querySelectorAll('.entry[data-entry-id]').forEach(node => {
+                        const id = parseInt(node.getAttribute('data-entry-id'), 10);
+                        if (!isNaN(id)) entryIdToPageIndex.set(id, i);
+                    });
+                }
+            }
+
+            // 用最终 pages 定位正文首页索引
+            firstBodyPageIndex = pages.findIndex(p => p.type === 'body');
+            // ========== 重建结束 ==========
         }
 
         // ============================================================
@@ -986,9 +1157,9 @@
         // 主加载
         // ============================================================
         async function loadData() {
-            console.log('⏳ loadData 开始');
+            console.log('loadData 开始');
             const metaEl = document.querySelector('#page-cover .meta');
-            if (metaEl) metaEl.innerHTML = '⏳ 加载中...';
+            if (metaEl) metaEl.innerHTML = '加载中...';
 
             try {
                 const resp = await fetch(DATA_URL);
@@ -1025,13 +1196,13 @@
                     try { return JSON.parse(l); }
                     catch (err) { throw new Error(`第 ${i + 1} 行 JSON 解析失败: ${err.message}`); }
                 });
-                console.log(`✅ 成功加载 ${allEntries.length} 条词条`);
+                allEntries.forEach((e, i) => { e._id = i; });
+                console.log(`成功加载 ${allEntries.length} 条词条`);
             } catch (err) {
-                console.error('❌ 数据加载失败:', err);
+                console.error('数据加载失败:', err);
                 if (metaEl) {
-                    metaEl.innerHTML = `<span style="color:#c0392b;">⚠️ ${err.message}</span>`;
+                    metaEl.innerHTML = `<span style="color:#c0392b;">${err.message}</span>`;
                 }
-                statusBar.textContent = '❌ 加载失败，请检查控制台错误';
                 allEntries = [];
                 buildPages();
                 renderAllPages();
@@ -1046,6 +1217,7 @@
             const countEl = document.getElementById('entryCount');
             if (countEl) countEl.textContent = allEntries.length;
             adjustScale();
+            initSidebar();
             //跳转回目录
             container.addEventListener('click', function (e) {
                 const target = e.target.closest('.letter-title, .letter-header, .foreword h2, .afterword h2, .appendix h2');
@@ -1094,11 +1266,543 @@
         }
 
         // DOM 加载完成后执行
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadData();
         });
         window.addEventListener('resize', adjustScale);
+        // ========== 侧边栏功能 ==========
+        function highlightEntryOnPage(entryId, pageIndex) {
+            goToPage(pageIndex);
+            const pageEl = container.children[pageIndex];
+            if (!pageEl) return;
+            const el = pageEl.querySelector(`.entry[data-entry-id="${entryId}"]`);
+            if (el) {
+                el.classList.add('highlight');
+                setTimeout(() => el.classList.remove('highlight'), 1600);
+            }
+        }
+
+        function jumpByLabelOrNumber(raw) {
+            const s = raw.trim();
+            if (/^\d+$/.test(s)) {
+                const label = String(parseInt(s, 10));
+                const idxs = labelsToIndices.get(label);
+                if (idxs && idxs.length) { goToPage(idxs[0]); return; }
+                alert('未找到正文页 ' + label);
+                return;
+            }
+            if (/^[A-Za-z]+$/.test(s)) {
+                const L = s.toUpperCase();
+                const idxs = labelsToIndices.get(L) || [];
+                if (L === 'I') {
+                    const front = idxs.filter(i => i < firstBodyPageIndex);
+                    const back = idxs.filter(i => i >= firstBodyPageIndex && (pages[i].type === 'afterword' || pages[i].type === 'appendix'));
+                    if (front.length === 0 && back.length === 0 && idxs.length) {
+                        goToPage(idxs[0]); return;
+                    }
+                    _IModalFront = front;
+                    _IModalBack = back;
+                    document.getElementById('modalMask').style.display = 'block';
+                    return;
+                } else {
+                    if (idxs.length) { goToPage(idxs[0]); return; }
+                    const rn = romanToNum(L);
+                    if (!isNaN(rn)) {
+                        const romanLabel = toRoman(rn);
+                        const rIdxs = labelsToIndices.get(romanLabel);
+                        if (rIdxs && rIdxs.length) { goToPage(rIdxs[0]); return; }
+                    }
+                    alert('未找到标签 ' + L);
+                    return;
+                }
+            }
+            const rn = romanToNum(s);
+            if (!isNaN(rn)) {
+                const label = toRoman(rn);
+                const idxs = labelsToIndices.get(label);
+                if (idxs && idxs.length) { goToPage(idxs[0]); return; }
+                alert('未找到罗马页 ' + label);
+                return;
+            }
+            alert('不支持的页码格式：' + s);
+        }
+
+        function openIModal(frontIdxs, backIdxs) {
+            _IModalFront = frontIdxs || [];
+            _IModalBack = backIdxs || [];
+            document.getElementById('modalMask').style.display = 'block';
+        }
+        function jumpToDisambiguatedI(isFront) {
+            const arr = isFront ? _IModalFront : _IModalBack;
+            if (arr && arr.length) goToPage(arr[0]);
+            else alert('没有对应的 I');
+        }
+
+        function doSearch(q, listEl) {
+            listEl.innerHTML = '';
+            if (!q) return;
+            const qs = q.toLowerCase();
+            const results = [];
+            for (let i = 0; i < allEntries.length; i++) {
+                const e = allEntries[i];
+                const w = (e.word || '').toString();
+                const m = (e.meaning || '').toString();
+                if (w.toLowerCase().includes(qs) || m.toLowerCase().includes(qs)) {
+                    results.push({ id: e._id, word: w, meaning: m });
+                    if (results.length >= 100) break;
+                }
+            }
+            if (results.length === 0) {
+                listEl.innerHTML = '<div class="item">无结果</div>';
+                return;
+            }
+            const frag = document.createDocumentFragment();
+            for (const r of results) {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `<span class="w">${escapeHtml(r.word)}</span><span class="m">${escapeHtml(r.meaning).slice(0, 120)}</span>`;
+                div.addEventListener('click', () => {
+                    const pidx = entryIdToPageIndex.get(r.id);
+                    if (typeof pidx === 'number') {
+                        highlightEntryOnPage(r.id, pidx);
+                    } else {
+                        alert('未能定位该词条所在页');
+                    }
+                });
+                frag.appendChild(div);
+            }
+            listEl.appendChild(frag);
+        }
+
+        function parseCustomSpecToIndices(spec) {
+            if (!spec) return [];
+            const tokens = spec.split(/[,\uFF0C]+/).map(s => s.trim()).filter(Boolean);
+            const out = [];
+            for (const t of tokens) {
+                const m = t.match(/^([A-Za-z]+|\d+|[IVXLCDM]+)\s*-\s*([A-Za-z]+|\d+|[IVXLCDM]+)$/i);
+                if (m) {
+                    const a = m[1], b = m[2];
+                    if (/^\d+$/.test(a) && /^\d+$/.test(b)) {
+                        let x = parseInt(a, 10), y = parseInt(b, 10);
+                        if (x > y) [x, y] = [y, x];
+                        for (let n = x; n <= y; n++) addByLabel(String(n), out);
+                    } else if (/^[IVXLCDM]+$/i.test(a) && /^[IVXLCDM]+$/i.test(b)) {
+                        // 罗马数字范围：只添加后置页（后记/附录）
+                        let x = romanToNum(a), y = romanToNum(b);
+                        if (isNaN(x) || isNaN(y)) throw new Error('罗马数字不合法：' + a + '-' + b);
+                        if (x > y) [x, y] = [y, x];
+                        for (let n = x; n <= y; n++) addByLabelRoman(toRoman(n), out);
+                    } else if (/^[A-Za-z]+$/.test(a) && /^[A-Za-z]+$/.test(b)) {
+                        // 字母范围：只添加前置页（封面/序言/图片等）
+                        const A = a.toUpperCase(), B = b.toUpperCase();
+                        let cur = A;
+                        const limit = 2000;
+                        let count = 0;
+                        while (true) {
+                            addByLabelFront(cur, out);
+                            if (cur === B) break;
+                            cur = nextColName(cur);
+                            if (!cur) break;
+                            if (++count > limit) break;
+                        }
+                    } else {
+                        throw new Error('范围不匹配：' + t);
+                    }
+                } else {
+                    const s = t;
+                    if (/^\d+$/.test(s)) addByLabel(String(parseInt(s, 10)), out);
+                    else if (/^[IVXLCDM]+$/i.test(s)) addByLabelRoman(toRoman(romanToNum(s)), out);
+                    else if (/^[A-Za-z]+$/.test(s)) addByLabelFront(s.toUpperCase(), out);
+                    else throw new Error('无法解析：' + s);
+                }
+            }
+            return out;
+
+            // 原逻辑：无差别添加（保留用于纯数字页码）
+            function addByLabel(label, arr) {
+                const idxs = labelsToIndices.get(String(label).toUpperCase());
+                if (idxs && idxs.length) arr.push(...idxs);
+            }
+
+            // 新增：只添加前置页（索引 < firstBodyPageIndex），用于字母范围（如 A-I）
+            function addByLabelFront(label, arr) {
+                const idxs = labelsToIndices.get(String(label).toUpperCase());
+                if (idxs && idxs.length) {
+                    for (const idx of idxs) {
+                        if (idx < firstBodyPageIndex) {
+                            arr.push(idx);
+                        }
+                    }
+                }
+            }
+
+            // 新增：只添加后置页（索引 >= firstBodyPageIndex），用于罗马数字范围（如 I-IV）
+            function addByLabelRoman(label, arr) {
+                const idxs = labelsToIndices.get(String(label).toUpperCase());
+                if (idxs && idxs.length) {
+                    for (const idx of idxs) {
+                        if (idx >= firstBodyPageIndex) {
+                            arr.push(idx);
+                        }
+                    }
+                }
+            }
+        }
+
+        // ========== 打印根 + 预加载 ==========
+        let printRoot = null;
+
+        function ensurePrintRoot() {
+            if (!printRoot) {
+                printRoot = document.createElement('div');
+                printRoot.id = 'printRoot';
+                printRoot.style.display = 'none';
+                document.body.appendChild(printRoot);
+            }
+            return printRoot;
+        }
+
+        function preloadImagesIn(root) {
+            const imgs = Array.from(root.querySelectorAll('img'));
+            if (imgs.length === 0) return Promise.resolve();
+            return Promise.all(imgs.map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(res => {
+                    img.onload = res;
+                    img.onerror = res;  // 出错也不卡
+                });
+            }));
+        }
+
+        // 压缩图片，长边限制到 2000px，JPEG 质量 0.7
+        async function downscaleImagesIn(root, maxSide = 2000, quality = 0.7) {
+            const imgs = Array.from(root.querySelectorAll('img'));
+            if (imgs.length === 0) return;
+            for (const img of imgs) {
+                const nw = img.naturalWidth || 0, nh = img.naturalHeight || 0;
+                if (!nw || !nh) continue;
+                const side = Math.max(nw, nh);
+                if (side <= maxSide) continue; // 已经足够小
+                const scale = maxSide / side;
+                const tw = Math.round(nw * scale);
+                const th = Math.round(nh * scale);
+                const canvas = document.createElement('canvas');
+                canvas.width = tw;
+                canvas.height = th;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, tw, th);
+                try {
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    img.src = dataUrl;
+                } catch (e) {
+                    console.warn('图片压缩失败', e);
+                }
+            }
+        }
+
+        async function renderPageToImage(index, scale = 1) {
+            try {
+                const offscreen = document.getElementById('offscreenWrapper') || (() => {
+                    const d = document.createElement('div');
+                    d.id = 'offscreenWrapper';
+                    d.style.cssText = 'position:fixed;left:-100000px;top:0;opacity:0;pointer-events:none;z-index:-1;';
+                    document.body.appendChild(d);
+                    return d;
+                })();
+
+                const src = container.children[index];
+                if (!src) {
+                    console.warn(`页面 ${index} 不存在`);
+                    return null;
+                }
+
+                const pageWidth = container.offsetWidth || 800;
+                const pageHeight = container.offsetHeight || 1123;
+
+                const clone = src.cloneNode(true);
+
+                // 关键修复 2：严格复用 style.css 中的类，确保内部样式（如 column-count, width: 100%）正确计算
+                clone.classList.add('active');       // 触发 .page.active { display: block; }
+                clone.style.display = 'block';       // 双重保险，覆盖继承的 display: none
+                clone.style.position = 'relative';   // 避免 absolute 在 offscreen 中失去参照物
+                clone.style.width = pageWidth + 'px';
+                clone.style.height = pageHeight + 'px';
+                clone.style.transform = 'none';      // 清除可能的缩放干扰
+
+                offscreen.appendChild(clone);
+
+                const canvas = await html2canvas(clone, {
+                    // 关键修复 3：与 style.css 中 .page 的 background 保持完全一致
+                    backgroundColor: '#fcf9f2',
+                    scale: scale,
+                    useCORS: true,
+                    logging: false,
+                    allowTaint: false,
+                    width: pageWidth,
+                    height: pageHeight,
+                });
+
+                const url = canvas.toDataURL('image/png');
+                offscreen.removeChild(clone);
+                return url;
+            } catch (err) {
+                console.error(`渲染第 ${index} 页失败:`, err);
+                const offscreen = document.getElementById('offscreenWrapper');
+                if (offscreen && offscreen.lastChild) {
+                    offscreen.removeChild(offscreen.lastChild);
+                }
+                return null;
+            }
+        }
+
+
+        async function exportPdfSingleFile(indices, { batchSize = 120, scale = 2, watermarkText = '', concurrency = 6, onProgress = null } = {}) {
+            await ensureLibs();
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageW = pdf.internal.pageSize.getWidth();
+            const pageH = pdf.internal.pageSize.getHeight();
+
+            let added = 0;
+            const total = indices.length;
+            const totalBatches = Math.ceil(total / batchSize);
+
+            for (let start = 0; start < total; start += batchSize) {
+                const currentBatch = Math.floor(start / batchSize) + 1;
+                const part = indices.slice(start, start + batchSize);
+
+                for (let blockStart = 0; blockStart < part.length; blockStart += concurrency) {
+                    const block = part.slice(blockStart, blockStart + concurrency);
+                    const renderPromises = block.map(idx => renderPageToImage(idx, scale));
+                    const results = await Promise.allSettled(renderPromises);
+                    const imgDataList = results.map(r => r.status === 'fulfilled' ? r.value : null);
+
+                    for (let i = 0; i < block.length; i++) {
+                        const imgData = imgDataList[i];
+                        if (!imgData) {
+                            console.warn(`页面 ${block[i]} 渲染失败，已跳过`);
+                            continue;
+                        }
+                        if (added > 0) pdf.addPage('a4', 'p');
+
+                        // 先铺整页底色 #fcf9f2
+                        pdf.setFillColor(252, 249, 242);
+                        pdf.rect(0, 0, pageW, pageH, 'F');
+
+                        // 再把截图按“内边距”放进去
+                        const margin = 10; // 单位：mm
+                        pdf.addImage(imgData, 'PNG', margin, margin, pageW - margin * 2, pageH - margin * 2, undefined, 'FAST');
+                        if (watermarkText) {
+                            pdf.setFontSize(24);
+                            pdf.setTextColor(150, 150, 150);
+                            pdf.setGState(new pdf.GState({ opacity: 0.2 }));
+                            pdf.text(watermarkText, pageW / 2, pageH / 2, { align: 'center', angle: 45 });
+                            pdf.setGState(new pdf.GState({ opacity: 1 }));
+                        }
+                        added++;
+
+                        // 触发进度回调
+                        if (onProgress) {
+                            onProgress(added, total);
+                        }
+
+                        if (added % 5 === 0) {
+                            await new Promise(r => setTimeout(r, 0));
+                        }
+                    }
+                }
+                await new Promise(r => setTimeout(r, 50));
+            }
+
+            if (onProgress) onProgress(total, total); // 确保最终达到 100%
+
+            // ================= 核心下载代码 =================
+            console.log('PDF 内存生成完毕，准备触发浏览器下载...');
+
+            // 1. 生成带时间戳的唯一文件名，防止被覆盖或找不到
+            const now = new Date();
+            const timeStamp = now.getFullYear() +
+                String(now.getMonth() + 1).padStart(2, '0') +
+                String(now.getDate()).padStart(2, '0') + '-' +
+                String(now.getHours()).padStart(2, '0') +
+                String(now.getMinutes()).padStart(2, '0');
+            const fileName = `Wanlon-Dictionary-${timeStamp}.pdf`;
+
+            // 2. 将 jsPDF 对象转换为 Blob (二进制大对象)
+            const pdfBlob = pdf.output('blob');
+
+            // 3. 创建一个临时的本地 URL 指向这个 Blob
+            const blobUrl = URL.createObjectURL(pdfBlob);
+
+            // 4. 动态创建一个隐藏的 <a> 标签来触发下载 (这是前端最底层、最可靠的下载方式)
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = fileName;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+
+            // 5. 模拟点击，触发浏览器的下载行为
+            a.click();
+
+            // 6. 善后工作：移除标签并释放内存
+            document.body.removeChild(a);
+            URL.revokeObjectURL(blobUrl);
+
+            console.log(`下载指令已发送给浏览器！文件名: ${fileName}`);
+            console.log('提示：如果没看到文件，请立即按 Ctrl+J (Mac: Cmd+Option+L) 查看浏览器的下载记录！');
+        }
+
+        async function ensureLibs() {
+            if (window.jspdf && window.html2canvas) return;
+            const tasks = [];
+            if (!window.html2canvas) {
+                tasks.push(new Promise((res, rej) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                    s.onload = res;
+                    s.onerror = rej;
+                    document.head.appendChild(s);
+                }));
+            }
+            if (!window.jspdf) {
+                tasks.push(new Promise((res, rej) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+                    s.onload = () => {
+                        window.jsPDF = window.jspdf.jsPDF;
+                        res();
+                    };
+                    s.onerror = rej;
+                    document.head.appendChild(s);
+                }));
+            }
+            await Promise.all(tasks);
+        }
+
+        function initSidebar() {
+            const btnPrintExport = document.getElementById('btnPrintExport');
+            const sidebar = document.getElementById('sidebar');
+            const btnOpen = document.getElementById('btnSidebar');
+            const btnClose = document.getElementById('btnCloseSidebar');
+            const jumpInput = document.getElementById('jumpInput');
+            const btnJump = document.getElementById('btnJump');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const dlStatus = document.getElementById('dlStatus');
+            const modalMask = document.getElementById('modalMask');
+            const btnIFront = document.getElementById('btnIFront');
+            const btnIBack = document.getElementById('btnIBack');
+            const btnModalCancel = document.getElementById('btnModalCancel');
+            const customSpecBox = document.getElementById('customSpecBox');
+            const customSpec = document.getElementById('customSpec');
+
+            btnOpen.addEventListener('click', () => sidebar.classList.add('open'));
+            btnClose.addEventListener('click', () => sidebar.classList.remove('open'));
+
+            document.querySelectorAll('input[name="dlScope"]').forEach(r => {
+                r.addEventListener('change', () => {
+                    if (r.value === 'custom' && r.checked) customSpecBox.classList.add('visible');
+                    else if (r.checked) customSpecBox.classList.remove('visible');
+                });
+            });
+
+            btnJump.addEventListener('click', () => {
+                const raw = (jumpInput.value || '').trim();
+                if (!raw) return;
+                jumpByLabelOrNumber(raw);
+            });
+            jumpInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') btnJump.click();
+            });
+
+            let searchTimer = null;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => doSearch(searchInput.value.trim(), searchResults), 150);
+            });
+
+            btnModalCancel.addEventListener('click', () => modalMask.style.display = 'none');
+            btnIFront.addEventListener('click', () => {
+                modalMask.style.display = 'none';
+                jumpToDisambiguatedI(true);
+            });
+            btnIBack.addEventListener('click', () => {
+                modalMask.style.display = 'none';
+                jumpToDisambiguatedI(false);
+            });
+
+            btnPrintExport.addEventListener('click', async () => {
+                const btn = document.getElementById('btnPrintExport');
+                const progressContainer = document.getElementById('progressContainer');
+                const pdfProgress = document.getElementById('pdfProgress');
+                const dlStatus = document.getElementById('dlStatus');
+
+                btn.disabled = true;
+                btn.textContent = '生成中...';
+
+                // 显示进度条并重置状态
+                progressContainer.style.display = 'block';
+                pdfProgress.value = 0;
+                dlStatus.textContent = '准备导出...';
+
+                try {
+                    const scope = document.querySelector('input[name="dlScope"]:checked')?.value || 'all';
+                    let indices = [];
+                    if (scope === 'all') {
+                        indices = Array.from({ length: pages.length }, (_, i) => i);
+                    } else if (scope === 'body') {
+                        indices = [];
+                        for (let i = 0; i < pages.length; i++) {
+                            if (pages[i].type === 'body') indices.push(i);
+                        }
+                    } else {
+                        const spec = (document.getElementById('customSpec').value || '').trim();
+                        try {
+                            indices = parseCustomSpecToIndices(spec);
+                        } catch (err) {
+                            dlStatus.textContent = '自定义页解析失败：' + err.message;
+                            btn.disabled = false;
+                            btn.textContent = '下载为PDF';
+                            return;
+                        }
+                        if (!indices.length) {
+                            dlStatus.textContent = '未选择任何页';
+                            btn.disabled = false;
+                            btn.textContent = '下载为PDF';
+                            return;
+                        }
+                    }
+                    indices = Array.from(new Set(indices)).sort((a, b) => a - b);
+
+                    // 执行导出，并传入进度回调
+                    await exportPdfSingleFile(indices, {
+                        batchSize: 120,
+                        scale: 2,
+                        watermarkText: 'om per Wanlonrin DuDuCat',
+                        concurrency: 6,
+                        onProgress: (current, total) => {
+                            const percent = Math.round((current / total) * 100);
+                            pdfProgress.value = percent;
+                            dlStatus.textContent = `正在生成: ${current} / ${total} 页 (${percent}%)`;
+                        }
+                    });
+
+                    dlStatus.textContent = '导出完成！正在保存...';
+                } catch (err) {
+                    console.error(err);
+                    dlStatus.textContent = '导出失败：' + err.message;
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = '下载为PDF';
+                    // 3秒后自动隐藏进度条容器
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                    }, 3000);
+                }
+            });
+
+        }
     </script>
+    <div id="wmPrintOverlay" aria-hidden="true"></div>
 </body>
 
 </html>
