@@ -138,7 +138,8 @@ body::before {
     height: 300px;
     background: #fcf9f2;
     margin-bottom: 5rem;
-    background-color: #fcf9f2;   /* 与页面背景一致 */
+    background-color: #fcf9f2;
+    /* 与页面背景一致 */
 }
 
 /* 单独微调部分元素，确保字体大小不受影响 */
@@ -449,60 +450,274 @@ body::before {
     cursor: pointer;
 }
 
-@media print {
-    body {
-        background: white;
-        padding: 0;
-        overflow: visible;
-        height: auto;
+/* ========== Sidebar ========== */
+.sidebar-toggle {
+    position: fixed;
+    left: 12px;
+    top: 12px;
+    z-index: 1000;
+}
+
+.sidebar-toggle button {
+    background: #3d3228;
+    color: #fcf9f2;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 320px;
+    background: rgba(252, 249, 242, 0.98);
+    box-shadow: 4px 0 18px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.open {
+    transform: translateX(0);
+}
+
+.sidebar header {
+    padding: 12px 16px;
+    font-weight: bold;
+    color: #3d3228;
+    border-bottom: 1px solid #e0d6c8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar header button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.sidebar .section {
+    padding: 12px 16px;
+    border-bottom: 1px dashed #e5dccc;
+}
+
+.sidebar .section h3 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    color: #3d3228;
+}
+
+.sidebar .row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.sidebar input[type="text"] {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid #d6ccbb;
+    border-radius: 4px;
+    background: #fffdfa;
+    color: #3d3228;
+}
+
+.sidebar button.action {
+    background: #3d3228;
+    color: #fcf9f2;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.sidebar small.muted {
+    color: #8f7e6a;
+}
+
+.search-results {
+    margin-top: 8px;
+    max-height: 40vh;
+    overflow: auto;
+    border: 1px solid #e0d6c8;
+    border-radius: 6px;
+    background: #fffdfa;
+}
+
+.search-results .item {
+    padding: 8px 10px;
+    border-bottom: 1px dotted #e5dccc;
+    cursor: pointer;
+}
+
+.search-results .item:last-child {
+    border-bottom: none;
+}
+
+.search-results .item:hover {
+    background: #f3eee4;
+}
+
+.search-results .w {
+    font-weight: 700;
+    color: #1f1a16;
+    margin-right: 6px;
+}
+
+.search-results .m {
+    font-size: 0.85rem;
+    color: #574b3e;
+}
+
+.download-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.download-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.download-options .custom-spec {
+    margin-left: 20px;
+    display: none;
+}
+
+.download-options .visible {
+    display: block;
+}
+
+.watermark-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.entry.highlight {
+    animation: highlightFlash 1.5s ease;
+    background: #fff0b3;
+}
+
+@keyframes highlightFlash {
+    0% {
+        background: #fff0b3;
     }
 
-    .book {
-        max-width: 100%;
-        box-shadow: none;
-        border-left: none;
-        padding: 0;
-        transform: none !important;
-        /* 打印时禁用缩放 */
+    100% {
+        background: transparent;
     }
+}
 
-    #pagesContainer {
-        aspect-ratio: auto;
-        max-width: 100%;
-        box-shadow: none;
-    }
+.modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: none;
+    z-index: 1500;
+}
 
-    .page {
-        display: block !important;
-        position: relative;
-        width: 210mm;
-        height: 297mm;
-        page-break-after: always;
-        padding: 1.5rem 1rem;
-        overflow: visible;
-    }
+.modal {
+    position: fixed;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -30%);
+    background: #fcf9f2;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+    min-width: 280px;
+    padding: 12px 16px;
+}
 
-    .page.active {
-        display: block !important;
-    }
+.modal h4 {
+    margin: 0 0 10px 0;
+    color: #3d3228;
+}
 
-    .body-page {
-        column-count: 2;
-        column-fill: auto;
-        height: 100%;
-    }
+.modal .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
 
-    .entry {
-        break-inside: avoid;
-    }
+.modal .choice {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 10px 0;
+}
 
-    .toc .toc-grid a {
-        background: #f0ebe0;
-    }
+.modal .choice button {
+    padding: 8px;
+    border: 1px solid #d6ccbb;
+    border-radius: 6px;
+    background: #fffdfa;
+    cursor: pointer;
+}
 
-    .page-number {
-        position: absolute;
-        bottom: 0.5rem;
-        right: 0.5rem;
-    }
+.modal .choice button:hover {
+    background: #f0ebe0;
+}
+
+/* ========== 打印式导出（方案B） ========== */
+#wmPrintOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 99999;
+    font-size: 60px;
+    font-family: 'Times New Roman', serif;
+    color: rgba(120, 120, 120, 0.12);
+    transform: rotate(-30deg) scale(1.5);
+    justify-content: center;
+    align-items: center;
+    white-space: pre-wrap;
+    text-align: center;
+}
+
+/* ===== 打印加速 + 自定义页支持 ===== */
+#wmPrintOverlay {
+    display: none;
+}
+
+#printRoot {
+    display: none;
+}
+
+/* ========== PDF 导出进度条样式 ========== */
+.progress-container progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: none;
+    background: #e0d6c8; /* 与 toc 背景色一致 */
+}
+.progress-container progress::-webkit-progress-bar {
+    background: #e0d6c8;
+    border-radius: 4px;
+}
+.progress-container progress::-webkit-progress-value {
+    background: #5a4d3b; /* 与下载按钮背景色一致 */
+    border-radius: 4px;
+    transition: width 0.2s ease;
+}
+.progress-container progress::-moz-progress-bar {
+    background: #5a4d3b;
+    border-radius: 4px;
 }
